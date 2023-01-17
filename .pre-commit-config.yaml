@@ -1,0 +1,32 @@
+fail_fast: true
+repos:
+-   repo: https://github.com/ambv/black
+    rev: 22.1.0
+    hooks:
+    - id: black
+      language_version: python3.8
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+    - id: flake8
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1  # pick a git hash / tag to point to
+    hooks:
+    -   id: pydocstyle
+-   repo: local
+    hooks:
+    -   id: mypy
+        name: mypy
+        entry: "mypy"
+        language: system
+        exclude: ^tests/
+        types: [python]
+        verbose: true
+-   repo: local
+    hooks:
+    -   id: pytest
+        name: run tests
+        entry: pytest tests
+        language: system
+        always_run: true
+        pass_filenames: false
