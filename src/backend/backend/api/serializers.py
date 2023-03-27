@@ -1,0 +1,126 @@
+from rest_framework import serializers
+from .models import AudioChannel, AudioItem, Transcription, Utterance, Segmentation, Classification, Query, Document
+
+
+# class to serialize documents associated with queries
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ['document', 'supports', 'comment', 'uuid']
+
+# class to serialize queries
+class QuerySerializer(serializers.ModelSerializer):
+    document_set = DocumentSerializer(many=True)
+    class Meta:
+        model = Query
+        fields = ['query', 'platform', 'agent', 'uuid', 'document_set']    
+
+    def create(self, validated_data):
+        documents_data = validated_data.pop('document_set')
+        query = Query.objects.create(**validated_data)
+        for doc in documents_data:
+            Document.objects.create(query=query, **doc)
+        return query
+
+# class to serialize classifications for a given utterance
+# will be read/wrote by Annotation interface,
+# and wrote to by data population notebook (e.g. to add Claimbuster labels)
+
+class ClassificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Classification
+        fields = ['utterance', 'qualifier', 'label', 'agent']
+
+    def create(self, validated_data):
+        classification = Classification.objects.create(**validated_data)
+        return classification
+
+# read in annotation interface and segmentation view, wrote by data population notebook
+# return the child Classification objects for viewing in the segmentation viewer
+class UtteranceSerializer(serializers.ModelSerializer):
+    classification_set = ClassificationSerializer(many=True)
+    class Meta:
+        model = Utterance
+        fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set']
+
+
+# read by segmentation viewer, wrote by data population notebook
+class SegmentationSerializer(serializers.ModelSerializer):
+    utterance_set = UtteranceSerializer(many=True)
+    class Meta:
+        model = Segmentation
+        fields = ['transcription', 'uuid', 'name', 'segmentor', 'utterance_set']
+    
+    def create(self, validated_data):
+        utterances_data = validated_data.pop('utterance_set')
+        segmentation = Segmentation.objects.create(**validated_data)
+        for utterance_data in utterances_data:
+            Utterance.objects.create(segmentation=segmentation, **utterance_data)
+        return segmentation
+
+# return details of the segmentation without including the text data
+class SegmentationSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Segmentation
+        fields = ['transcription', 'uuid', 'name', 'segmentor']
+
+class TranscriptionSerializer(serializers.ModelSerializer):
+    segmentation_set = SegmentationSummarySerializer(many=True)
+    class Meta:
+        model = Transcription
+        fields = ['item', 'json', 'name', 'text', 'json', 'speech2txt', 'runtime', 'created', 'language', 'uuid', 'segmentation_set']
+        depth = 2
+
+# return details of the transcription without including the text data
+class TranscriptionSummarySerializer(serializers.ModelSerializer):
+    segmentation_set = SegmentationSummarySerializer(many=True)
+    class Meta:
+        model = Transcription
+        fields = ['item', 'speech2txt', 'runtime', 'created', 'language', 'uuid', 'segmentation_set']
+
+
+class ItemSerializerGet(serializers.ModelSerializer):
+    transcription_set = TranscriptionSummarySerializer(many=True)
+    class Meta:
+        model = AudioItem
+        fields = ["title", "subtitle", "author", "link", "summary", "description", "image", "guid", "pub_date", "language", "explicit", "season", "episode_num", "episode_type", "duration", "audio_link", "transcription_set"]
+
+class ItemSerializerPost(serializers.ModelSerializer):
+    class Meta:
+        model = AudioItem
+        fields = ["title", "subtitle", "author", "link", "summary", "description", "image", "guid", "pub_date", "language", "explicit", "season", "episode_num", "episode_type", "duration", "audio_link"]
+
+
+class ChannelSerializerPost(serializers.ModelSerializer):
+    audioitem_set = ItemSerializerPost(many=True)
+    class Meta:
+        model = AudioChannel
+        fields = ['rss', 'title', 'link', 'image', 'language', 'copyright', 'subtitle', 'slug', 'author', 'summary', 'description', 'owner', 'categories', 'type', 'description', 'explicit', 'audioitem_set']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('audioitem_set')
+        channel = AudioChannel.objects.create(**validated_data)
+        for item_data in items_data:
+            AudioItem.objects.create(channel=channel, **item_data)
+        return channel
+
+class ChannelSerializerGet(serializers.ModelSerializer):
+    audioitem_set = ItemSerializerGet(many=True)
+    class Meta:
+        model = AudioChannel
+        fields = ['rss', 'title', 'link', 'image', 'language', 'copyright', 'subtitle', 'slug', 'author', 'summary', 'description', 'owner', 'categories', 'type', 'description', 'explicit', 'audioitem_set']
+"""
+    def create(self, validated_data):
+        items_data = validated_data.pop('audioitem_set')
+        channel = AudioChannel.objects.create(**validated_data)
+        for item_data in items_data:
+            AudioItem.objects.create(channel=channel, **item_data)
+        return channel
+"""
+
+class ItemTranscriptionSerializer(serializers.ModelSerializer):
+    transcription_set = TranscriptionSerializer(many=True)
+    class Meta:
+        model = AudioItem
+        fields = ["title", "subtitle", "author", "link", "summary", "description", "image", "guid", "pub_date", "language", "explicit", "season", "episode_num", "episode_type", "duration", "audio_link", "transcription_set"]
+
