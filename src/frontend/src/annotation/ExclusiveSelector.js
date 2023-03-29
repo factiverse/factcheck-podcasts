@@ -27,23 +27,23 @@ const postToAPI = (utterance, qualifier, label, agent) => {
 
 const headerStyle = {
     deactivated: {
-      backgroundColor: "#f8f9fa",
-      color: "#6c757d",
-      fontWeight: "normal",
+        backgroundColor: "#f8f9fa",
+        color: "#6c757d",
+        fontWeight: "normal",
     },
     emphasized: {
-      backgroundColor: "#007bff",
-      color: "#ffffff",
-      fontWeight: "bold",
+        backgroundColor: "#333333", // Use a more accessible color combination
+        color: "#ffffff",
+        fontWeight: "bold",
     },
-  };
+};
 
 export default function ExclusiveSelector({ qualifier, agent, labels, splitField, utterance }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
 
-    // get the unique values in the splitField field of the dictionaries in the labels list
-    const splitValues = [...new Set(labels.map(item => item[splitField]))];
+    // get the unique values in the category field of the dictionaries in the labels list
+    const categories = [...new Set(labels.map(item => item.category))];
 
     useEffect(() => {
         axios({
@@ -52,15 +52,14 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
         }).then((response) => {
             const data = response.data;
             if (data.length > 0) {
-                const currentValue = data.filter((item) => item.qualifier === qualifier).shift().label;
-                console.log(currentValue);
-                setRadioValue(currentValue);
-                // find the 'checkworthy' value in "labels" and set the category to this value
-                
+                const currentValue = data.filter((item) => item.qualifier === qualifier).shift();
+                setRadioValue(currentValue.label);
+                console.log(currentValue, currentValue.label.length)
+                setCategory(labels.filter((item) => item.label === currentValue.label).shift().category);
 
-                setCategory(currentValue);
             } else {
                 setRadioValue("");
+                setCategory("");
             }
         }).catch((error) => {
             if (error.response) {
@@ -75,20 +74,20 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
 
     // get the checkworthy label corresponding to the current radio button value and use this to set
     // the style of the header using the headerStyle object
-    
+
 
     return (
         <Card>
             <Card.Header>{qualifier}</Card.Header>
             <Card.Body>
                 <Row>
-                    {splitValues.map((splitValue) => {
+                    {categories.map((cat) => {
                         return (
-                            <Col>
-                            {console.log(splitValue, category)}
-                            <Card.Title style={splitValue === category ? headerStyle.deactivated : headerStyle.emphasized} >Checkworthy</Card.Title>
-                                <ButtonGroup style={{ marginRight: '10px' }} vertical>
-                                    {labels.filter(label => label[splitField] === splitValue).map((label) =>
+                            <Col key={cat}>
+                                {console.log(labels, category)}
+                                <Card.Title style={category === cat ? headerStyle.emphasized : headerStyle.deactivated} id={`${cat}-header`} tabIndex="0">{cat}</Card.Title>
+                                <ButtonGroup style={{ marginRight: '10px' }} vertical role="radiogroup" aria-labelledby={`${cat}-header`}>
+                                    {labels.filter(label => label[splitField] === cat).map((label) =>
                                         <ToggleButton
                                             key={label.keyStroke}
                                             id={`radio-${label.keyStroke}`}
@@ -99,8 +98,11 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                                             checked={radioValue === label.label}
                                             onChange={(e) => {
                                                 setRadioValue(e.currentTarget.value);
+                                                setCategory(labels.filter((lab) => lab.label === e.currentTarget.value).shift().category);
                                                 postToAPI(utterance.uuid, qualifier, label.label, agent);
                                             }}
+                                            role="radio"
+                                            aria-checked={radioValue === label.label}
                                         >
                                             {label.label}
                                         </ToggleButton>

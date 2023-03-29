@@ -55,7 +55,7 @@ export default function AnnotationProject() {
           qualifier="Checkworthiness"
           agent="test_user"
           labels={checkworthyLabels}
-          splitField="checkworthy"
+          splitField="category"
           utterance={utterance}
         />}
 
