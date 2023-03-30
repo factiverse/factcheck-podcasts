@@ -7,6 +7,7 @@ import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
 import CardGroup from 'react-bootstrap/CardGroup';
+import AudioPlayer from './AudioPlayer';
 
 
 export default function AnnotationProject() {
@@ -34,6 +35,7 @@ export default function AnnotationProject() {
       }
     });
   }, []);
+
 
   function handleMoreClick() {
     setShowContext(!showContext);
@@ -63,6 +65,17 @@ export default function AnnotationProject() {
           agent="test_user"
           utterance={utterance}
         />}
+
+        {utterance && false && (
+          <AudioPlayer
+            url={utterance.audio_file_link}
+            start={utterance.start_time}
+            transcript={utterance.transcript}
+            onTranscriptChange={(newTranscript) => {
+              // Handle the transcript change here, e.g., update the state or make an API call to save the changes.
+            }}
+          />
+        )}
       </CardGroup>
 
 

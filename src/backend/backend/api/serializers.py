@@ -13,7 +13,7 @@ class QuerySerializer(serializers.ModelSerializer):
     document_set = DocumentSerializer(many=True)
     class Meta:
         model = Query
-        fields = ['query', 'platform', 'agent', 'uuid', 'document_set']    
+        fields = ['utterance', 'query', 'platform', 'agent', 'uuid', 'document_set']    
 
     def create(self, validated_data):
         documents_data = validated_data.pop('document_set')
@@ -39,10 +39,13 @@ class ClassificationSerializer(serializers.ModelSerializer):
 # return the child Classification objects for viewing in the segmentation viewer
 class UtteranceSerializer(serializers.ModelSerializer):
     classification_set = ClassificationSerializer(many=True)
+    audio_file_link = serializers.SerializerMethodField()
     class Meta:
         model = Utterance
-        fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set']
+        fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set', 'audio_file_link']
 
+    def get_audio_file_link(self, obj):
+        return obj.segmentation.transcription.item.link
 
 # read by segmentation viewer, wrote by data population notebook
 class SegmentationSerializer(serializers.ModelSerializer):

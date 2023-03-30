@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, ItemSerializerGet, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer
+from rest_framework.exceptions import ValidationError
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, ItemSerializerGet, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
 
@@ -115,22 +116,45 @@ class ClassificationApiView(APIView):
 # get a list of queries (and documents) for a given utterance for annotation interface
 class QueryApiView(APIView):
     
-        def post(self, request, *args, **kwargs):
-            utterance = Utterance.objects.filter(uuid=request.data['utterance']).first()
+
+    def post(self, request, *args, **kwargs):
+        utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
+        print(utterance.id, kwargs['uuid'])
+        created_queries = []
+
+        # Delete existing records for the user
+        agent = request.data[0]['agent']
+        Query.objects.filter(agent=agent, utterance=utterance).delete()
+
+
+        for query_data in request.data:
+            print(query_data)
+            # Deserialize the document_set using the DocumentSerializer
+            document_set_data = query_data['document_set']
+            document_serializer = DocumentSerializer(data=document_set_data, many=True)
+
+            # Validate the document_set data
+            if not document_serializer.is_valid():
+                raise ValidationError(document_serializer.errors)
+
             serializer = QuerySerializer(data={
                 'utterance': utterance.id,
-                'qualifier': request.data['qualifier'],
-                'label': request.data['label'],
-                'agent': request.data['agent'],
+                'agent': query_data['agent'],
+                'query': query_data['query'],
+                'platform': query_data.get('platform', None),
+                'document_set': document_set_data,  # Pass the raw document_set data to the QuerySerializer
             })
+
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                created_queries.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(created_queries, status=status.HTTP_201_CREATED)
         
-        def get(self, request, *args, **kwargs):
-            utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-            queries = Query.objects.filter(utterance=utterance)
-            serializer = QuerySerializer(queries, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
+        queries = Query.objects.filter(utterance=utterance)
+        serializer = QuerySerializer(queries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

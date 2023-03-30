@@ -54,7 +54,6 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
             if (data.length > 0) {
                 const currentValue = data.filter((item) => item.qualifier === qualifier).shift();
                 setRadioValue(currentValue.label);
-                console.log(currentValue, currentValue.label.length)
                 setCategory(labels.filter((item) => item.label === currentValue.label).shift().category);
 
             } else {
@@ -84,7 +83,6 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                     {categories.map((cat) => {
                         return (
                             <Col key={cat}>
-                                {console.log(labels, category)}
                                 <Card.Title style={category === cat ? headerStyle.emphasized : headerStyle.deactivated} id={`${cat}-header`} tabIndex="0">{cat}</Card.Title>
                                 <ButtonGroup style={{ marginRight: '10px' }} vertical role="radiogroup" aria-labelledby={`${cat}-header`}>
                                     {labels.filter(label => label[splitField] === cat).map((label) =>
