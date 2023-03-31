@@ -20,18 +20,19 @@ const postToAPI = (utterance, factChecks) => {
         }
         return false;
     });
-
-    axios.post('/api/factchecks/' + utterance.uuid + "/", newfactChecks)
-        .then((response) => {
-            // do nothing
-        })
-        .catch((error) => {
-            if (error.response) {
-                console.log(error.response);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
+    if (newfactChecks.length > 0) {
+        axios.post('/api/factchecks/' + utterance.uuid + "/", newfactChecks)
+            .then((response) => {
+                // do nothing
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                }
+            });
+        }
 };
 
 const createEmptyFactCheck = () => {

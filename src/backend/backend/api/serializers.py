@@ -29,7 +29,7 @@ class QuerySerializer(serializers.ModelSerializer):
 class ClassificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Classification
-        fields = ['utterance', 'qualifier', 'label', 'agent']
+        fields = ['utterance', 'qualifier', 'label', 'category', 'agent']
 
     def create(self, validated_data):
         classification = Classification.objects.create(**validated_data)
@@ -39,20 +39,19 @@ class ClassificationSerializer(serializers.ModelSerializer):
 # return the child Classification objects for viewing in the segmentation viewer
 class UtteranceSerializer(serializers.ModelSerializer):
     classification_set = ClassificationSerializer(many=True)
-    audio_file_link = serializers.SerializerMethodField()
+    query_set = QuerySerializer(many=True)
     class Meta:
         model = Utterance
-        fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set', 'audio_file_link']
+        fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set', 'query_set']
 
-    def get_audio_file_link(self, obj):
-        return obj.segmentation.transcription.item.link
 
 # read by segmentation viewer, wrote by data population notebook
 class SegmentationSerializer(serializers.ModelSerializer):
     utterance_set = UtteranceSerializer(many=True)
+    audio_file_link = serializers.SerializerMethodField()
     class Meta:
         model = Segmentation
-        fields = ['transcription', 'uuid', 'name', 'segmentor', 'utterance_set']
+        fields = ['transcription', 'uuid', 'name', 'segmentor', 'utterance_set', 'audio_file_link']
     
     def create(self, validated_data):
         utterances_data = validated_data.pop('utterance_set')
@@ -60,6 +59,9 @@ class SegmentationSerializer(serializers.ModelSerializer):
         for utterance_data in utterances_data:
             Utterance.objects.create(segmentation=segmentation, **utterance_data)
         return segmentation
+    
+    def get_audio_file_link(self, obj):
+        return obj.transcription.item.link
 
 # return details of the segmentation without including the text data
 class SegmentationSummarySerializer(serializers.ModelSerializer):

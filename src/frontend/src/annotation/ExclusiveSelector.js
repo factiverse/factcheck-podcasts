@@ -6,10 +6,11 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import axios from "axios";
 import Card from 'react-bootstrap/Card';
 
-const postToAPI = (utterance, qualifier, label, agent) => {
+const postToAPI = (utterance, qualifier, category, label, agent) => {
     axios.post('/api/classifications/' + utterance + "/", {
         utterance,
         qualifier,
+        category,
         label,
         agent,
     })
@@ -96,8 +97,9 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                                             checked={radioValue === label.label}
                                             onChange={(e) => {
                                                 setRadioValue(e.currentTarget.value);
-                                                setCategory(labels.filter((lab) => lab.label === e.currentTarget.value).shift().category);
-                                                postToAPI(utterance.uuid, qualifier, label.label, agent);
+                                                const cat = labels.filter((item) => item.label === e.currentTarget.value).shift().category;
+                                                setCategory(cat);
+                                                postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
                                             }}
                                             role="radio"
                                             aria-checked={radioValue === label.label}
