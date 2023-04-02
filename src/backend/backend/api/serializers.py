@@ -35,11 +35,10 @@ class ClassificationSerializer(serializers.ModelSerializer):
         classification = Classification.objects.create(**validated_data)
         return classification
 
-# read in annotation interface and segmentation view, wrote by data population notebook
-# return the child Classification objects for viewing in the segmentation viewer
+# read in annotation interface and segmentation view,
 class UtteranceSerializer(serializers.ModelSerializer):
-    classification_set = ClassificationSerializer(many=True)
-    query_set = QuerySerializer(many=True)
+    classification_set = ClassificationSerializer(many=True, required=False)
+    query_set = QuerySerializer(many=True, required=False)
     class Meta:
         model = Utterance
         fields = ['start', 'end', 'speaker', 'text', 'text_coref', 'summary', 'uuid', 'classification_set', 'query_set']
@@ -73,8 +72,13 @@ class TranscriptionSerializer(serializers.ModelSerializer):
     segmentation_set = SegmentationSummarySerializer(many=True)
     class Meta:
         model = Transcription
-        fields = ['item', 'json', 'name', 'text', 'json', 'speech2txt', 'runtime', 'created', 'language', 'uuid', 'segmentation_set']
+        fields = ['item', 'words', 'name', 'text', 'speech2txt', 'runtime', 'created', 'language', 'uuid', 'segmentation_set']
         depth = 2
+
+class TranscriptionPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transcription
+        fields = ['item', 'words', 'diarization', 'name', 'text', 'speech2txt', 'runtime', 'created', 'language', 'uuid']
 
 # return details of the transcription without including the text data
 class TranscriptionSummarySerializer(serializers.ModelSerializer):

@@ -22,10 +22,10 @@
 
 import os
 import numpy as np
-from adv_transformer.core.models.model import ClaimSpotterModel
-from adv_transformer.core.utils.data_loader import DataLoader
-from adv_transformer.core.utils import transformations as transf
-from adv_transformer.core.utils.flags import FLAGS
+from claimbuster_spotter.adv_transformer.core.models.model import ClaimSpotterModel
+from claimbuster_spotter.adv_transformer.core.utils.data_loader import DataLoader
+from claimbuster_spotter.adv_transformer.core.utils import transformations as transf
+from claimbuster_spotter.adv_transformer.core.utils.flags import FLAGS
 from absl import logging
 import tensorflow as tf
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 import os
-from adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 
 def main():

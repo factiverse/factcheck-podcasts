@@ -28,7 +28,7 @@ import re
 from textblob import TextBlob
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from tqdm import tqdm
-from adv_transformer.core.utils.flags import FLAGS
+from ..utils.flags import FLAGS
 
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')

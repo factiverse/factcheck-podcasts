@@ -23,14 +23,14 @@
 import math
 from tqdm import tqdm
 import os
-from adv_transformer.core.utils.data_loader import DataLoader
-from adv_transformer.core.utils.flags import FLAGS
+from claimbuster_spotter.adv_transformer.core.utils.data_loader import DataLoader
+from claimbuster_spotter.adv_transformer.core.utils.flags import FLAGS
 from absl import logging
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import f1_score, classification_report
-from adv_transformer.core.utils.compute_ndcg import compute_ndcg
-from adv_transformer.core.models.model import ClaimSpotterModel
+from claimbuster_spotter.adv_transformer.core.utils.compute_ndcg import compute_ndcg
+from claimbuster_spotter.adv_transformer.core.models.model import ClaimSpotterModel
 
 K = tf.keras
 

@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, ItemSerializerGet, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
 
@@ -19,7 +19,7 @@ class AudioChannelApiView(APIView):
     def post(self, request, *args, **kwargs):
         rss = request.data['rss']
         # Parse the RSS feed and return the data
-        data = parse_channel(rss)
+        data = parse_channel(rss, 10)
         serializer = ChannelSerializerPost(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -27,16 +27,16 @@ class AudioChannelApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class AudioItemApiView(APIView):
+#class AudioItemApiView(APIView):
 
     # List items for a given channel
-    def get(self, request, *args, **kwargs):
-        '''
-        List all the todo items for given requested user
-        '''
-        item = AudioItem.objects.filter(channel__slug=kwargs['slug'])
-        serializer = ItemSerializerGet(item, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    #def get(self, request, *args, **kwargs):
+    #    '''
+    #    List all the todo items for given requested user
+    #    '''
+    #    item = AudioItem.objects.filter(channel__slug=kwargs['slug'])
+    #    serializer = ItemSerializerGet(item, many=True)
+    #    return Response(serializer.data, status=status.HTTP_200_OK)
 
 class TranscriptionApiView(APIView):
 
@@ -48,15 +48,18 @@ class TranscriptionApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         guid = request.data['guid']
-        speech2txt = request.data['speech2txt']
-        runtime = request.data['runtime']
-        created = request.data['created']
         item = AudioItem.objects.filter(guid=guid).first()
-        transcript = request.data['json']
-        text = request.data['text']
-        language = request.data['language']
-        name = request.data['name']
-        serializer = TranscriptionSerializer(data={'item': item.id, 'json': transcript, 'speech2txt': speech2txt, 'runtime': runtime, 'created': created, 'text': text, 'language': language, 'name': name})
+        serializer = TranscriptionPostSerializer(data={
+            'item': item.id, 
+            'words': request.data['words'], 
+            'speech2txt': request.data['speech2txt'], 
+            'runtime': request.data['runtime'], 
+            'created': request.data['created'], 
+            'text': request.data['text'], 
+            'language': request.data['language'], 
+            'name': request.data['name'],
+            'diarization': request.data['diarization']
+            })
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -68,7 +71,11 @@ class UtteranceApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         transcript = Transcription.objects.filter(uuid=request.data['uuid']).first()
-        serializer = SegmentationSerializer(data={'transcription': transcript.id, 'segmentor': request.data['segmentor'], 'utterance_set': request.data['utterance_set'], 'name': request.data['name']})
+        serializer = SegmentationSerializer(data={
+            'transcription': transcript.id, 
+            'segmentor': request.data['segmentor'], 
+            'utterance_set': request.data['utterance_set'], 
+            'name': request.data['name']})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

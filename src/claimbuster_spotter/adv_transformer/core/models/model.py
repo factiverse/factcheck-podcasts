@@ -22,10 +22,9 @@
 import os
 import tensorflow as tf
 import json
-from adv_transformer.core.utils.flags import FLAGS
+from ..utils.flags import FLAGS
 from absl import logging
-from adv_transformer.core.models.ctransf.modeling_auto import TFAutoModel, AutoConfig
-
+from ..models.ctransf.modeling_auto import TFAutoModel, AutoConfig
 
 class ClaimSpotterModel(tf.keras.models.Model):
     def __init__(self, cls_weights=None):

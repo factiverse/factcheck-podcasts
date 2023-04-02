@@ -95,18 +95,20 @@ flags.DEFINE_float('cs_ca_r', 0.40, 'Scaling factor for sigmoid function in cust
 
 
 def clean_argv(inp):
-	ret = [inp[0]]
-	del inp[0]
+    ret = [inp[0]]
+    del inp[0]
 
-	for x in inp:
-		x_name = x.split('=')[0]
-		if 'cs_' in x_name:
-			ret.append(x)
-		elif not any([z in x_name for z in ['cc_', 'cs_']]):
-			raise Exception('FLAG name {} does not contain correct formatting'.format(x_name))
+    for x in inp:
+        x_name = x.split('=')[0]
+        if 'cs_' in x_name:
+            ret.append(x)
+        # Ignore arguments that do not match the expected naming convention
+        # elif not any([z in x_name for z in ['cc_', 'cs_']]):
+        #    raise Exception('FLAG name {} does not contain correct formatting'.format(x_name))
 
-	logging.info(ret)
-	return ret
+    logging.info(ret)
+    return ret
+
 
 
 FLAGS(clean_argv(sys.argv))
@@ -131,3 +133,10 @@ assert FLAGS.cs_stat_print_interval % FLAGS.cs_model_save_interval == 0
 
 def print_flags():
 	logging.info(FLAGS.flag_values_dict())
+
+
+def main(_):
+    pass
+
+if __name__ == '__main__':
+    app.run(main)

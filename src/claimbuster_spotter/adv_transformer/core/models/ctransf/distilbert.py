@@ -27,7 +27,7 @@ from transformers.file_utils import (
     add_start_docstrings,
     add_start_docstrings_to_model_forward,
 )
-from adv_transformer.core.models.ctransf.modeling_tf_outputs import (
+from ..ctransf.modeling_tf_outputs import (
     TFBaseModelOutput,
     TFBaseModelOutputWithPooling,
     TFMaskedLMOutput,
@@ -51,7 +51,7 @@ from transformers.modeling_tf_utils import (
 from transformers.tokenization_utils import BatchEncoding
 from transformers.utils import logging
 
-from adv_transformer.core.utils.flags import FLAGS
+from ....core.utils.flags import FLAGS
 
 logger = logging.get_logger(__name__)
 

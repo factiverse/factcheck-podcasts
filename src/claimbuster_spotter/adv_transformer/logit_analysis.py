@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import time
-from adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 if __name__ == '__main__':
     api = ClaimSpotterAPI()

@@ -73,7 +73,7 @@ from transformers import (AlbertConfig,
                           TFXLNetModel)
 from transformers.configuration_utils import PretrainedConfig
 
-from adv_transformer.core.models.ctransf.albert import (
+from ..ctransf.albert import (
     TFAlbertForMaskedLM,
     TFAlbertForMultipleChoice,
     TFAlbertForPreTraining,
@@ -82,7 +82,7 @@ from adv_transformer.core.models.ctransf.albert import (
     TFAlbertForTokenClassification,
     TFAlbertModel
 )
-from adv_transformer.core.models.ctransf.bert import (
+from ..ctransf.bert import (
     TFBertForMaskedLM,
     TFBertForMultipleChoice,
     TFBertForPreTraining,
@@ -91,7 +91,7 @@ from adv_transformer.core.models.ctransf.bert import (
     TFBertForTokenClassification,
     TFBertModel
 )
-from adv_transformer.core.models.ctransf.distilbert import (
+from ..ctransf.distilbert import (
     TFDistilBertForMaskedLM,
     TFDistilBertForMultipleChoice,
     TFDistilBertForQuestionAnswering,
@@ -99,7 +99,7 @@ from adv_transformer.core.models.ctransf.distilbert import (
     TFDistilBertForTokenClassification,
     TFDistilBertModel,
 )
-from adv_transformer.core.models.ctransf.roberta import (
+from ..ctransf.roberta import (
     TFRobertaForMaskedLM,
     TFRobertaForMultipleChoice,
     TFRobertaForQuestionAnswering,

@@ -25,7 +25,7 @@ from sanic import Sanic
 from sanic.response import json
 from nltk import sent_tokenize
 
-from adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 app = Sanic(__name__)
 api = ClaimSpotterAPI()

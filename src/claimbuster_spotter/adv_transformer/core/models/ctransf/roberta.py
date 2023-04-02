@@ -13,37 +13,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" TF 2.0 BERT model. """
+""" TF 2.0 RoBERTa model. """
 
-
-from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import tensorflow as tf
 
 from transformers.activations_tf import get_tf_activation
-from transformers import BertConfig
+from transformers import RobertaConfig
 from transformers.file_utils import (
     MULTIPLE_CHOICE_DUMMY_INPUTS,
-    ModelOutput,
     add_code_sample_docstrings,
     add_start_docstrings,
     add_start_docstrings_to_model_forward,
-    replace_return_docstrings,
 )
-from adv_transformer.core.models.ctransf.modeling_tf_outputs import (
+from ..ctransf.modeling_tf_outputs import (
     TFBaseModelOutput,
     TFBaseModelOutputWithPooling,
-    TFCausalLMOutput,
     TFMaskedLMOutput,
     TFMultipleChoiceModelOutput,
-    TFNextSentencePredictorOutput,
     TFQuestionAnsweringModelOutput,
     TFSequenceClassifierOutput,
     TFTokenClassifierOutput,
 )
 from transformers.modeling_tf_utils import (
-    TFCausalLanguageModelingLoss,
     TFMaskedLanguageModelingLoss,
     TFMultipleChoiceLoss,
     TFPreTrainedModel,
@@ -54,48 +46,34 @@ from transformers.modeling_tf_utils import (
     keras_serializable,
     shape_list,
 )
-from transformers.tokenization_utils import BatchEncoding
+from transformers.tokenization_utils_base import BatchEncoding
 from transformers.utils import logging
 
-from adv_transformer.core.utils.flags import FLAGS
-
+from ....core.utils.flags import FLAGS
 
 logger = logging.get_logger(__name__)
 
-_CONFIG_FOR_DOC = "BertConfig"
-_TOKENIZER_FOR_DOC = "BertTokenizer"
+_CONFIG_FOR_DOC = "RobertaConfig"
+_TOKENIZER_FOR_DOC = "RobertaTokenizer"
 
-TF_BERT_PRETRAINED_MODEL_ARCHIVE_LIST = [
-    "bert-base-uncased",
-    "bert-large-uncased",
-    "bert-base-cased",
-    "bert-large-cased",
-    "bert-base-multilingual-uncased",
-    "bert-base-multilingual-cased",
-    "bert-base-chinese",
-    "bert-base-german-cased",
-    "bert-large-uncased-whole-word-masking",
-    "bert-large-cased-whole-word-masking",
-    "bert-large-uncased-whole-word-masking-finetuned-squad",
-    "bert-large-cased-whole-word-masking-finetuned-squad",
-    "bert-base-cased-finetuned-mrpc",
-    "cl-tohoku/bert-base-japanese",
-    "cl-tohoku/bert-base-japanese-whole-word-masking",
-    "cl-tohoku/bert-base-japanese-char",
-    "cl-tohoku/bert-base-japanese-char-whole-word-masking",
-    "TurkuNLP/bert-base-finnish-cased-v1",
-    "TurkuNLP/bert-base-finnish-uncased-v1",
-    "wietsedv/bert-base-dutch-cased",
-    # See all BERT models at https://huggingface.co/models?filter=bert
+TF_ROBERTA_PRETRAINED_MODEL_ARCHIVE_LIST = [
+    "roberta-base",
+    "roberta-large",
+    "roberta-large-mnli",
+    "distilroberta-base",
+    # See all RoBERTa models at https://huggingface.co/models?filter=roberta
 ]
 
 
-class TFBertEmbeddings(tf.keras.layers.Layer):
-    """Construct the embeddings from word, position and token_type embeddings."""
+class TFRobertaEmbeddings(tf.keras.layers.Layer):
+    """
+    Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
+    """
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
+        self.padding_idx = 1
         self.vocab_size = config.vocab_size
         self.hidden_size = config.hidden_size
         self.initializer_range = config.initializer_range
@@ -129,6 +107,35 @@ class TFBertEmbeddings(tf.keras.layers.Layer):
             )
 
         super().build(input_shape)
+
+    def create_position_ids_from_input_ids(self, x):
+        """
+        Replace non-padding symbols with their position numbers. Position numbers begin at padding_idx+1. Padding
+        symbols are ignored. This is modified from fairseq's `utils.make_positions`.
+
+        Args:
+            x: tf.Tensor
+
+        Returns: tf.Tensor
+        """
+        mask = tf.cast(tf.math.not_equal(x, self.padding_idx), dtype=tf.int32)
+        incremental_indices = tf.math.cumsum(mask, axis=1) * mask
+
+        return incremental_indices + self.padding_idx
+
+    def create_position_ids_from_inputs_embeds(self, inputs_embeds):
+        """
+        We are provided embeddings directly. We cannot infer which are padded so just generate sequential position ids.
+
+        Args:
+            inputs_embeds: tf.Tensor
+
+        Returns: tf.Tensor
+        """
+        seq_length = shape_list(inputs_embeds)[1]
+        position_ids = tf.range(self.padding_idx + 1, seq_length + self.padding_idx + 1, dtype=tf.int32)[tf.newaxis, :]
+
+        return position_ids
 
     def call(
         self,
@@ -169,6 +176,13 @@ class TFBertEmbeddings(tf.keras.layers.Layer):
     def _embedding(self, input_ids, position_ids, token_type_ids, inputs_embeds, get_embedding, training=False):
         """Applies embedding based on inputs tensor."""
         assert not (input_ids is None and inputs_embeds is None)
+
+        if position_ids is None:
+            if input_ids is not None:
+                # Create the position ids from the input token ids. Any padded tokens remain padded.
+                position_ids = self.create_position_ids_from_input_ids(input_ids)
+            else:
+                position_ids = self.create_position_ids_from_inputs_embeds(inputs_embeds)
 
         if input_ids is not None:
             input_shape = shape_list(input_ids)
@@ -227,7 +241,7 @@ class TFBertEmbeddings(tf.keras.layers.Layer):
         Computes logits by running inputs through a linear layer.
 
         Args:
-            inputs: A float32 tensor with shape [batch_size, length, hidden_size].
+            inputs: A float32 tensor with shape [batch_size, length, hidden_size]
 
         Returns:
             float32 tensor with shape [batch_size, length, vocab_size].
@@ -240,7 +254,24 @@ class TFBertEmbeddings(tf.keras.layers.Layer):
         return tf.reshape(logits, [batch_size, length, self.vocab_size])
 
 
-class TFBertSelfAttention(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertPooler
+class TFRobertaPooler(tf.keras.layers.Layer):
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
+
+        self.dense = tf.keras.layers.Dense(
+            config.hidden_size,
+            kernel_initializer=get_initializer(config.initializer_range),
+            activation="tanh",
+            name="dense",
+        )
+
+    def call(self, hidden_states, pre_selected=False):
+        return self.dense(hidden_states[:, 0] if not pre_selected else hidden_states)
+
+
+# Copied from transformers.modeling_tf_bert.TFBertSelfAttention
+class TFRobertaSelfAttention(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
@@ -311,7 +342,8 @@ class TFBertSelfAttention(tf.keras.layers.Layer):
         return outputs
 
 
-class TFBertSelfOutput(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertSelfOutput
+class TFRobertaSelfOutput(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
@@ -329,12 +361,13 @@ class TFBertSelfOutput(tf.keras.layers.Layer):
         return hidden_states
 
 
-class TFBertAttention(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertAttention with Bert->Roberta
+class TFRobertaAttention(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
-        self.self_attention = TFBertSelfAttention(config, name="self")
-        self.dense_output = TFBertSelfOutput(config, name="output")
+        self.self_attention = TFRobertaSelfAttention(config, name="self")
+        self.dense_output = TFRobertaSelfOutput(config, name="output")
 
     def prune_heads(self, heads):
         raise NotImplementedError
@@ -349,7 +382,8 @@ class TFBertAttention(tf.keras.layers.Layer):
         return outputs
 
 
-class TFBertIntermediate(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertIntermediate
+class TFRobertaIntermediate(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
@@ -369,7 +403,8 @@ class TFBertIntermediate(tf.keras.layers.Layer):
         return hidden_states
 
 
-class TFBertOutput(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertOutput
+class TFRobertaOutput(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
@@ -387,13 +422,14 @@ class TFBertOutput(tf.keras.layers.Layer):
         return hidden_states
 
 
-class TFBertLayer(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertLayer with Bert->Roberta
+class TFRobertaLayer(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
-        self.attention = TFBertAttention(config, name="attention")
-        self.intermediate = TFBertIntermediate(config, name="intermediate")
-        self.bert_output = TFBertOutput(config, name="output")
+        self.attention = TFRobertaAttention(config, name="attention")
+        self.intermediate = TFRobertaIntermediate(config, name="intermediate")
+        self.bert_output = TFRobertaOutput(config, name="output")
 
     def call(self, hidden_states, attention_mask, head_mask, output_attentions, training=False):
         attention_outputs = self.attention(
@@ -407,11 +443,12 @@ class TFBertLayer(tf.keras.layers.Layer):
         return outputs
 
 
-class TFBertEncoder(tf.keras.layers.Layer):
+# Copied from transformers.modeling_tf_bert.TFBertEncoder with Bert->Roberta
+class TFRobertaEncoder(tf.keras.layers.Layer):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
-        self.layer = [TFBertLayer(config, name="layer_._{}".format(i)) for i in range(config.num_hidden_layers)]
+        self.layer = [TFRobertaLayer(config, name="layer_._{}".format(i)) for i in range(config.num_hidden_layers)]
 
     def call(
         self,
@@ -450,97 +487,9 @@ class TFBertEncoder(tf.keras.layers.Layer):
         )
 
 
-class TFBertPooler(tf.keras.layers.Layer):
-    def __init__(self, config, **kwargs):
-        super().__init__(**kwargs)
-
-        self.dense = tf.keras.layers.Dense(
-            config.hidden_size,
-            kernel_initializer=get_initializer(config.initializer_range),
-            activation="tanh",
-            name="dense",
-        )
-
-    def call(self, hidden_states, pre_selected=False):
-        return self.dense(hidden_states[:, 0] if not pre_selected else hidden_states)
-
-
-class TFBertPredictionHeadTransform(tf.keras.layers.Layer):
-    def __init__(self, config, **kwargs):
-        super().__init__(**kwargs)
-
-        self.dense = tf.keras.layers.Dense(
-            config.hidden_size, kernel_initializer=get_initializer(config.initializer_range), name="dense"
-        )
-
-        if isinstance(config.hidden_act, str):
-            self.transform_act_fn = get_tf_activation(config.hidden_act)
-        else:
-            self.transform_act_fn = config.hidden_act
-
-        self.LayerNorm = tf.keras.layers.LayerNormalization(epsilon=config.layer_norm_eps, name="LayerNorm")
-
-    def call(self, hidden_states):
-        hidden_states = self.dense(hidden_states)
-        hidden_states = self.transform_act_fn(hidden_states)
-        hidden_states = self.LayerNorm(hidden_states)
-
-        return hidden_states
-
-
-class TFBertLMPredictionHead(tf.keras.layers.Layer):
-    def __init__(self, config, input_embeddings, **kwargs):
-        super().__init__(**kwargs)
-
-        self.vocab_size = config.vocab_size
-        self.transform = TFBertPredictionHeadTransform(config, name="transform")
-
-        # The output weights are the same as the input embeddings, but there is
-        # an output-only bias for each token.
-        self.input_embeddings = input_embeddings
-
-    def build(self, input_shape):
-        self.bias = self.add_weight(shape=(self.vocab_size,), initializer="zeros", trainable=True, name="bias")
-
-        super().build(input_shape)
-
-    def call(self, hidden_states):
-        hidden_states = self.transform(hidden_states)
-        hidden_states = self.input_embeddings(hidden_states, mode="linear")
-        hidden_states = hidden_states + self.bias
-
-        return hidden_states
-
-
-class TFBertMLMHead(tf.keras.layers.Layer):
-    def __init__(self, config, input_embeddings, **kwargs):
-        super().__init__(**kwargs)
-
-        self.predictions = TFBertLMPredictionHead(config, input_embeddings, name="predictions")
-
-    def call(self, sequence_output):
-        prediction_scores = self.predictions(sequence_output)
-
-        return prediction_scores
-
-
-class TFBertNSPHead(tf.keras.layers.Layer):
-    def __init__(self, config, **kwargs):
-        super().__init__(**kwargs)
-
-        self.seq_relationship = tf.keras.layers.Dense(
-            2, kernel_initializer=get_initializer(config.initializer_range), name="seq_relationship"
-        )
-
-    def call(self, pooled_output):
-        seq_relationship_score = self.seq_relationship(pooled_output)
-
-        return seq_relationship_score
-
-
 @keras_serializable
-class TFBertMainAdvLayer(tf.keras.layers.Layer):
-    config_class = BertConfig
+class TFRobertaMainAdvLayer(tf.keras.layers.Layer):
+    config_class = RobertaConfig
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
@@ -550,17 +499,21 @@ class TFBertMainAdvLayer(tf.keras.layers.Layer):
         self.output_attentions = config.output_attentions
         self.output_hidden_states = config.output_hidden_states
         self.return_dict = config.use_return_dict
-        self.embeddings = TFBertEmbeddings(config, name="embeddings")
-        self.encoder = TFBertEncoder(config, name="encoder")
-        self.pooler = TFBertPooler(config, name="pooler")
+        self.encoder = TFRobertaEncoder(config, name="encoder")
+        self.pooler = TFRobertaPooler(config, name="pooler")
+        # The embeddings must be the last declaration in order to follow the weights order
+        self.embeddings = TFRobertaEmbeddings(config, name="embeddings")
 
+    # Copied from transformers.modeling_tf_bert.TFBertMainLayer.get_input_embeddings
     def get_input_embeddings(self):
         return self.embeddings
 
+    # Copied from transformers.modeling_tf_bert.TFBertMainLayer.set_input_embeddings
     def set_input_embeddings(self, value):
         self.embeddings.word_embeddings = value
         self.embeddings.vocab_size = value.shape[0]
 
+    # Copied from transformers.modeling_tf_bert.TFBertMainLayer._prune_heads
     def _prune_heads(self, heads_to_prune):
         """
         Prunes heads of the model. heads_to_prune: dict of {layer_num: list of heads to prune in this layer} See base
@@ -568,6 +521,7 @@ class TFBertMainAdvLayer(tf.keras.layers.Layer):
         """
         raise NotImplementedError
 
+    # Copied from transformers.modeling_tf_bert.TFBertMainLayer.call
     def call(
         self,
         inputs,
@@ -667,6 +621,7 @@ class TFBertMainAdvLayer(tf.keras.layers.Layer):
             return_dict,
             training=training,
         )
+
         sequence_output = encoder_outputs[0]
         pooled_output = self.pooler(sequence_output[:, 0] if FLAGS.cs_pool_strat == 'first'
                                     else tf.reduce_mean(encoder_outputs[0], axis=1), pre_selected=True)
@@ -686,47 +641,17 @@ class TFBertMainAdvLayer(tf.keras.layers.Layer):
         )
 
 
-class TFBertPreTrainedModel(TFPreTrainedModel):
+class TFRobertaPreTrainedModel(TFPreTrainedModel):
     """
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
     models.
     """
 
-    config_class = BertConfig
-    base_model_prefix = "bert"
+    config_class = RobertaConfig
+    base_model_prefix = "roberta"
 
 
-@dataclass
-class TFBertForPreTrainingOutput(ModelOutput):
-    """
-    Output type of :class:`~transformers.TFBertForPreTraining`.
-
-    Args:
-        prediction_logits (:obj:`tf.Tensor` of shape :obj:`(batch_size, sequence_length, config.vocab_size)`):
-            Prediction scores of the language modeling head (scores for each vocabulary token before SoftMax).
-        seq_relationship_logits (:obj:`tf.Tensor` of shape :obj:`(batch_size, 2)`):
-            Prediction scores of the next sequence prediction (classification) head (scores of True/False continuation
-            before SoftMax).
-        hidden_states (:obj:`tuple(tf.Tensor)`, `optional`, returned when ``output_hidden_states=True`` is passed or when ``config.output_hidden_states=True``):
-            Tuple of :obj:`tf.Tensor` (one for the output of the embeddings + one for the output of each layer) of
-            shape :obj:`(batch_size, sequence_length, hidden_size)`.
-
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
-        attentions (:obj:`tuple(tf.Tensor)`, `optional`, returned when ``output_attentions=True`` is passed or when ``config.output_attentions=True``):
-            Tuple of :obj:`tf.Tensor` (one for each layer) of shape :obj:`(batch_size, num_heads, sequence_length,
-            sequence_length)`.
-
-            Attentions weights after the attention softmax, used to compute the weighted average in the self-attention
-            heads.
-    """
-
-    prediction_logits: tf.Tensor = None
-    seq_relationship_logits: tf.Tensor = None
-    hidden_states: Optional[Tuple[tf.Tensor]] = None
-    attentions: Optional[Tuple[tf.Tensor]] = None
-
-
-BERT_START_DOCSTRING = r"""
+ROBERTA_START_DOCSTRING = r"""
 
     This model inherits from :class:`~transformers.TFPreTrainedModel`. Check the superclass documentation for the
     generic methods the library implements for all its model (such as downloading or saving, resizing the input
@@ -755,19 +680,19 @@ BERT_START_DOCSTRING = r"""
         - a dictionary with one or several input Tensors associated to the input names given in the docstring:
           :obj:`model({"input_ids": input_ids, "token_type_ids": token_type_ids})`
 
-    Args:
-        config (:class:`~transformers.BertConfig`): Model configuration class with all the parameters of the model.
-            Initializing with a config file does not load the weights associated with the model, only the
-            configuration. Check out the :meth:`~transformers.TFPreTrainedModel.from_pretrained` method to load the
-            model weights.
+    Parameters:
+        config (:class:`~transformers.RobertaConfig`): Model configuration class with all the parameters of the
+            model. Initializing with a config file does not load the weights associated with the model, only the
+            configuration. Check out the :meth:`~transformers.PreTrainedModel.from_pretrained` method to load the model
+            weights.
 """
 
-BERT_INPUTS_DOCSTRING = r"""
+ROBERTA_INPUTS_DOCSTRING = r"""
     Args:
         input_ids (:obj:`Numpy array` or :obj:`tf.Tensor` of shape :obj:`({0})`):
             Indices of input sequence tokens in the vocabulary.
 
-            Indices can be obtained using :class:`~transformers.BertTokenizer`. See
+            Indices can be obtained using :class:`~transformers.RobertaTokenizer`. See
             :func:`transformers.PreTrainedTokenizer.__call__` and :func:`transformers.PreTrainedTokenizer.encode` for
             details.
 
@@ -817,107 +742,77 @@ BERT_INPUTS_DOCSTRING = r"""
 
 
 @add_start_docstrings(
-    "The bare Bert Model transformer outputting raw hidden-states without any specific head on top.",
-    BERT_START_DOCSTRING,
+    "The bare RoBERTa Model transformer outputting raw hidden-states without any specific head on top.",
+    ROBERTA_START_DOCSTRING,
 )
-class TFBertModel(TFBertPreTrainedModel):
+class TFRobertaModel(TFRobertaPreTrainedModel):
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
 
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFBaseModelOutputWithPooling,
         config_class=_CONFIG_FOR_DOC,
     )
     def call(self, inputs, **kwargs):
-        outputs = self.bert(inputs, **kwargs)
-
+        outputs = self.roberta(inputs, **kwargs)
         return outputs
 
 
-@add_start_docstrings(
-    """
-Bert Model with two heads on top as done during the pre-training:
-    a `masked language modeling` head and a `next sentence prediction (classification)` head.
-    """,
-    BERT_START_DOCSTRING,
-)
-class TFBertForPreTraining(TFBertPreTrainedModel):
-    def __init__(self, config, *inputs, **kwargs):
-        super().__init__(config, *inputs, **kwargs)
+class TFRobertaLMHead(tf.keras.layers.Layer):
+    """Roberta Head for masked language modeling."""
 
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-        self.nsp = TFBertNSPHead(config, name="nsp___cls")
-        self.mlm = TFBertMLMHead(config, self.bert.embeddings, name="mlm___cls")
+    def __init__(self, config, input_embeddings, **kwargs):
+        super().__init__(**kwargs)
 
-    def get_output_embeddings(self):
-        return self.bert.embeddings
-
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
-    @replace_return_docstrings(output_type=TFBertForPreTrainingOutput, config_class=_CONFIG_FOR_DOC)
-    def call(self, inputs, **kwargs):
-        r"""
-        Return:
-
-        Examples::
-
-            >>> import tensorflow as tf
-            >>> from transformers import BertTokenizer, TFBertForPreTraining
-
-            >>> tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-            >>> model = TFBertForPreTraining.from_pretrained('bert-base-uncased')
-            >>> input_ids = tf.constant(tokenizer.encode("Hello, my dog is cute", add_special_tokens=True))[None, :]  # Batch size 1
-            >>> outputs = model(input_ids)
-            >>> prediction_scores, seq_relationship_scores = outputs[:2]
-
-        """
-        return_dict = kwargs.get("return_dict")
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-        outputs = self.bert(inputs, **kwargs)
-        sequence_output, pooled_output = outputs[:2]
-        prediction_scores = self.mlm(sequence_output, training=kwargs.get("training", False))
-        seq_relationship_score = self.nsp(pooled_output)
-
-        if not return_dict:
-            return (prediction_scores, seq_relationship_score) + outputs[2:]
-
-        return TFBertForPreTrainingOutput(
-            prediction_logits=prediction_scores,
-            seq_relationship_logits=seq_relationship_score,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
+        self.vocab_size = config.vocab_size
+        self.dense = tf.keras.layers.Dense(
+            config.hidden_size, kernel_initializer=get_initializer(config.initializer_range), name="dense"
         )
+        self.layer_norm = tf.keras.layers.LayerNormalization(epsilon=config.layer_norm_eps, name="layer_norm")
+        self.act = get_tf_activation("gelu")
+
+        # The output weights are the same as the input embeddings, but there is
+        # an output-only bias for each token.
+        self.decoder = input_embeddings
+
+    def build(self, input_shape):
+        self.bias = self.add_weight(shape=(self.vocab_size,), initializer="zeros", trainable=True, name="bias")
+
+        super().build(input_shape)
+
+    def call(self, features):
+        x = self.dense(features)
+        x = self.act(x)
+        x = self.layer_norm(x)
+
+        # project back to size of vocabulary with bias
+        x = self.decoder(x, mode="linear") + self.bias
+
+        return x
 
 
-@add_start_docstrings("""Bert Model with a `language modeling` head on top. """, BERT_START_DOCSTRING)
-class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
+@add_start_docstrings("""RoBERTa Model with a `language modeling` head on top. """, ROBERTA_START_DOCSTRING)
+class TFRobertaForMaskedLM(TFRobertaPreTrainedModel, TFMaskedLanguageModelingLoss):
 
-    authorized_unexpected_keys = [r"pooler"]
     authorized_missing_keys = [r"pooler"]
 
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
-        if config.is_decoder:
-            logger.warning(
-                "If you want to use `TFBertForMaskedLM` make sure `config.is_decoder=False` for "
-                "bi-directional self-attention."
-            )
-
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-        self.mlm = TFBertMLMHead(config, self.bert.embeddings, name="mlm___cls")
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
+        self.lm_head = TFRobertaLMHead(config, self.roberta.embeddings, name="lm_head")
 
     def get_output_embeddings(self):
-        return self.bert.embeddings
+        return self.lm_head.decoder
 
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFMaskedLMOutput,
         config_class=_CONFIG_FOR_DOC,
     )
@@ -941,8 +836,7 @@ class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
             config.vocab_size]`` (see ``input_ids`` docstring) Tokens with indices set to ``-100`` are ignored
             (masked), the loss is only computed for the tokens with labels in ``[0, ..., config.vocab_size]``
         """
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-
+        return_dict = return_dict if return_dict is not None else self.roberta.return_dict
         if isinstance(inputs, (tuple, list)):
             labels = inputs[9] if len(inputs) > 9 else labels
             if len(inputs) > 9:
@@ -950,7 +844,7 @@ class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
         elif isinstance(inputs, (dict, BatchEncoding)):
             labels = inputs.pop("labels", labels)
 
-        outputs = self.bert(
+        outputs = self.roberta(
             inputs,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
@@ -964,7 +858,10 @@ class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
         )
 
         sequence_output = outputs[0]
-        prediction_scores = self.mlm(sequence_output, training=training)
+
+        sequence_output = outputs[0]
+        prediction_scores = self.lm_head(sequence_output)
+
         loss = None if labels is None else self.compute_loss(labels, prediction_scores)
 
         if not return_dict:
@@ -979,162 +876,53 @@ class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
         )
 
 
-class TFBertLMHeadModel(TFBertPreTrainedModel, TFCausalLanguageModelingLoss):
+class TFRobertaClassificationHead(tf.keras.layers.Layer):
+    """Head for sentence-level classification tasks."""
 
-    authorized_unexpected_keys = [r"pooler"]
-    authorized_missing_keys = [r"pooler"]
-
-    def __init__(self, config, *inputs, **kwargs):
-        super().__init__(config, *inputs, **kwargs)
-
-        if not config.is_decoder:
-            logger.warning("If you want to use `TFBertLMHeadModel` as a standalone, add `is_decoder=True.`")
-
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-        self.mlm = TFBertMLMHead(config, self.bert.embeddings, name="mlm___cls")
-
-    def get_output_embeddings(self):
-        return self.bert.embeddings
-
-    @add_code_sample_docstrings(
-        tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
-        output_type=TFCausalLMOutput,
-        config_class=_CONFIG_FOR_DOC,
-    )
-    def call(
-        self,
-        inputs=None,
-        attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-        labels=None,
-        training=False,
-    ):
-        r"""
-        labels (:obj:`tf.Tensor` of shape :obj:`(batch_size, sequence_length)`, `optional`):
-            Labels for computing the cross entropy classification loss. Indices should be in ``[0, ...,
-            config.vocab_size - 1]``.
-        """
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-
-        if isinstance(inputs, (tuple, list)):
-            labels = inputs[9] if len(inputs) > 9 else labels
-            if len(inputs) > 9:
-                inputs = inputs[:9]
-        elif isinstance(inputs, (dict, BatchEncoding)):
-            labels = inputs.pop("labels", labels)
-
-        outputs = self.bert(
-            inputs,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            head_mask=head_mask,
-            inputs_embeds=inputs_embeds,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-            training=training,
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
+        self.dense = tf.keras.layers.Dense(
+            config.hidden_size,
+            kernel_initializer=get_initializer(config.initializer_range),
+            activation="tanh",
+            name="dense",
+        )
+        self.dropout = tf.keras.layers.Dropout(config.hidden_dropout_prob)
+        self.out_proj = tf.keras.layers.Dense(
+            config.num_labels, kernel_initializer=get_initializer(config.initializer_range), name="out_proj"
         )
 
-        sequence_output = outputs[0]
-        logits = self.mlm(sequence_output, training=training)
-        loss = None
-
-        if labels is not None:
-            # shift labels to the left and cut last logit token
-            logits = logits[:, :-1]
-            labels = labels[:, 1:]
-            loss = self.compute_loss(labels, logits)
-
-        if not return_dict:
-            output = (logits,) + outputs[2:]
-            return ((loss,) + output) if loss is not None else output
-
-        return TFCausalLMOutput(
-            loss=loss,
-            logits=logits,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
-        )
-
-
-@add_start_docstrings(
-    """Bert Model with a `next sentence prediction (classification)` head on top. """,
-    BERT_START_DOCSTRING,
-)
-class TFBertForNextSentencePrediction(TFBertPreTrainedModel):
-    def __init__(self, config, *inputs, **kwargs):
-        super().__init__(config, *inputs, **kwargs)
-
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-        self.nsp = TFBertNSPHead(config, name="nsp___cls")
-
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
-    @replace_return_docstrings(output_type=TFNextSentencePredictorOutput, config_class=_CONFIG_FOR_DOC)
-    def call(self, inputs, **kwargs):
-        r"""
-        Return:
-
-        Examples::
-
-            >>> import tensorflow as tf
-            >>> from transformers import BertTokenizer, TFBertForNextSentencePrediction
-
-            >>> tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-            >>> model = TFBertForNextSentencePrediction.from_pretrained('bert-base-uncased')
-
-            >>> prompt = "In Italy, pizza served in formal settings, such as at a restaurant, is presented unsliced."
-            >>> next_sentence = "The sky is blue due to the shorter wavelength of blue light."
-            >>> encoding = tokenizer(prompt, next_sentence, return_tensors='tf')
-
-            >>> logits = model(encoding['input_ids'], token_type_ids=encoding['token_type_ids'])[0]
-            >>> assert logits[0][0] < logits[0][1] # the next sentence was random
-        """
-        return_dict = kwargs.get("return_dict")
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-        outputs = self.bert(inputs, **kwargs)
-        pooled_output = outputs[1]
-        seq_relationship_score = self.nsp(pooled_output)
-
-        if not return_dict:
-            return (seq_relationship_score,) + outputs[2:]
-
-        return TFNextSentencePredictorOutput(
-            logits=seq_relationship_score,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
-        )
+    def call(self, features, training=False):
+        x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
+        x = self.dropout(x, training=training)
+        x = self.dense(x)
+        x = self.dropout(x, training=training)
+        x = self.out_proj(x)
+        return x
 
 
 @add_start_docstrings(
     """
-    Bert Model transformer with a sequence classification/regression head on top (a linear layer on top of the pooled
-    output) e.g. for GLUE tasks.
+    RoBERTa Model transformer with a sequence classification/regression head on top (a linear layer on top of the
+    pooled output) e.g. for GLUE tasks.
     """,
-    BERT_START_DOCSTRING,
+    ROBERTA_START_DOCSTRING,
 )
-class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassificationLoss):
+class TFRobertaForSequenceClassification(TFRobertaPreTrainedModel, TFSequenceClassificationLoss):
+
+    authorized_missing_keys = [r"pooler"]
+
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
-
         self.num_labels = config.num_labels
-        self.bert = TFBertMainAdvLayer(config, name="bert")
-        self.dropout = tf.keras.layers.Dropout(config.hidden_dropout_prob)
-        self.classifier = tf.keras.layers.Dense(
-            config.num_labels, kernel_initializer=get_initializer(config.initializer_range), name="classifier"
-        )
 
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
+        self.classifier = TFRobertaClassificationHead(config, name="classifier")
+
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFSequenceClassifierOutput,
         config_class=_CONFIG_FOR_DOC,
     )
@@ -1158,8 +946,7 @@ class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassific
             config.num_labels - 1]`. If :obj:`config.num_labels == 1` a regression loss is computed (Mean-Square loss),
             If :obj:`config.num_labels > 1` a classification loss is computed (Cross-Entropy).
         """
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-
+        return_dict = return_dict if return_dict is not None else self.roberta.return_dict
         if isinstance(inputs, (tuple, list)):
             labels = inputs[9] if len(inputs) > 9 else labels
             if len(inputs) > 9:
@@ -1167,7 +954,7 @@ class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassific
         elif isinstance(inputs, (dict, BatchEncoding)):
             labels = inputs.pop("labels", labels)
 
-        outputs = self.bert(
+        outputs = self.roberta(
             inputs,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
@@ -1180,9 +967,9 @@ class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassific
             training=training,
         )
 
-        pooled_output = outputs[1]
-        pooled_output = self.dropout(pooled_output, training=training)
-        logits = self.classifier(pooled_output)
+        sequence_output = outputs[0]
+        logits = self.classifier(sequence_output, training=training)
+
         loss = None if labels is None else self.compute_loss(labels, logits)
 
         if not return_dict:
@@ -1199,16 +986,16 @@ class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassific
 
 @add_start_docstrings(
     """
-    Bert Model with a multiple choice classification head on top (a linear layer on top of the pooled output and a
+    Roberta Model with a multiple choice classification head on top (a linear layer on top of the pooled output and a
     softmax) e.g. for RocStories/SWAG tasks.
     """,
-    BERT_START_DOCSTRING,
+    ROBERTA_START_DOCSTRING,
 )
-class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
+class TFRobertaForMultipleChoice(TFRobertaPreTrainedModel, TFMultipleChoiceLoss):
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
-        self.bert = TFBertMainAdvLayer(config, name="bert")
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
         self.dropout = tf.keras.layers.Dropout(config.hidden_dropout_prob)
         self.classifier = tf.keras.layers.Dense(
             1, kernel_initializer=get_initializer(config.initializer_range), name="classifier"
@@ -1224,10 +1011,10 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
         """
         return {"input_ids": tf.constant(MULTIPLE_CHOICE_DUMMY_INPUTS)}
 
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFMultipleChoiceModelOutput,
         config_class=_CONFIG_FOR_DOC,
     )
@@ -1271,14 +1058,13 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
             head_mask = inputs.get("head_mask", head_mask)
             inputs_embeds = inputs.get("inputs_embeds", inputs_embeds)
             output_attentions = inputs.get("output_attentions", output_attentions)
-            output_hidden_states = inputs.get("output_hidden_states", output_hidden_states)
+            output_hidden_states = inputs.get("output_hidden_states", output_attentions)
             return_dict = inputs.get("return_dict", return_dict)
             labels = inputs.get("labels", labels)
             assert len(inputs) <= 10, "Too many inputs."
         else:
             input_ids = inputs
-
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
+        return_dict = return_dict if return_dict is not None else self.roberta.return_dict
 
         if input_ids is not None:
             num_choices = shape_list(input_ids)[1]
@@ -1291,18 +1077,13 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
         flat_attention_mask = tf.reshape(attention_mask, (-1, seq_length)) if attention_mask is not None else None
         flat_token_type_ids = tf.reshape(token_type_ids, (-1, seq_length)) if token_type_ids is not None else None
         flat_position_ids = tf.reshape(position_ids, (-1, seq_length)) if position_ids is not None else None
-        flat_inputs_embeds = (
-            tf.reshape(inputs_embeds, (-1, seq_length, shape_list(inputs_embeds)[3]))
-            if inputs_embeds is not None
-            else None
-        )
-        outputs = self.bert(
+        outputs = self.roberta(
             flat_input_ids,
             flat_attention_mask,
             flat_token_type_ids,
             flat_position_ids,
             head_mask,
-            flat_inputs_embeds,
+            inputs_embeds,
             output_attentions,
             output_hidden_states,
             return_dict=return_dict,
@@ -1312,6 +1093,7 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
         pooled_output = self.dropout(pooled_output, training=training)
         logits = self.classifier(pooled_output)
         reshaped_logits = tf.reshape(logits, (-1, num_choices))
+
         loss = None if labels is None else self.compute_loss(labels, reshaped_logits)
 
         if not return_dict:
@@ -1328,30 +1110,29 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
 
 @add_start_docstrings(
     """
-    Bert Model with a token classification head on top (a linear layer on top of the hidden-states output) e.g. for
+    RoBERTa Model with a token classification head on top (a linear layer on top of the hidden-states output) e.g. for
     Named-Entity-Recognition (NER) tasks.
     """,
-    BERT_START_DOCSTRING,
+    ROBERTA_START_DOCSTRING,
 )
-class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationLoss):
+class TFRobertaForTokenClassification(TFRobertaPreTrainedModel, TFTokenClassificationLoss):
 
-    authorized_unexpected_keys = [r"pooler"]
     authorized_missing_keys = [r"pooler"]
 
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
-
         self.num_labels = config.num_labels
-        self.bert = TFBertMainAdvLayer(config, name="bert")
+
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
         self.dropout = tf.keras.layers.Dropout(config.hidden_dropout_prob)
         self.classifier = tf.keras.layers.Dense(
             config.num_labels, kernel_initializer=get_initializer(config.initializer_range), name="classifier"
         )
 
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFTokenClassifierOutput,
         config_class=_CONFIG_FOR_DOC,
     )
@@ -1374,8 +1155,7 @@ class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationL
             Labels for computing the token classification loss. Indices should be in ``[0, ..., config.num_labels -
             1]``.
         """
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-
+        return_dict = return_dict if return_dict is not None else self.roberta.return_dict
         if isinstance(inputs, (tuple, list)):
             labels = inputs[9] if len(inputs) > 9 else labels
             if len(inputs) > 9:
@@ -1383,7 +1163,7 @@ class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationL
         elif isinstance(inputs, (dict, BatchEncoding)):
             labels = inputs.pop("labels", labels)
 
-        outputs = self.bert(
+        outputs = self.roberta(
             inputs,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
@@ -1395,9 +1175,12 @@ class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationL
             return_dict=return_dict,
             training=training,
         )
+
         sequence_output = outputs[0]
+
         sequence_output = self.dropout(sequence_output, training=training)
         logits = self.classifier(sequence_output)
+
         loss = None if labels is None else self.compute_loss(labels, logits)
 
         if not return_dict:
@@ -1414,29 +1197,28 @@ class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationL
 
 @add_start_docstrings(
     """
-    Bert Model with a span classification head on top for extractive question-answering tasks like SQuAD (a linear
-    layer on top of the hidden-states output to compute `span start logits` and `span end logits`).
+    RoBERTa Model with a span classification head on top for extractive question-answering tasks like SQuAD (a linear
+    layers on top of the hidden-states output to compute `span start logits` and `span end logits`).
     """,
-    BERT_START_DOCSTRING,
+    ROBERTA_START_DOCSTRING,
 )
-class TFBertForQuestionAnswering(TFBertPreTrainedModel, TFQuestionAnsweringLoss):
+class TFRobertaForQuestionAnswering(TFRobertaPreTrainedModel, TFQuestionAnsweringLoss):
 
-    authorized_unexpected_keys = [r"pooler"]
     authorized_missing_keys = [r"pooler"]
 
     def __init__(self, config, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
-
         self.num_labels = config.num_labels
-        self.bert = TFBertMainAdvLayer(config, name="bert")
+
+        self.roberta = TFRobertaMainAdvLayer(config, name="roberta")
         self.qa_outputs = tf.keras.layers.Dense(
             config.num_labels, kernel_initializer=get_initializer(config.initializer_range), name="qa_outputs"
         )
 
-    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
-        checkpoint="bert-base-cased",
+        checkpoint="roberta-base",
         output_type=TFQuestionAnsweringModelOutput,
         config_class=_CONFIG_FOR_DOC,
     )
@@ -1465,8 +1247,7 @@ class TFBertForQuestionAnswering(TFBertPreTrainedModel, TFQuestionAnsweringLoss)
             Positions are clamped to the length of the sequence (:obj:`sequence_length`). Position outside of the
             sequence are not taken into account for computing the loss.
         """
-        return_dict = return_dict if return_dict is not None else self.bert.return_dict
-
+        return_dict = return_dict if return_dict is not None else self.roberta.return_dict
         if isinstance(inputs, (tuple, list)):
             start_positions = inputs[9] if len(inputs) > 9 else start_positions
             end_positions = inputs[10] if len(inputs) > 10 else end_positions
@@ -1476,7 +1257,7 @@ class TFBertForQuestionAnswering(TFBertPreTrainedModel, TFQuestionAnsweringLoss)
             start_positions = inputs.pop("start_positions", start_positions)
             end_positions = inputs.pop("end_positions", start_positions)
 
-        outputs = self.bert(
+        outputs = self.roberta(
             inputs,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
@@ -1488,13 +1269,15 @@ class TFBertForQuestionAnswering(TFBertPreTrainedModel, TFQuestionAnsweringLoss)
             return_dict=return_dict,
             training=training,
         )
+
         sequence_output = outputs[0]
+
         logits = self.qa_outputs(sequence_output)
         start_logits, end_logits = tf.split(logits, 2, axis=-1)
         start_logits = tf.squeeze(start_logits, axis=-1)
         end_logits = tf.squeeze(end_logits, axis=-1)
-        loss = None
 
+        loss = None
         if start_positions is not None and end_positions is not None:
             labels = {"start_position": start_positions}
             labels["end_position"] = end_positions

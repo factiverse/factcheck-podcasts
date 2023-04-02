@@ -25,15 +25,15 @@ import time
 import os
 from tqdm import tqdm
 from shutil import rmtree
-from adv_transformer.core.utils.data_loader import DataLoader
-from adv_transformer.core.utils.flags import FLAGS, print_flags
+from .core.utils.data_loader import DataLoader
+from .core.utils.flags import FLAGS, print_flags
 from absl import logging
 import tensorflow as tf
 import numpy as np
-from adv_transformer.core.models.model import ClaimSpotterModel
+from .core.models.model import ClaimSpotterModel
 from sklearn.metrics import f1_score, classification_report
 from sklearn.model_selection import StratifiedKFold, train_test_split
-from adv_transformer.core.utils.compute_ndcg import compute_ndcg
+from .core.utils.compute_ndcg import compute_ndcg
 
 K = tf.keras
 
