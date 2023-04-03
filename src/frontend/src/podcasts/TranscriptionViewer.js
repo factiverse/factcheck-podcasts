@@ -53,7 +53,7 @@ export default function TranscriptionViewer() {
         </tr>
       </thead>
       <tbody>
-        {transcript.json ? transcript.json.map((word) =>
+        {transcript.words ? transcript.words.map((word) =>
           <tr>
             <td>{secondsToHms(word.start)}</td>  
             <td>{secondsToHms(word.end)}</td>  
