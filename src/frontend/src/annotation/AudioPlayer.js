@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
-export default function AudioPlayer({ url, start, transcript, onTranscriptChange }) {
-  const [editedTranscript, setEditedTranscript] = useState(transcript);
+export default function AudioPlayer({ url, utterance}) {
+  const playerRef = useRef(null);
 
-  const handleTranscriptChange = (e) => {
-    setEditedTranscript(e.target.value);
-    if (onTranscriptChange) {
-      onTranscriptChange(e.target.value);
+  useEffect(() => {
+    if (playerRef.current && utterance.start) {
+      playerRef.current.seekTo(utterance.start, 'seconds');
     }
-  };
-  console.log(url)
+  }, [utterance.start]);
+
   return (
     <Card>
       <Card.Header>Audio Player</Card.Header>
       <Card.Body>
-        <ReactPlayer
+      <ReactPlayer
+          ref={playerRef}
           url={url}
           controls={true}
           playing={false}
@@ -27,13 +27,7 @@ export default function AudioPlayer({ url, start, transcript, onTranscriptChange
             file: {
               attributes: {
                 onContextMenu: e => e.preventDefault(),
-                controlsList: 'nodownload'
               }
-            }
-          }}
-          onStart={() => {
-            if (start) {
-              this.seekTo(start);
             }
           }}
         />
@@ -43,8 +37,8 @@ export default function AudioPlayer({ url, start, transcript, onTranscriptChange
             <Form.Control
               as="textarea"
               rows={3}
-              value={editedTranscript}
-              onChange={handleTranscriptChange}
+              value={utterance.text}
+              readOnly
             />
           </Form.Group>
         </Form>
