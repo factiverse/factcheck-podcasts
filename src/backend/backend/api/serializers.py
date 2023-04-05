@@ -60,7 +60,7 @@ class SegmentationSerializer(serializers.ModelSerializer):
         return segmentation
     
     def get_audio_file_link(self, obj):
-        return obj.transcription.item.audio_link
+        return f"media/{obj.transcription.item.channel.slug}_{obj.transcription.item.guid}.mp3"
 
 # return details of the segmentation without including the text data
 class SegmentationSummarySerializer(serializers.ModelSerializer):

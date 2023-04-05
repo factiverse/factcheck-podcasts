@@ -68,6 +68,7 @@ export default function AnnotationProject() {
 
         {utterance && (
           <AudioPlayer
+            key={segmentation.uuid + "-player"} // Add this line
             url={segmentation.audio_file_link}
             utterance={utterance}
           />

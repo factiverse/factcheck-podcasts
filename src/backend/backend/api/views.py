@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.conf import settings
+from django.http import FileResponse, Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
+import os
 
 class AudioChannelApiView(APIView):
 
@@ -27,16 +30,14 @@ class AudioChannelApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-#class AudioItemApiView(APIView):
-
-    # List items for a given channel
-    #def get(self, request, *args, **kwargs):
-    #    '''
-    #    List all the todo items for given requested user
-    #    '''
-    #    item = AudioItem.objects.filter(channel__slug=kwargs['slug'])
-    #    serializer = ItemSerializerGet(item, many=True)
-    #    return Response(serializer.data, status=status.HTTP_200_OK)
+class MediaFileView(APIView):
+    def get(self, request, path, *args, **kwargs):
+        file_path = os.path.join(settings.MEDIA_ROOT, path)
+        print("!!!",settings.MEDIA_ROOT)
+        if os.path.exists(file_path):
+            return FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
+        else:
+            raise Http404("File not found")
 
 class TranscriptionApiView(APIView):
 

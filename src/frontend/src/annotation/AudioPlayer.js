@@ -1,35 +1,27 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+import axios from 'axios';
 
 export default function AudioPlayer({ url, utterance}) {
-  const playerRef = useRef(null);
+  const playerRef = useRef(parseFloat(utterance.start));
 
   useEffect(() => {
-    if (playerRef.current && utterance.start) {
-      playerRef.current.seekTo(utterance.start, 'seconds');
-    }
-  }, [utterance.start]);
+      playerRef.current.seekTo(parseFloat(utterance.start));
+  }, [utterance]);
 
   return (
     <Card>
       <Card.Header>Audio Player</Card.Header>
       <Card.Body>
-      <ReactPlayer
+        <ReactPlayer
           ref={playerRef}
-          url={url}
+          url={axios.defaults.baseURL + url}
           controls={true}
           playing={false}
           width="100%"
           height="50px"
-          config={{
-            file: {
-              attributes: {
-                onContextMenu: e => e.preventDefault(),
-              }
-            }
-          }}
         />
         <Form>
           <Form.Group className="mt-3">
