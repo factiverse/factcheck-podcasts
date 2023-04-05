@@ -103,9 +103,9 @@ class Utterance(models.Model):
     speaker = models.CharField("speaker", max_length=255, null=True)
     start = models.CharField("start time", max_length=20)
     end = models.CharField("end time", max_length=20)
-    text = models.CharField("text", max_length=10000)
-    text_coref = models.CharField("text", max_length=10000, null=True)
-    summary = models.CharField("text", max_length=255, null=True)
+    text = models.TextField("text")
+    text_coref = models.TextField("coreferenced text", null=True)
+    summary = models.JSONField("summarized text info", null=True)
 
 
 class Classification(models.Model):
