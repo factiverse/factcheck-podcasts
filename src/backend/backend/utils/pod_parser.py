@@ -66,7 +66,7 @@ def parse_channel(rss, num_episodes):
             channel_data["explicit"] = explicit_dict.get("no")
 
     episodes = []
-    last_idx = num_episodes + 1 if num_episodes else -1
+    last_idx = num_episodes if num_episodes else -1
     for entry in feed.entries[0: last_idx]:
         episode = {
             "title": entry.title,

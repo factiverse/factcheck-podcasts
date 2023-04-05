@@ -22,7 +22,7 @@ class AudioChannelApiView(APIView):
     def post(self, request, *args, **kwargs):
         rss = request.data['rss']
         # Parse the RSS feed and return the data
-        data = parse_channel(rss, 10)
+        data = parse_channel(rss, 5)
         serializer = ChannelSerializerPost(data=data)
         if serializer.is_valid():
             serializer.save()
