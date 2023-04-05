@@ -1,41 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+import axios from 'axios';
 
-export default function AudioPlayer({ url, start, transcript, onTranscriptChange }) {
-  const [editedTranscript, setEditedTranscript] = useState(transcript);
+export default function AudioPlayer({ url, utterance}) {
+  const playerRef = useRef(parseFloat(utterance.start));
 
-  const handleTranscriptChange = (e) => {
-    setEditedTranscript(e.target.value);
-    if (onTranscriptChange) {
-      onTranscriptChange(e.target.value);
-    }
-  };
-  console.log(url)
+  useEffect(() => {
+      playerRef.current.seekTo(parseFloat(utterance.start));
+  }, [utterance]);
+
   return (
     <Card>
       <Card.Header>Audio Player</Card.Header>
       <Card.Body>
         <ReactPlayer
-          url={url}
+          ref={playerRef}
+          url={axios.defaults.baseURL + url}
           controls={true}
           playing={false}
           width="100%"
           height="50px"
-          config={{
-            file: {
-              attributes: {
-                onContextMenu: e => e.preventDefault(),
-                controlsList: 'nodownload'
-              }
-            }
-          }}
-          onStart={() => {
-            if (start) {
-              this.seekTo(start);
-            }
-          }}
         />
         <Form>
           <Form.Group className="mt-3">
@@ -43,8 +29,8 @@ export default function AudioPlayer({ url, start, transcript, onTranscriptChange
             <Form.Control
               as="textarea"
               rows={3}
-              value={editedTranscript}
-              onChange={handleTranscriptChange}
+              value={utterance.text}
+              readOnly
             />
           </Form.Group>
         </Form>

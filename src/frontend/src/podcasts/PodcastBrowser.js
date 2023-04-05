@@ -6,22 +6,23 @@ import axios from "axios";
 import EpisodeCard from './EpisodeCard';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import { useParams } from "react-router-dom";
 import ListGroup from 'react-bootstrap/ListGroup';
+import TranscriptionCard from './TranscriptionCard';
 
-function PodcastBrowser({}) {
+export default function PodcastBrowser({ }) {
   const { podcastSlug, podcastGuid } = useParams();
 
-  const [channels , setChannels] = useState([]);
-  const [currentChannel , setCurrentChannel] = useState("");
-  const [currentEpisode , setCurrentEpisode] = useState("");
+  const [channels, setChannels] = useState([]);
+  const [currentChannel, setCurrentChannel] = useState("");
+  const [currentEpisode, setCurrentEpisode] = useState("");
 
   useEffect(() => {
     axios({
-        method: "GET",
-        url: "/api/podcasts/",
-    }).then((response)=>{
+      method: "GET",
+      url: "/api/podcasts/",
+    }).then((response) => {
       const chans = response.data;
       setChannels(chans);
       if (podcastSlug) {
@@ -41,42 +42,50 @@ function PodcastBrowser({}) {
         console.log(error.response);
         console.log(error.response.status);
         console.log(error.response.headers);
-        }
+      }
     });
-  } ,[]);
+  }, []);
 
-
-	return (
-      <Row>
-        <Col>
-          <aside className="bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2">
-            <nav className="small" id="toc">
-              <ListGroup as="ul" className="list-unstyled">
+  return (
+    <Row className="h-100">
+      <Col md="auto" className="bg-light h-100">
+        <aside className="bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2">
+          <nav className="small" id="toc">
+            <ListGroup as="ul" className="list-unstyled">
               {channels.length > 0 ? channels.map((chan) =>
-                <ChannelListItem  
-                  channel={chan} 
-                  setChan={setCurrentChannel} 
+                <ChannelListItem
+                  channel={chan}
+                  setChan={setCurrentChannel}
                   setItem={setCurrentEpisode}
-                  key={"menu_"+chan.slug}
-                  />): "loading"}
-              </ListGroup>
-            </nav>
-          </aside>
-        </Col>
-        <Col>
-          <Container>
-            
-            <ChannelCard channel={currentChannel} key={currentChannel.slug}/>
-            {currentEpisode !== "" &&
-              <EpisodeCard episode={currentEpisode} key={currentEpisode.guid} />
-            }
-          </Container>
+                  key={"menu_" + chan.slug}
+                />) : "loading"}
+            </ListGroup>
+          </nav>
+        </aside>
+      </Col>
+      <Col className="flex-grow-1 h-100">
+        <Row className="h-100 mt-3">
+              {currentChannel !== "" &&
+                <Col className="mb-3">
+                  <ChannelCard channel={currentChannel} key={currentChannel.slug} />
+                </Col>
+              }
+              {currentEpisode !== "" &&
+                <Col className="mb-3">
+                  <EpisodeCard episode={currentEpisode} key={currentEpisode.guid} />
+                </Col>
+              }
 
-
-        </Col>
-
-      </Row>
-	);
+              {currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
+                <Col className="mb-3">
+                  <TranscriptionCard
+                    transcription={trans}
+                    key={trans.uuid} />
+                </Col>
+              ) : <div></div>}
+        </Row>
+      </Col>
+    </Row>
+  );
 }
 
-export default PodcastBrowser;

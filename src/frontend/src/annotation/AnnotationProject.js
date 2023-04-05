@@ -66,14 +66,11 @@ export default function AnnotationProject() {
           utterance={utterance}
         />}
 
-        {utterance && false && (
+        {utterance && (
           <AudioPlayer
-            url={utterance.audio_file_link}
-            start={utterance.start_time}
-            transcript={utterance.transcript}
-            onTranscriptChange={(newTranscript) => {
-              // Handle the transcript change here, e.g., update the state or make an API call to save the changes.
-            }}
+            key={segmentation.uuid + "-player"} // Add this line
+            url={segmentation.audio_file_link}
+            utterance={utterance}
           />
         )}
       </CardGroup>
