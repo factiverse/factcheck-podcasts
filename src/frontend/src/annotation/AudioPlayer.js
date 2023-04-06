@@ -13,7 +13,7 @@ export default function AudioPlayer({ url, utterance}) {
 
   return (
     <Card>
-      <Card.Header>Audio Player</Card.Header>
+      <Card.Header><Card.Title>Audio Player</Card.Title></Card.Header>
       <Card.Body>
         <ReactPlayer
           ref={playerRef}

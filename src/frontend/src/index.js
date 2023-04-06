@@ -14,9 +14,9 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import PodcastBrowser from './podcasts/PodcastBrowser';
 
 //dev
-//axios.defaults.baseURL = 'http://localhost:8888/';
+axios.defaults.baseURL = 'http://localhost:8888/';
 //docker publish
-axios.defaults.baseURL = '/';
+//axios.defaults.baseURL = '/';
 
 const router = createBrowserRouter([
   {

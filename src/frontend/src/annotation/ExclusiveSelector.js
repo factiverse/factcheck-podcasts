@@ -5,6 +5,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import axios from "axios";
 import Card from 'react-bootstrap/Card';
+import Alert from 'react-bootstrap/Alert';
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
     axios.post('/api/classifications/' + utterance + "/", {
@@ -44,7 +45,7 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
 
     // get the unique values in the category field of the dictionaries in the labels list
-    const categories = [...new Set(labels.map(item => item.category))];
+    const categories = [...new Set(labels.labels.map(item => item.category))];
 
     useEffect(() => {
         axios({
@@ -55,7 +56,7 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
             if (data.length > 0) {
                 const currentValue = data.filter((item) => item.qualifier === qualifier).shift();
                 setRadioValue(currentValue.label);
-                setCategory(labels.filter((item) => item.label === currentValue.label).shift().category);
+                setCategory(labels.labels.filter((item) => item.label === currentValue.label).shift().category);
 
             } else {
                 setRadioValue("");
@@ -78,28 +79,42 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
 
     return (
         <Card>
-            <Card.Header>{qualifier}</Card.Header>
+            <Card.Header><Card.Title>{qualifier}</Card.Title></Card.Header>
             <Card.Body>
+                <Card.Title>{labels.instruction1}</Card.Title>
+                <Card.Text>
+                    {labels.instruction2}
+                </Card.Text>
                 <Row>
                     {categories.map((cat) => {
                         return (
                             <Col key={cat}>
-                                <Card.Title style={category === cat ? headerStyle.emphasized : headerStyle.deactivated} id={`${cat}-header`} tabIndex="0">{cat}</Card.Title>
-                                <ButtonGroup style={{ marginRight: '10px' }} vertical role="radiogroup" aria-labelledby={`${cat}-header`}>
-                                    {labels.filter(label => label[splitField] === cat).map((label) =>
+                                <Alert key={'primary'} variant={category === cat ? "primary": "light"} className='p-1'>
+                                    <h5>{cat}</h5>
+                                </Alert>
+                                <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
+                                    {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <ToggleButton
                                             key={label.keyStroke}
                                             id={`radio-${label.keyStroke}`}
                                             type="radio"
-                                            variant='outline-success'
+                                            variant='outline-secondary'
                                             name="radio"
                                             value={label.label}
                                             checked={radioValue === label.label}
-                                            onChange={(e) => {
-                                                setRadioValue(e.currentTarget.value);
-                                                const cat = labels.filter((item) => item.label === e.currentTarget.value).shift().category;
-                                                setCategory(cat);
-                                                postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
+                                            onClick={(e) => {
+                                                const selectedLabel = labels.labels.filter((item) => item.label === label.label).shift();
+                                                const cat = selectedLabel ? selectedLabel.category : '';
+
+                                                if (radioValue === label.label) {
+                                                    setRadioValue('');
+                                                    setCategory('');
+                                                    postToAPI(utterance.uuid, qualifier, '', '', agent);
+                                                } else {
+                                                    setRadioValue(label.label);
+                                                    setCategory(cat);
+                                                    postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
+                                                }
                                             }}
                                             role="radio"
                                             aria-checked={radioValue === label.label}

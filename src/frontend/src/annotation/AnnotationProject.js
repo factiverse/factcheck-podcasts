@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Utterance from './Utterance';
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { checkworthyLabels } from './data.js';
+import { checkworthyLabels, advertisingLabels } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
@@ -16,7 +16,6 @@ export default function AnnotationProject() {
   const { segmentationUuid } = useParams();
   const [segmentation, setSegmentation] = useState({ utterance_set: [] });
   const [utterance, setUtterance] = useState(segmentation.utterance_set[index]);
-  const [currentEpisode, setCurrentEpisode] = useState("");
 
   useEffect(() => {
     axios({
@@ -57,6 +56,14 @@ export default function AnnotationProject() {
           qualifier="Checkworthiness"
           agent="test_user"
           labels={checkworthyLabels}
+          splitField="category"
+          utterance={utterance}
+        />}
+        
+        {utterance && <ExclusiveSelector
+          qualifier="Advertising"
+          agent="test_user"
+          labels={advertisingLabels}
           splitField="category"
           utterance={utterance}
         />}

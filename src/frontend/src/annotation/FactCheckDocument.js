@@ -16,7 +16,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
 
     return (
         <Form.Group className="mb-3">
-            <Form.Label>URL to document from results</Form.Label>
+            <Form.Label>link to fact check document</Form.Label>
             <InputGroup className="mb-3">
                 {/* EVIDENCE URL: */}
                 <Form.Control
@@ -104,6 +104,34 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         >+</Button>}
                 </ButtonGroup>
             </InputGroup>
+            <InputGroup className="mb-3">
+                {/* COMMENT: input field for a comment made on this document which will be sent back to api also*/}
+                <Form.Control
+
+                    type="text"
+                    readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
+                    placeholder="Relevant Snippet or Comment"
+                    autoComplete="off"
+                    value={document.comment}
+                    onChange={
+                        (e) => {
+                            const newFactChecks = [...factChecks];
+                            // set the document object's comment field to the current target value
+                            // creating a new object if one doesn't already exist
+                            if (!newFactChecks[fc_idx].document_set[doc_idx]) {
+                                newFactChecks[fc_idx].document_set[doc_idx] = {};
+                            }
+                            newFactChecks[fc_idx].document_set[doc_idx].comment = e.currentTarget.value;
+                            setFactChecks(newFactChecks);
+                        }}
+                    onBlur={
+                        (e) => {
+                            postToAPI(utterance, factChecks);
+                        }
+                        
+                    } />
+            </InputGroup>
+
         </Form.Group>
     )
 

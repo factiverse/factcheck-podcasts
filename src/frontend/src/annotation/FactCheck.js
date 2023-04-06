@@ -88,7 +88,7 @@ export default function FactCheck({ utterance }) {
     return (
         <>
             <Card key={`factcheck-utt-${utterance.uuid}`}>
-                <Card.Header>Fact Check</Card.Header>
+                <Card.Header><Card.Title>Fact Check</Card.Title></Card.Header>
                 <Card.Body>
                     <Form>
                         <Tab.Container activeKey={activeFactCheck}>

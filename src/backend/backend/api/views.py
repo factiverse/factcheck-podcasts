@@ -100,8 +100,12 @@ class ClassificationApiView(APIView):
     def post(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=request.data['utterance']).first()
         # delete old entry for user
-        Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], category=request.data['category'], agent=request.data['agent']).delete()
+        Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=request.data['agent']).delete()
 
+        # if request.data['category'] is None then return after having deleted the old entry
+        if len(request.data['category']) == 0 and len(request.data['label']) == 0:
+            return Response(status=status.HTTP_200_OK)
+        
         serializer = ClassificationSerializer(data={
             'utterance': utterance.id,
             'qualifier': request.data['qualifier'],
