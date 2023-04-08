@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
@@ -13,6 +13,7 @@ const radios = [
 
 
 export default function FactCheckDocument({ document, fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance }) {
+    const inputRef = useRef(null);
 
     return (
         <Form.Group className="mb-3">
@@ -24,7 +25,8 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
                     placeholder=""
                     autoComplete="off"
-                    value={document.document}
+                    ref={inputRef}
+                    value={document.document ? document.document : ''}
                     onChange={
                         (e) => {
                             const newFactChecks = [...factChecks];
@@ -40,7 +42,6 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         (e) => {
                             postToAPI(utterance, factChecks);
                         }
-
                     } />
 
                 {/* REFUTES / NOT RELEVANT / SUPPORTS buttons */}
@@ -56,11 +57,11 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             value={radio.value}
                             checked={document.supports == radio.value}
                             disabled={!document.document}
+                            onClick = {!document.document ? inputRef.current ? inputRef.current.focus() : null : null } 
                             onChange={
                                 (e) => {
                                     const newFactChecks = [...factChecks];
                                     newFactChecks[fc_idx].document_set[doc_idx].supports = e.currentTarget.value;
-                                    console.log(newFactChecks)
                                     setFactChecks(newFactChecks);
                                     postToAPI(utterance, newFactChecks);
                                 }
@@ -73,7 +74,6 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     {doc_idx > 0 &&
                         <Button
                             key={`remove-doc-${fc_idx}-${doc_idx}`}
-                            disabled={!document.document}
                             size='sm'
                             onClick={
                                 (e) => {
@@ -96,7 +96,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                                     newFactChecks[fc_idx].document_set.push({
                                         document: "",
                                         support: "",
-                                        comment: null,
+                                        comment: "",
                                     });
                                     setFactChecks(newFactChecks);
                                 }
@@ -112,7 +112,8 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
                     placeholder="Relevant Snippet or Comment"
                     autoComplete="off"
-                    value={document.comment}
+                    disabled={!document.document}
+                    value={document.comment ? document.comment : ""}
                     onChange={
                         (e) => {
                             const newFactChecks = [...factChecks];
@@ -128,7 +129,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         (e) => {
                             postToAPI(utterance, factChecks);
                         }
-                        
+
                     } />
             </InputGroup>
 

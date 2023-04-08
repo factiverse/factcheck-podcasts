@@ -6,6 +6,11 @@ import Tab from 'react-bootstrap/Tab';
 import Nav from 'react-bootstrap/Nav';
 import Badge from 'react-bootstrap/Badge';
 import FactCheckDocument from './FactCheckDocument';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { searchPlatforms } from './data.js';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 
 const postToAPI = (utterance, factChecks) => {
 
@@ -32,7 +37,7 @@ const postToAPI = (utterance, factChecks) => {
                     console.log(error.response.headers);
                 }
             });
-        }
+    }
 };
 
 const createEmptyFactCheck = () => {
@@ -45,7 +50,7 @@ const createEmptyFactCheck = () => {
                 document: "",
                 supports: null,
                 agent: "test-agent",
-                comment: null
+                comment: ""
             },
         ],
     };
@@ -54,6 +59,7 @@ const createEmptyFactCheck = () => {
 export default function FactCheck({ utterance }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck()]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
+    const [platformDropdown, setPlatformDropdown] = useState('Platform');
 
     useEffect(() => {
         axios({
@@ -84,6 +90,17 @@ export default function FactCheck({ utterance }) {
             }
         });
     }, [utterance]);
+
+    function handlePlatformDropdownClick(platform, fc_idx) {
+        setPlatformDropdown(platform);
+        // Update the state with the selected item
+        // You can use the same approach as in your previous code snippet
+        const newFactChecks = [...factChecks];
+        newFactChecks[fc_idx].platform = platform;
+        setFactChecks(newFactChecks);
+        postToAPI(utterance, newFactChecks);
+    }
+
 
     return (
         <>
@@ -140,37 +157,59 @@ export default function FactCheck({ utterance }) {
                                 {factChecks.map((fc, i) => (
                                     <Tab.Pane key={`fc-${i}-pane`} eventKey={`fc-${i}-pane`} title={i}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>URL to Search Results Page</Form.Label>
+                                            <Form.Label>search phrase or link to search</Form.Label>
+                                            <InputGroup className="mb-3">
 
-                                            {/* QUERY URL: */}
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="https://www.google.com/search?q=..."
-                                                autoComplete="off"
-                                                value={fc.query}
-                                                onChange={
-                                                    (e) => {
-                                                        const newFactChecks = [...factChecks];
-                                                        newFactChecks[i].query = e.target.value;
-                                                        setFactChecks(newFactChecks);
-                                                    }}
-                                                onBlur={
-                                                    (e) => {
-                                                    postToAPI(utterance, factChecks);
-                                                }} />
+                                                <DropdownButton
+                                                    variant="outline-secondary"
+                                                    title={fc.platform ? fc.platform : "Platform"}
+                                                    id={`fc-${i}-platform-dropdown`}
+                                                    key={`fc-${i}-platform-dropdown`}
+                                                >
+                                                    
+                                                {/* PLATFORM DROPDOWN: */}
+                                                {searchPlatforms.map((platform) => (
+
+                                                    <DropdownItem
+                                                        href="#"
+                                                        key={`fc-${i}-platform-dropdown-${platform.key}`}
+                                                        onClick={() => {
+                                                            handlePlatformDropdownClick(platform.name, i);
+                                                        }}
+                                                    >{platform.name}
+                                                    </DropdownItem>
+                                                ))}
+                                                </DropdownButton>
+                                                {/* QUERY URL: */}
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="https://www.google.com/search?q=..."
+                                                    autoComplete="off"
+                                                    value={fc.query}
+                                                    onChange={
+                                                        (e) => {
+                                                            const newFactChecks = [...factChecks];
+                                                            newFactChecks[i].query = e.target.value;
+                                                            setFactChecks(newFactChecks);
+                                                        }}
+                                                    onBlur={
+                                                        (e) => {
+                                                            postToAPI(utterance, factChecks);
+                                                        }} />
+                                            </InputGroup>
                                         </Form.Group>
 
                                         {/* Check if fc.document_set is empty and render a default FactCheckDocument */}
                                         {(fc.document_set.length === 0 ? [createEmptyFactCheck().document_set[0]] : fc.document_set).map((doc, j) => (
-                                            <FactCheckDocument 
-                                            document={doc} 
-                                            fc_idx={i} 
-                                            doc_idx={j} 
-                                            factChecks={factChecks} 
-                                            setFactChecks={setFactChecks} 
-                                            key={`fc-${i}-${j}`} 
-                                            postToAPI={postToAPI}
-                                            utterance={utterance}/>
+                                            <FactCheckDocument
+                                                document={doc}
+                                                fc_idx={i}
+                                                doc_idx={j}
+                                                factChecks={factChecks}
+                                                setFactChecks={setFactChecks}
+                                                key={`fc-${i}-${j}`}
+                                                postToAPI={postToAPI}
+                                                utterance={utterance} />
                                         ))}
                                     </Tab.Pane>
                                 ))}

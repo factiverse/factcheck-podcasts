@@ -33,7 +33,6 @@ class AudioChannelApiView(APIView):
 class MediaFileView(APIView):
     def get(self, request, path, *args, **kwargs):
         file_path = os.path.join(settings.MEDIA_ROOT, path)
-        print("!!!",settings.MEDIA_ROOT)
         if os.path.exists(file_path):
             return FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
         else:
@@ -102,15 +101,15 @@ class ClassificationApiView(APIView):
         # delete old entry for user
         Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=request.data['agent']).delete()
 
-        # if request.data['category'] is None then return after having deleted the old entry
-        if len(request.data['category']) == 0 and len(request.data['label']) == 0:
+        # return after having deleted the old entry
+        if len(request.data['category']) == 0:
             return Response(status=status.HTTP_200_OK)
         
         serializer = ClassificationSerializer(data={
             'utterance': utterance.id,
             'qualifier': request.data['qualifier'],
             'category': request.data['category'],
-            'label': request.data['label'],
+            'label': request.data['label'] if len(request.data['label']) > 0 else None,
             'agent': request.data['agent'],
         })
         if serializer.is_valid():
@@ -132,7 +131,6 @@ class QueryApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-        print(utterance.id, kwargs['uuid'])
         created_queries = []
 
         # Delete existing records for the user
@@ -141,7 +139,6 @@ class QueryApiView(APIView):
 
 
         for query_data in request.data:
-            print(query_data)
             # Deserialize the document_set using the DocumentSerializer
             document_set_data = query_data['document_set']
             document_serializer = DocumentSerializer(data=document_set_data, many=True)

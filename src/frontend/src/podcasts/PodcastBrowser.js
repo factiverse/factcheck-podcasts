@@ -67,20 +67,25 @@ export default function PodcastBrowser({ }) {
         <Row className="h-100 mt-3">
               {currentChannel !== "" &&
                 <Col className="mb-3">
-                  <ChannelCard channel={currentChannel} key={currentChannel.slug} />
+                  <ChannelCard 
+                  channel={currentChannel}
+                  key={`channelCard-${currentChannel.slug}`}/>
                 </Col>
               }
               {currentEpisode !== "" &&
                 <Col className="mb-3">
-                  <EpisodeCard episode={currentEpisode} key={currentEpisode.guid} />
+                  <EpisodeCard 
+                  episode={currentEpisode}
+                  key={`episodeCard-${currentEpisode.uuid}`}
+                   />
                 </Col>
               }
 
               {currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
-                <Col className="mb-3">
+                <Col className="mb-3"
+                key={`transcard-${trans.uuid}`}>
                   <TranscriptionCard
-                    transcription={trans}
-                    key={trans.uuid} />
+                    transcription={trans} />
                 </Col>
               ) : <div></div>}
         </Row>

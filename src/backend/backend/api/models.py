@@ -116,7 +116,7 @@ class Classification(models.Model):
     utterance = models.ForeignKey(Utterance, on_delete=models.CASCADE)
     qualifier = models.CharField("qualifier", max_length=255) # e.g. "Checkworthiness", "Motivation for Fact-Checking"
     category = models.CharField("category", max_length=255) # e.g. "Checkworthy", "Not Checkworthy"
-    label = models.CharField("label", max_length=255) # e.g. "Predictions", "Cause and Effect" for "Checkworthiness" qualifier
+    label = models.TextField("label", null=True) # e.g. "Predictions", "Cause and Effect" for "Checkworthiness" qualifier
     agent = models.CharField("agent", max_length=100)
 
 class Query(models.Model):

@@ -7,7 +7,8 @@ import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
 import CardGroup from 'react-bootstrap/CardGroup';
-import AudioPlayer from './AudioPlayer';
+import AudioPlayer from './TranscriptionCheck';
+import TranscriptionCheck from './TranscriptionCheck';
 
 
 export default function AnnotationProject() {
@@ -25,7 +26,6 @@ export default function AnnotationProject() {
       const data = response.data;
       setSegmentation(data);
       setUtterance(data.utterance_set[index]);
-      //getFromAPI(data.utterance_set[index].uuid, setRadioValue);
     }).catch((error) => {
       if (error.response) {
         console.log(error.response);
@@ -41,16 +41,24 @@ export default function AnnotationProject() {
   }
 
   return (
+
+
     <div className="container text-center">
 
-      <h4>{segmentation.item} - {segmentation.item}</h4>
+      {segmentation.item && segmentation.channel &&
+        <h4>{segmentation.item.title} - {segmentation.channel.title}</h4>
+      }
       <button onClick={handleMoreClick} className="btn btn-primary btn-sm">
         {showContext ? 'Hide' : 'Show'} Context
       </button>
 
       {showContext && <div>{utterance.context.map(utt => <Utterance utterance={utt} />)} </div>}
 
-      <Utterance utterance={utterance} />
+      {utterance && <Utterance
+        utterance={utterance}
+        url={segmentation.audio_file_link}
+      />}
+
       <CardGroup>
         {utterance && <ExclusiveSelector
           qualifier="Checkworthiness"
@@ -59,7 +67,7 @@ export default function AnnotationProject() {
           splitField="category"
           utterance={utterance}
         />}
-        
+
         {utterance && <ExclusiveSelector
           qualifier="Advertising"
           agent="test_user"
@@ -74,18 +82,14 @@ export default function AnnotationProject() {
         />}
 
         {utterance && (
-          <AudioPlayer
-            key={segmentation.uuid + "-player"} // Add this line
-            url={segmentation.audio_file_link}
+          <TranscriptionCheck
+            key={segmentation.uuid + "-transcheck"}
             utterance={utterance}
           />
         )}
       </CardGroup>
 
-
-
       <NavigationButtons index={index} segmentation={segmentation} setIndex={setIndex} setUtterance={setUtterance} />
-
 
     </div>
 

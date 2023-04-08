@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Card from 'react-bootstrap/Card';
-import CardGroup from 'react-bootstrap/CardGroup';
-import TranscriptionCard from './TranscriptionCard';
 import DOMPurify from 'dompurify';
 
-
-export default function EpisodeCard({episode}) {
+export default function EpisodeCard({ episode }) {
 
   return (
     <>
       <Card style={{ width: '18rem' }}>
-        <Card.Body>
+        <Card.Header>
+
           <Card.Title>{episode.title}</Card.Title>
-          <Card.Subtitle className="mb-2 text-muted">{episode.subtitle}</Card.Subtitle>
-          <Card.Text> {
-          episode.description ? 
-          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(episode.description) }} /> : 
-          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(episode.summary) }} />
+          <Card.Subtitle className="text-muted">{episode.subtitle}</Card.Subtitle>
+        </Card.Header>
+        <Card.Body>
+
+          {
+            episode.description ?
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(episode.description) }} /> :
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(episode.summary) }} />
           }
-          </Card.Text>
         </Card.Body>
       </Card>
     </>

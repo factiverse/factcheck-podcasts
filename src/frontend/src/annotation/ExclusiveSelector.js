@@ -89,17 +89,17 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                     {categories.map((cat) => {
                         return (
                             <Col key={cat}>
-                                <Alert key={'primary'} variant={category === cat ? "primary": "light"} className='p-1'>
+                                <Alert key={`alert-${labels.key}`} variant={category === cat ? "primary": "light"} className='p-1'>
                                     <h5>{cat}</h5>
                                 </Alert>
                                 <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <ToggleButton
-                                            key={label.keyStroke}
-                                            id={`radio-${label.keyStroke}`}
+                                            key={`radio-${labels.key}-${label.keyStroke}`}
+                                            id={`radio-${labels.key}-${label.keyStroke}`}
                                             type="radio"
                                             variant='outline-secondary'
-                                            name="radio"
+                                            name={`radio-${labels.key}`}
                                             value={label.label}
                                             checked={radioValue === label.label}
                                             onClick={(e) => {

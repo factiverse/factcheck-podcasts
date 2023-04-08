@@ -3,10 +3,8 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
 import ListGroup from 'react-bootstrap/ListGroup';
-import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import { LinkContainer } from 'react-router-bootstrap';
 
 // recursive function to convert a dictionary to a collection of table rows,
 // it checks if the value is a dictionary and calls itself if it is
@@ -71,10 +69,9 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
 
                 <ListGroup as="ol">
                     {transcription.segmentation_set ? transcription.segmentation_set.map((seg) =>
-                        <>
+                        <React.Fragment key={`fragment-${seg.uuid}`}>
 
                             <ListGroup.Item
-                                key={seg.uuid}
                                 as="li"
                                 className="d-flex justify-content-between align-items-start">
                                 <div className="ms-2 me-auto">
@@ -99,7 +96,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                     </ButtonGroup>
                                 </div>
                             </ListGroup.Item>
-                        </>
+                            </React.Fragment>
                     ) : ""}
 
                 </ListGroup>
