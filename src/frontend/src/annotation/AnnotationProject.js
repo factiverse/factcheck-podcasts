@@ -7,8 +7,11 @@ import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
 import CardGroup from 'react-bootstrap/CardGroup';
-import AudioPlayer from './TranscriptionCheck';
 import TranscriptionCheck from './TranscriptionCheck';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+
 
 
 export default function AnnotationProject() {
@@ -17,6 +20,23 @@ export default function AnnotationProject() {
   const { segmentationUuid } = useParams();
   const [segmentation, setSegmentation] = useState({ utterance_set: [] });
   const [utterance, setUtterance] = useState(segmentation.utterance_set[index]);
+
+  const [show, setShow] = useState(true);
+  const [username, setUsername] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const handleShow = () => setShow(true);
+  const handleClose = () => {
+    if (loggedIn) {
+      setShow(false);
+    }
+  };
+  const handleSaveChanges = () => {
+    if (inputValue) {
+      setUsername(inputValue);
+      setShow(false);
+    }
+  };
 
   useEffect(() => {
     axios({
@@ -41,9 +61,39 @@ export default function AnnotationProject() {
   }
 
   return (
-
-
     <div className="container text-center">
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>Enter a username</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>Use the same username (caps sensitive) to restore your previous annotations</Modal.Body>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                placeholder="name@example.com"
+                autoFocus
+                onChange={
+                  (e) => {
+                    setInputValue(e.target.value);
+                  }
+                }
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+          variant="primary" 
+          onClick={handleSaveChanges}
+          disabled={!inputValue}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {segmentation.item && segmentation.channel &&
         <h4>{segmentation.item.title} - {segmentation.channel.title}</h4>

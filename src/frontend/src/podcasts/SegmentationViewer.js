@@ -5,49 +5,6 @@ import EpisodeCard from './EpisodeCard';
 import { secondsToHms } from '../util/time';
 import DataTable from 'react-data-table-component';
 
-/* EXAMPLE OF MY JSON FROM API
-{
-  "start": "0.28",
-  "end": "8.56",
-  "speaker": null,
-  "text": "Holland Norway Lines. Snarve en til puls. Bestil bilpakke fra Kristiansand til Nederland på HollandNorwayLines.no",
-  "text_coref": null,
-  "summary": null,
-  "uuid": "f464d018-c4d7-11ed-af8b-bbfb0cc12fbc",
-  "classification_set": [
-    {
-      "utterance": 8497,
-      "qualifier": "Checkworthiness",
-      "label": "Greetings",
-      "category": "Not Checkworthy",
-      "agent": "test_user"
-    }
-  ],
-  "query_set": [
-    {
-      "utterance": 8497,
-      "query": "ååå",
-      "platform": null,
-      "agent": "test-agent",
-      "uuid": "740dfdf0-cef9-11ed-9850-8cb87e798e42",
-      "document_set": [
-        {
-          "document": "ææææ",
-          "supports": 1,
-          "comment": null,
-          "uuid": "740f847b-cef9-11ed-a007-8cb87e798e42"
-        }
-      ]
-    }
-  ]
-}
-
-*/
-
-
-// A super simple expandable component.
-const ExpandedComponent = ({ data }) => <pre>{JSON.stringify(data.classification_set, null, 2)}</pre>;
-
 
 // an expanded component that itself contains a react-data-table component,
 // with rows for entries from both classification_set and query_set
@@ -81,20 +38,20 @@ const ExpandedComponent2 = ({ data }) => {
       name: "Agent",
       selector: (row) => row.agent,
     },
-    {
-      name: "Query",
-      selector: (row) => row.type === "query" ? row.query : "",
-    },
-    {
-      name: "Platform",
-      selector: (row) => row.type === "query" ? row.platform : "",
-    },
+    //{
+    //  name: "Query",
+    //  selector: (row) => row.type === "query" ? row.query : "",
+    //},
+    //{
+    //  name: "Platform",
+    //  selector: (row) => row.type === "query" ? row.platform : "",
+    //},
   ];
 
   return (
     <DataTable
       columns={columns}
-      data={combinedData}
+      data={data.classification_set}
       dense
       direction="auto"
       fixedHeader
@@ -113,23 +70,29 @@ const columnsMain = [
     name: 'Start',
     selector: row => secondsToHms(row.start),
     sortable: true,
-    shrink: 2,
+    width: '100px',
   },
   {
     name: 'End',
     selector: row => secondsToHms(row.end),
     sortable: true,
-    shrink: 2,
+    width: '100px',
+  },
+  {
+    name: 'ClaimBuster BBA',
+    selector: row => row.classification_set.filter((item) => item.agent === "ClaimBuster-BBA").shift()?.label || "",
+    sortable: true,
+    width: '150px',
   },
   {
     name: 'Speaker',
     selector: row => row.speaker,
     sortable: true,
+    width: '150px',
   },
   {
     name: 'Text',
     selector: row => row.text,
-    grow: 4,
   },
 ];
 
@@ -181,10 +144,6 @@ export default function TranscriptionViewer() {
         subHeaderWrap
         overflow={true}
       />
-
-
-
-
     </div>
   );
 

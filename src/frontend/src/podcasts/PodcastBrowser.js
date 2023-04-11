@@ -6,14 +6,12 @@ import axios from "axios";
 import EpisodeCard from './EpisodeCard';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import { useParams } from "react-router-dom";
 import ListGroup from 'react-bootstrap/ListGroup';
 import TranscriptionCard from './TranscriptionCard';
 
 export default function PodcastBrowser({ }) {
   const { podcastSlug, podcastGuid } = useParams();
-
   const [channels, setChannels] = useState([]);
   const [currentChannel, setCurrentChannel] = useState("");
   const [currentEpisode, setCurrentEpisode] = useState("");
