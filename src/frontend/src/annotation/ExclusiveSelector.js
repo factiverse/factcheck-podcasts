@@ -53,10 +53,13 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
             url: "/api/classifications/" + utterance.uuid + "/",
         }).then((response) => {
             const data = response.data;
-            if (data.length > 0) {
-                const currentValue = data.filter((item) => item.qualifier === qualifier).shift();
+            // remove the classifications that are not from the current agent from data
+            const classifications = data.filter((item) => item.agent == agent);
+
+            if (classifications.length > 0) {
+                const currentValue = classifications.filter((item) => item.qualifier == qualifier).shift();
                 setRadioValue(currentValue.label);
-                setCategory(labels.labels.filter((item) => item.label === currentValue.label).shift().category);
+                setCategory(labels.labels.filter((item) => item.label == currentValue.label).shift().category); //e.g. checkworthy vs. non-checkworthy
 
             } else {
                 setRadioValue("");
@@ -69,7 +72,7 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                 console.log(error.response.headers);
             }
         });
-    }, [utterance]);
+    }, [utterance, agent]);
 
     // iterate over the unique values and create a column for each
 

@@ -40,24 +40,24 @@ const postToAPI = (utterance, factChecks) => {
     }
 };
 
-const createEmptyFactCheck = () => {
+const createEmptyFactCheck = (agent) => {
     return {
         query: "",
         platform: null,
-        agent: "test-agent",
+        agent: agent,
         document_set: [
             {
                 document: "",
                 supports: null,
-                agent: "test-agent",
+                agent: agent,
                 comment: ""
             },
         ],
     };
 };
 
-export default function FactCheck({ utterance }) {
-    const [factChecks, setFactChecks] = useState([createEmptyFactCheck()]);
+export default function FactCheck({ utterance, agent }) {
+    const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
     const [platformDropdown, setPlatformDropdown] = useState('Platform');
 
@@ -72,13 +72,13 @@ export default function FactCheck({ utterance }) {
                 // add the document set from createEmptyFactCheck() to it so it shows up in the UI
                 data.forEach((fc) => {
                     if (fc.document_set.length === 0) {
-                        fc.document_set = createEmptyFactCheck().document_set;
+                        fc.document_set = createEmptyFactCheck(agent).document_set;
                     }
                 });
 
                 setFactChecks(data);
             } else {
-                setFactChecks([createEmptyFactCheck()]);
+                setFactChecks([createEmptyFactCheck(agent)]);
             }
             setActiveFactCheck(`fc-0-pane`);
 
@@ -89,7 +89,7 @@ export default function FactCheck({ utterance }) {
                 console.log(error.response.headers);
             }
         });
-    }, [utterance]);
+    }, [utterance, agent]);
 
     function handlePlatformDropdownClick(platform, fc_idx) {
         setPlatformDropdown(platform);
@@ -144,7 +144,7 @@ export default function FactCheck({ utterance }) {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             const newFactChecks = [...factChecks];
-                                            newFactChecks.push(createEmptyFactCheck());
+                                            newFactChecks.push(createEmptyFactCheck(agent));
                                             setFactChecks(newFactChecks);
                                             setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
                                         }}
@@ -200,7 +200,7 @@ export default function FactCheck({ utterance }) {
                                         </Form.Group>
 
                                         {/* Check if fc.document_set is empty and render a default FactCheckDocument */}
-                                        {(fc.document_set.length === 0 ? [createEmptyFactCheck().document_set[0]] : fc.document_set).map((doc, j) => (
+                                        {(fc.document_set.length === 0 ? [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
                                             <FactCheckDocument
                                                 document={doc}
                                                 fc_idx={i}

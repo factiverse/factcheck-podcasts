@@ -22,7 +22,7 @@ export default function AnnotationProject() {
   const [utterance, setUtterance] = useState(segmentation.utterance_set[index]);
 
   const [show, setShow] = useState(true);
-  const [username, setUsername] = useState("");
+  const [agent, setAgent] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const handleShow = () => setShow(true);
@@ -33,7 +33,7 @@ export default function AnnotationProject() {
   };
   const handleSaveChanges = () => {
     if (inputValue) {
-      setUsername(inputValue);
+      setAgent(inputValue);
       setShow(false);
     }
   };
@@ -112,7 +112,7 @@ export default function AnnotationProject() {
       <CardGroup>
         {utterance && <ExclusiveSelector
           qualifier="Checkworthiness"
-          agent="test_user"
+          agent={agent}
           labels={checkworthyLabels}
           splitField="category"
           utterance={utterance}
@@ -120,19 +120,20 @@ export default function AnnotationProject() {
 
         {utterance && <ExclusiveSelector
           qualifier="Advertising"
-          agent="test_user"
+          agent={agent}
           labels={advertisingLabels}
           splitField="category"
           utterance={utterance}
         />}
 
         {utterance && <FactCheck
-          agent="test_user"
+          agent={agent}
           utterance={utterance}
         />}
 
         {utterance && (
           <TranscriptionCheck
+            agent={agent}
             key={segmentation.uuid + "-transcheck"}
             utterance={utterance}
           />

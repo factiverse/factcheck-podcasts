@@ -34,7 +34,7 @@ const radios = [
 
 const qualifier = 'Transcription';
 
-export default function TranscriptionCheck({ utterance }) {
+export default function TranscriptionCheck({ utterance, agent}) {
   const [radioValue, setRadioValue] = useState("");
   const [textValue, setTextValue] = useState(utterance.text);
   const inputRef = useRef(null);
@@ -55,7 +55,7 @@ export default function TranscriptionCheck({ utterance }) {
         console.log(error.response.headers);
       }
     });
-  }, [utterance]);
+  }, [utterance, agent]);
 
   return (
     <Card>
@@ -79,7 +79,7 @@ export default function TranscriptionCheck({ utterance }) {
               onBlur={
                 (e) => {
                   if (radioValue == 2) { // edit with no approve
-                    postToAPI(utterance.uuid, qualifier, radios.filter((item) => item.value == radioValue).shift().name, e.currentTarget.value, 'test-user');
+                    postToAPI(utterance.uuid, qualifier, radios.filter((item) => item.value == radioValue).shift().name, e.currentTarget.value, agent);
                   }
                 }
               }
@@ -101,16 +101,16 @@ export default function TranscriptionCheck({ utterance }) {
                       if (val == 1) { // approve original
                         setTextValue(utterance.text);
                         setRadioValue(val);
-                        postToAPI(utterance.uuid, qualifier, radio.name, '', 'test-user');
+                        postToAPI(utterance.uuid, qualifier, radio.name, '', agent);
                       } else if (val == 2 || val == 3) { // edit
                         setRadioValue(val);
                         if (inputRef.current.value != utterance.text) {
-                          postToAPI(utterance.uuid, qualifier, radio.name, inputRef.current.value, 'test-user');
+                          postToAPI(utterance.uuid, qualifier, radio.name, inputRef.current.value, agent);
                         }
                       } else if (val == 4) { // reset
                         setTextValue(utterance.text);
                         setRadioValue('');
-                        postToAPI(utterance.uuid, qualifier, '', '', 'test-user');
+                        postToAPI(utterance.uuid, qualifier, '', '', agent);
                       }
                     }
                   }
