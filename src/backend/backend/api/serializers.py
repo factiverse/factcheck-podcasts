@@ -135,6 +135,7 @@ class TranscriptionSerializer(serializers.ModelSerializer):
         fields = [
             'item',
             'words',
+            'diarization',
             'name',
             'text',
             'speech2txt',

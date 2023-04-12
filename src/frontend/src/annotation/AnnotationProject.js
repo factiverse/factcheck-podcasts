@@ -8,35 +8,15 @@ import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
 import CardGroup from 'react-bootstrap/CardGroup';
 import TranscriptionCheck from './TranscriptionCheck';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-
-
+import UserModal from './UserModal';
 
 export default function AnnotationProject() {
   const [index, setIndex] = useState(0);
   const [showContext, setShowContext] = useState(false);
-  const { segmentationUuid } = useParams();
   const [segmentation, setSegmentation] = useState({ utterance_set: [] });
   const [utterance, setUtterance] = useState(segmentation.utterance_set[index]);
-
-  const [show, setShow] = useState(true);
-  const [agent, setAgent] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const handleShow = () => setShow(true);
-  const handleClose = () => {
-    if (loggedIn) {
-      setShow(false);
-    }
-  };
-  const handleSaveChanges = () => {
-    if (inputValue) {
-      setAgent(inputValue);
-      setShow(false);
-    }
-  };
+  const [agent, setAgent] = useState(null);
+  const { segmentationUuid } = useParams();
 
   useEffect(() => {
     axios({
@@ -63,37 +43,7 @@ export default function AnnotationProject() {
   return (
     <div className="container text-center">
 
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>Enter a username</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>Use the same username (caps sensitive) to restore your previous annotations</Modal.Body>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                placeholder="name@example.com"
-                autoFocus
-                onChange={
-                  (e) => {
-                    setInputValue(e.target.value);
-                  }
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button 
-          variant="primary" 
-          onClick={handleSaveChanges}
-          disabled={!inputValue}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {!agent && <UserModal setAgent={setAgent} />}
 
       {segmentation.item && segmentation.channel &&
         <h4>{segmentation.item.title} - {segmentation.channel.title}</h4>
@@ -109,36 +59,38 @@ export default function AnnotationProject() {
         url={segmentation.audio_file_link}
       />}
 
-      <CardGroup>
-        {utterance && <ExclusiveSelector
-          qualifier="Checkworthiness"
-          agent={agent}
-          labels={checkworthyLabels}
-          splitField="category"
-          utterance={utterance}
-        />}
 
-        {utterance && <ExclusiveSelector
-          qualifier="Advertising"
-          agent={agent}
-          labels={advertisingLabels}
-          splitField="category"
-          utterance={utterance}
-        />}
 
-        {utterance && <FactCheck
-          agent={agent}
-          utterance={utterance}
-        />}
-
-        {utterance && (
-          <TranscriptionCheck
+      {utterance && agent && (
+        <CardGroup>
+          <ExclusiveSelector
+            qualifier="Checkworthiness"
             agent={agent}
-            key={segmentation.uuid + "-transcheck"}
+            labels={checkworthyLabels}
+            splitField="category"
             utterance={utterance}
           />
+
+          <ExclusiveSelector
+            qualifier="Advertising"
+            agent={agent}
+            labels={advertisingLabels}
+            splitField="category"
+            utterance={utterance}
+          />
+
+          <FactCheck
+            agent={agent}
+            utterance={utterance}
+          />
+
+          <TranscriptionCheck
+              agent={agent}
+              key={segmentation.uuid + "-transcheck"}
+              utterance={utterance}
+            />
+        </CardGroup>
         )}
-      </CardGroup>
 
       <NavigationButtons index={index} segmentation={segmentation} setIndex={setIndex} setUtterance={setUtterance} />
 
