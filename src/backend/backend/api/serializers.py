@@ -65,6 +65,7 @@ class UtteranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Utterance
         fields = [
+            'hidden',
             'start',
             'end',
             'speaker',

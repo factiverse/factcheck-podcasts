@@ -6,12 +6,13 @@ export default function UserModal({ setAgent }) {
   const [show, setShow] = useState(true);
   const [inputValue, setInputValue] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const handleShow = () => setShow(true);
+  
   const handleClose = () => {
     if (loggedIn) {
       setShow(false);
     }
   };
+  
   const handleSaveChanges = () => {
     if (inputValue) {
       setAgent(inputValue);
@@ -20,9 +21,15 @@ export default function UserModal({ setAgent }) {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSaveChanges();
+    }
+  };
+
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={handleClose} onKeyDown={handleKeyDown} tabIndex="-1">
       <Modal.Header>
         <Modal.Title>Enter a username</Modal.Title>
       </Modal.Header>

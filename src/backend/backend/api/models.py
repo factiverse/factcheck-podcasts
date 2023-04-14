@@ -99,6 +99,7 @@ class Utterance(models.Model):
     Represents a single utterance
     """
     uuid = UUIDField("uuid", unique=True)
+    hidden = models.BooleanField("hidden", default=False)
     segmentation = models.ForeignKey(Segmentation, on_delete=models.CASCADE)
     speaker = models.CharField("speaker", max_length=255, null=True)
     start = models.CharField("start time", max_length=20)
