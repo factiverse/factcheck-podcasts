@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
 import os
@@ -29,6 +29,20 @@ class AudioChannelApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AudioItemApiView(APIView):
+    # post a single podcast episode to an existing channel
+    def post(self, request, *args, **kwargs):
+        channel = AudioChannel.objects.filter(uuid=kwargs['uuid']).first()
+        # insert the channel id into the request data
+        data = request.data
+        data['channel'] = channel.id
+        serializer = ItemSerializerPost(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class MediaFileView(APIView):
     def get(self, request, path, *args, **kwargs):
@@ -37,6 +51,15 @@ class MediaFileView(APIView):
             return FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
         else:
             raise Http404("File not found")
+    def post(self, request, filename, format=None):
+        file_obj = request.data['file']
+        with open(filename, 'wb+') as destination:
+            for chunk in file_obj.chunks():
+                destination.write(chunk)
+            return Response(status=status.HTTP_201_CREATED)
+    
+        
+    
 
 class TranscriptionApiView(APIView):
 

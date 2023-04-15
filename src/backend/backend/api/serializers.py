@@ -107,7 +107,7 @@ class SegmentationSerializer(serializers.ModelSerializer):
 
     def get_audio_file_link(self, obj):
         return f"media/{obj.transcription.item.channel.slug}_{obj.transcription.item.guid}.mp3"
-    
+
     def get_item(self, obj):
         return ItemSerializerGet(obj.transcription.item).data
 
@@ -172,8 +172,15 @@ class TranscriptionSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transcription
-        fields = ['item', 'speech2txt', 'runtime', 'created',
-                  'language', 'uuid', 'segmentation_set']
+        fields = [
+            'item', 
+            'speech2txt', 
+            'runtime', 
+            'created',
+            'language', 
+            'uuid', 
+            'segmentation_set'
+            ]
 
 
 class ItemSerializerGet(serializers.ModelSerializer):
@@ -181,15 +188,47 @@ class ItemSerializerGet(serializers.ModelSerializer):
 
     class Meta:
         model = AudioItem
-        fields = ["title", "subtitle", "author", "link", "summary", "description", "image", "guid", "pub_date",
-                  "language", "explicit", "season", "episode_num", "episode_type", "duration", "audio_link", "transcription_set"]
+        fields = [
+            "title",
+            "subtitle",
+            "author",
+            "link",
+            "summary",
+            "description",
+            "image",
+            "guid", "pub_date",
+            "language", 
+            "explicit", 
+            "season", 
+            "episode_num", 
+            "episode_type", 
+            "duration", 
+            "audio_link", 
+            "transcription_set"
+            ]
 
 
 class ItemSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = AudioItem
-        fields = ["title", "subtitle", "author", "link", "summary", "description", "image", "guid", "pub_date",
-                  "language", "explicit", "season", "episode_num", "episode_type", "duration", "audio_link"]
+        fields = [
+            "title", 
+            "subtitle", 
+            "author", 
+            "link", 
+            "summary", 
+            "description", 
+            "image", 
+            "guid", 
+            "pub_date",
+            "language", 
+            "explicit", 
+            "season", 
+            "episode_num", 
+            "episode_type", 
+            "duration", 
+            "audio_link"
+            ]
 
 
 class ChannelSerializerPost(serializers.ModelSerializer):
@@ -197,8 +236,25 @@ class ChannelSerializerPost(serializers.ModelSerializer):
 
     class Meta:
         model = AudioChannel
-        fields = ['rss', 'title', 'link', 'image', 'language', 'copyright', 'subtitle', 'slug', 'author',
-                  'summary', 'description', 'owner', 'categories', 'type', 'description', 'explicit', 'audioitem_set']
+        fields = [
+            'rss', 
+            'title', 
+            'link', 
+            'image', 
+            'language', 
+            'copyright', 
+            'subtitle', 
+            'slug', 
+            'author',
+            'summary', 
+            'description', 
+            'owner', 
+            'categories', 
+            'type', 
+            'description', 
+            'explicit', 
+            'audioitem_set'
+            ]
 
     def create(self, validated_data):
         items_data = validated_data.pop('audioitem_set')
@@ -213,18 +269,25 @@ class ChannelSerializerGet(serializers.ModelSerializer):
 
     class Meta:
         model = AudioChannel
-        fields = ['rss', 'title', 'link', 'image', 'language', 'copyright', 'subtitle', 'slug', 'author',
-                  'summary', 'description', 'owner', 'categories', 'type', 'description', 'explicit', 'audioitem_set']
-
-
-"""
-    def create(self, validated_data):
-        items_data = validated_data.pop('audioitem_set')
-        channel = AudioChannel.objects.create(**validated_data)
-        for item_data in items_data:
-            AudioItem.objects.create(channel=channel, **item_data)
-        return channel
-"""
+        fields = [
+            'rss', 
+            'title', 
+            'link', 
+            'image', 
+            'language', 
+            'copyright', 
+            'subtitle', 
+            'slug', 
+            'author',
+            'summary', 
+            'description', 
+            'owner', 
+            'categories', 
+            'type', 
+            'description', 
+            'explicit', 
+            'audioitem_set'
+            ]
 
 
 class ItemTranscriptionSerializer(serializers.ModelSerializer):
