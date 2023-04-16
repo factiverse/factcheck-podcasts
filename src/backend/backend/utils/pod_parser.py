@@ -71,7 +71,7 @@ def parse_channel(rss, num_episodes=-1):
             "guid": slugify(entry.guid),
             "pub_date": entry.published,
             "audio_link": next(item for item in entry.links if item["rel"] == "enclosure")["href"],
-            "rss_index": feed.entries.index(entry),
+            "rss_index": len(feed.entries) - feed.entries.index(entry) - 1,
         }
 
         if "itunes_duration" in entry.keys():
