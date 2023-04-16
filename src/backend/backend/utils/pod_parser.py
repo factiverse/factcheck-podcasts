@@ -26,12 +26,11 @@ explicit_dict = dict((choice[1], choice[0])for choice in EXPLICIT_CHOICES)
 channel_type_dict = dict((choice[1], choice[0])for choice in CHANNEL_TYPE_CHOICES)
 item_type_dict = dict((choice[1], choice[0])for choice in ITEM_TYPE_CHOICES)
 
-def parse_channel(rss, num_episodes):
+def parse_channel(rss, num_episodes=-1):
     """
     Parses an RSS feed and returns a dictionary of channel data.
     """
     feed = feedparser.parse(rss)
-    print(feed.feed.publisher_detail)
     channel_data = {
         "rss": rss,
         "title": feed.feed.title,
@@ -66,8 +65,7 @@ def parse_channel(rss, num_episodes):
             channel_data["explicit"] = explicit_dict.get("no")
 
     episodes = []
-    last_idx = num_episodes if num_episodes else -1
-    for entry in feed.entries[0: last_idx]:
+    for entry in feed.entries[0: num_episodes]:
         episode = {
             "title": entry.title,
             "guid": slugify(entry.guid),

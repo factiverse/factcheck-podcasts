@@ -196,7 +196,8 @@ class ItemSerializerGet(serializers.ModelSerializer):
             "summary",
             "description",
             "image",
-            "guid", "pub_date",
+            "guid", 
+            "pub_date",
             "language", 
             "explicit", 
             "season", 
@@ -204,6 +205,7 @@ class ItemSerializerGet(serializers.ModelSerializer):
             "episode_type", 
             "duration", 
             "audio_link", 
+            "uuid",
             "transcription_set"
             ]
 
@@ -212,6 +214,7 @@ class ItemSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = AudioItem
         fields = [
+            "channel",
             "title", 
             "subtitle", 
             "author", 

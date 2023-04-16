@@ -5,13 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost, ItemSerializerGet
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
 import os
 
 class AudioChannelApiView(APIView):
-
     # List all without including the child items
     def get(self, request, *args, **kwargs):
         channels = AudioChannel.objects
@@ -31,12 +30,21 @@ class AudioChannelApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AudioItemApiView(APIView):
+    # List all items for a given channel
+    def get(self, request, *args, **kwargs):
+        channel = AudioChannel.objects.filter(slug=kwargs['chan_slug']).first()
+        items = AudioItem.objects.filter(channel=channel)
+        serializer = ItemSerializerGet(items, many=True)
+        # return episodes sorted by uuid
+        return Response(sorted(serializer.data, key=lambda ep: ep['uuid'], reverse=True), status=status.HTTP_200_OK)
+
     # post a single podcast episode to an existing channel
     def post(self, request, *args, **kwargs):
-        channel = AudioChannel.objects.filter(uuid=kwargs['uuid']).first()
+        channel = AudioChannel.objects.filter(slug=kwargs['chan_slug']).first()
         # insert the channel id into the request data
         data = request.data
         data['channel'] = channel.id
+        print(data)
         serializer = ItemSerializerPost(data=data)
         if serializer.is_valid():
             serializer.save()
