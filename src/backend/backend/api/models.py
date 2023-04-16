@@ -68,6 +68,7 @@ class AudioItem(models.Model):
     episode_num = models.PositiveSmallIntegerField("episode number", null=True)
     episode_type = models.PositiveSmallIntegerField("episode type", default=1, choices=ITEM_TYPE_CHOICES, null=True)
     duration = models.CharField("duration", max_length=255, null=True)
+    rss_index = models.PositiveSmallIntegerField("rss index")
     audio_link = models.URLField("audio_link", max_length=1000, null=True)
 
 class Transcription(models.Model):

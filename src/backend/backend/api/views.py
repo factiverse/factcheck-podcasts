@@ -35,8 +35,7 @@ class AudioItemApiView(APIView):
         channel = AudioChannel.objects.filter(slug=kwargs['chan_slug']).first()
         items = AudioItem.objects.filter(channel=channel)
         serializer = ItemSerializerGet(items, many=True)
-        # return episodes sorted by uuid
-        return Response(sorted(serializer.data, key=lambda ep: ep['uuid'], reverse=True), status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # post a single podcast episode to an existing channel
     def post(self, request, *args, **kwargs):
