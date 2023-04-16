@@ -205,7 +205,7 @@ class ItemSerializerGet(serializers.ModelSerializer):
             "episode_type", 
             "duration", 
             "audio_link", 
-            "uuid",
+            "rss_index",
             "transcription_set"
             ]
 
@@ -230,7 +230,8 @@ class ItemSerializerPost(serializers.ModelSerializer):
             "episode_num", 
             "episode_type", 
             "duration", 
-            "audio_link"
+            "audio_link",
+            "rss_index",
             ]
 
 
