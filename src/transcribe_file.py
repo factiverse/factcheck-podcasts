@@ -1,8 +1,6 @@
-import os
 import datetime
 import time
 import copy
-import requests
 import whisper
 import pandas as pd
 # for pyannote diarization

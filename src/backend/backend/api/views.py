@@ -43,7 +43,6 @@ class AudioItemApiView(APIView):
         # insert the channel id into the request data
         data = request.data
         data['channel'] = channel.id
-        print(data)
         serializer = ItemSerializerPost(data=data)
         if serializer.is_valid():
             serializer.save()

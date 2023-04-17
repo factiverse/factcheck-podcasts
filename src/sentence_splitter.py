@@ -41,7 +41,6 @@ def sentence_splitter(transcript, spacy_model):
     words = copy.deepcopy(transcript['words'])
     # Concatenate the words into a text string
     text = "".join([word["word"] for word in words])
-
     # Process the text
     doc = nlp(text)
     # load the diarization
