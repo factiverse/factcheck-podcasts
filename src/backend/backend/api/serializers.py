@@ -70,6 +70,7 @@ class UtteranceSerializer(serializers.ModelSerializer):
             'text',
             'text_coref',
             'microfacts',
+            'claimspan',
             'uuid',
             'classification_set',
             'query_set'

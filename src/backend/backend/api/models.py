@@ -108,6 +108,7 @@ class Utterance(models.Model):
     text = models.TextField("text")
     text_coref = models.TextField("coreferenced text", null=True)
     microfacts = models.JSONField("summarized text info", null=True)
+    claimspan = models.JSONField("summarized text info", null=True)
 
 
 class Classification(models.Model):
