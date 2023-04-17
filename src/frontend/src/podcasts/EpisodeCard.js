@@ -10,19 +10,19 @@ function truncateText(text) {
   }
 }
 
-
 export default function EpisodeCard({ episode }) {
 
   return (
     <>
-      <Card style={{ width: '18rem' }}>
+      <Card style={{ minWidth: '25rem' }}>
         <Card.Header>
           <Card.Title>{episode.title}</Card.Title>
           <Card.Subtitle className="text-muted">{episode.subtitle}</Card.Subtitle>
         </Card.Header>
-        <Card.Body className="d-inline-block">{truncateText(<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(episode.description ? episode.description : episode.summary) }} />)}</Card.Body>
+        <Card.Body className="d-flex flex-column">
+          <div className="flex-grow-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(truncateText(episode.description ? episode.description : episode.summary)) }} />
+        </Card.Body>
       </Card>
     </>
   );
-
 }

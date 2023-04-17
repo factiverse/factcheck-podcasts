@@ -45,7 +45,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     } />
 
                 {/* REFUTES / NOT RELEVANT / SUPPORTS buttons */}
-                <ButtonGroup>
+                <ButtonGroup vertical={true}>
                     {radios.map((radio, k) => (
                         <ToggleButton
                             key={`radio-doc-${fc_idx}-${doc_idx}-${k}`}

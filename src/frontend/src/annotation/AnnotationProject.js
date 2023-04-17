@@ -9,6 +9,7 @@ import FactCheck from './FactCheck';
 import CardGroup from 'react-bootstrap/CardGroup';
 import TranscriptionCheck from './TranscriptionCheck';
 import UserModal from './UserModal';
+import { useSwipeable } from 'react-swipeable';
 
 const numContextUtterances = 4;
 
@@ -20,6 +21,10 @@ export default function AnnotationProject() {
   const [utterance, setUtterance] = useState(null);
   const [agent, setAgent] = useState(null);
   const { segmentationUuid } = useParams();
+
+  const handlers = useSwipeable({
+    onSwiped: (eventData) => console.log("User Swiped!", eventData),
+  });
 
   // get the segmentation set from API, including the utterance set that will be cycled through
   // TODO filter by agent
@@ -52,7 +57,7 @@ export default function AnnotationProject() {
   }, [utterance]);
 
   return (
-    <div className="container text-center">
+    <div className="container text-center" {...handlers}>
 
       {!agent && <UserModal setAgent={setAgent} />}
 

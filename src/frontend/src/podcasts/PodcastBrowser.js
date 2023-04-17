@@ -44,6 +44,8 @@ export default function PodcastBrowser({ }) {
     });
   }, []);
 
+
+
   return (
     <Row className="h-100">
       <Col md="auto" className="bg-light h-100">
@@ -63,29 +65,32 @@ export default function PodcastBrowser({ }) {
       </Col>
       <Col className="flex-grow-1 h-100">
         <Row className="h-100 mt-3">
-              {currentChannel !== "" &&
-                <Col className="mb-3">
-                  <ChannelCard 
-                  channel={currentChannel}
-                  key={`channelCard-${currentChannel.slug}`}/>
-                </Col>
-              }
-              {currentEpisode !== "" &&
-                <Col className="mb-3">
-                  <EpisodeCard 
-                  episode={currentEpisode}
-                  key={`episodeCard-${currentEpisode.uuid}`}
-                   />
-                </Col>
-              }
 
-              {currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
-                <Col className="mb-3"
-                key={`transcard-${trans.uuid}`}>
-                  <TranscriptionCard
-                    transcription={trans} />
-                </Col>
-              ) : <div></div>}
+        {currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
+            <Col className="mb-3"
+              key={`transcard-${trans.uuid}`}>
+              <TranscriptionCard
+                transcription={trans} />
+            </Col>
+          ) : <div></div>}
+          
+          {currentEpisode !== "" &&
+            <Col className="mb-3">
+              <EpisodeCard
+                episode={currentEpisode}
+                key={`episodeCard-${currentEpisode.uuid}`}
+              />
+            </Col>
+          }
+
+          {currentChannel !== "" &&
+            <Col className="mb-3">
+              <ChannelCard
+                channel={currentChannel}
+                key={`channelCard-${currentChannel.slug}`} />
+            </Col>
+          }
+
         </Row>
       </Col>
     </Row>

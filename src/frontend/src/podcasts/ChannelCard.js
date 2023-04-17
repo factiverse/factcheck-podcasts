@@ -15,18 +15,16 @@ export default function ChannelCard({ channel }) {
   // and add ellipsis
 
   return (
-    <Card style={{ width: '18rem' }}>
+    <Card style={{ minWidth: '25rem' }}>
       <Card.Header>
-
         <Card.Title>{channel.title}</Card.Title>
         <Card.Subtitle className="text-muted">{channel.categories}</Card.Subtitle>
       </Card.Header>
-      <Card.Body className="d-inline-block">{truncateText(<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(channel.description) }} />)}</Card.Body>
-      <Card.Img variant='middle' src={channel.image} />
+      <Card.Body className="d-flex flex-column">
+        {truncateText(<div className='flex-grow-1' dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(channel.description) }} />)}
+      </Card.Body>
       <Card.Footer className="text-muted">{channel.author}</Card.Footer>
+      <Card.Img variant='bottom' src={channel.image}/>
     </Card>
-
-
   );
-
 }

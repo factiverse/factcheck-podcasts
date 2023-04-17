@@ -6,7 +6,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 export default function ChannelListItem({channel, setChan, setItem, active}) {
 
 
-    const listItems = channel.audioitem_set.sort((a, b) => b.uuid.localeCompare(a.uuid)).map((episode) =>
+    const listItems = channel.audioitem_set.sort((a, b) => b.rss_index - a.rss_index).map((episode) =>
         <EpisodeListItem item={episode} channel={channel} setChan={setChan} setItem={setItem} key={"menu_"+episode.guid} />
     );
 

@@ -34,7 +34,7 @@ const radios = [
 
 const qualifier = 'Transcription';
 
-export default function TranscriptionCheck({ utterance, agent}) {
+export default function TranscriptionCheck({ utterance, agent }) {
   const [radioValue, setRadioValue] = useState("");
   const [textValue, setTextValue] = useState(utterance.text);
   const inputRef = useRef(null);
@@ -85,7 +85,8 @@ export default function TranscriptionCheck({ utterance, agent}) {
               }
 
             />
-            <ButtonGroup >
+
+            <ButtonGroup vertical={true}>
               {radios.map((radio, k) => (
                 <ToggleButton
                   key={`transcript-button-${k}`}
@@ -118,7 +119,7 @@ export default function TranscriptionCheck({ utterance, agent}) {
                   {radio.name}
                 </ToggleButton>
               ))}
-            </ButtonGroup>
+            </ButtonGroup >
           </Form.Group>
         </Form>
 
