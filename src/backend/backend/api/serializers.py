@@ -55,9 +55,7 @@ class ClassificationSerializer(serializers.ModelSerializer):
         classification = Classification.objects.create(**validated_data)
         return classification
 
-# read in annotation interface and segmentation view,
-
-
+# read in annotation interface and segmentation view, wrote by utterance updater
 class UtteranceSerializer(serializers.ModelSerializer):
     classification_set = ClassificationSerializer(many=True, required=False)
     query_set = QuerySerializer(many=True, required=False)
@@ -71,7 +69,7 @@ class UtteranceSerializer(serializers.ModelSerializer):
             'speaker',
             'text',
             'text_coref',
-            'summary',
+            'microfacts',
             'uuid',
             'classification_set',
             'query_set'

@@ -107,7 +107,7 @@ class Utterance(models.Model):
     end = models.CharField("end time", max_length=20)
     text = models.TextField("text")
     text_coref = models.TextField("coreferenced text", null=True)
-    summary = models.JSONField("summarized text info", null=True)
+    microfacts = models.JSONField("summarized text info", null=True)
 
 
 class Classification(models.Model):

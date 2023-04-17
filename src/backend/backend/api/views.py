@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost, ItemSerializerGet
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost, ItemSerializerGet, UtteranceSerializer
 from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
 from ..utils.pod_parser import parse_channel
 import os
@@ -95,9 +95,27 @@ class TranscriptionApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# post segmentations of a transcript    
+    
 class UtteranceApiView(APIView):
+    # post updates to utterances (e.g. adding microfacts or coreference)
+    def post(self, request, *args, **kwargs):
+        utterance = Utterance.objects.filter(uuid=request.data['uuid']).first()
+        serializer = UtteranceSerializer(utterance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# get segmentations of a transcript
+class SegmentationApiView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        # return all utterance sets for a given channel and item
+        seg = Segmentation.objects.filter(uuid=kwargs['uuid']).first()
+        serializer = SegmentationSerializer(seg)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def post(self, request, *args, **kwargs):
         transcript = Transcription.objects.filter(uuid=request.data['uuid']).first()
         serializer = SegmentationSerializer(data={
@@ -110,15 +128,6 @@ class UtteranceApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-# get segmentations of a transcript
-class SegmentationApiView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        # return all utterance sets for a given channel and item
-        seg = Segmentation.objects.filter(uuid=kwargs['uuid']).first()
-        serializer = SegmentationSerializer(seg)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # post classifications from the annotation interface
 class ClassificationApiView(APIView):
