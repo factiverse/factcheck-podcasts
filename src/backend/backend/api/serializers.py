@@ -100,8 +100,15 @@ class SegmentationSerializer(serializers.ModelSerializer):
         utterances_data = validated_data.pop('utterance_set')
         segmentation = Segmentation.objects.create(**validated_data)
         for utterance_data in utterances_data:
-            Utterance.objects.create(
-                segmentation=segmentation, **utterance_data)
+            # utterance_data without classification_set and query_set
+            filt_utt_data = {k: v for k, v in utterance_data.items() if k not in ['classification_set', 'query_set']}
+            newUtt = Utterance.objects.create(segmentation=segmentation, **filt_utt_data)
+            for classification_data in utterance_data.pop('classification_set'):
+                classification_data['utterance'] = newUtt  # Update the utterance value in the dictionary
+                Classification.objects.create(**classification_data)
+            for query_data in utterance_data.pop('query_set'):
+                query_data['utterance'] = newUtt  # Update the utterance value in the dictionary
+                Query.objects.create(**query_data)
         return segmentation
 
     def get_audio_file_link(self, obj):

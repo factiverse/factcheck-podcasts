@@ -1,0 +1,16 @@
+absl-py
+emoji
+gensim
+joblib
+matplotlib
+nltk
+numpy
+pandas
+sanic
+scikit_learn
+scipy
+spacy
+tensorflow
+textblob
+tqdm
+transformers
