@@ -5,6 +5,7 @@ import axios from 'axios';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import ClaimSpan from './ClaimSpan';
 
 
 export default function Utterance({ url, utterance, utteranceContext }) {
@@ -88,6 +89,8 @@ export default function Utterance({ url, utterance, utteranceContext }) {
             {renderRow(utterance, true)}
           </tbody>
         </Table>
+        {utterance && <ClaimSpan utterance={utterance}></ClaimSpan>}
+        <div>{utterance["text_coref"]}</div>
       </Card.Body>
 
       <Card.Footer className="text-muted">
