@@ -1,6 +1,6 @@
 import pandas as pd
 import csv
-from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 
 def main():

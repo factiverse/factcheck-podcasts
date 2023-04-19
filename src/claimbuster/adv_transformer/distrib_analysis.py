@@ -24,7 +24,7 @@ import numpy as np
 import csv
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KernelDensity
-from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 api = ClaimSpotterAPI()
 

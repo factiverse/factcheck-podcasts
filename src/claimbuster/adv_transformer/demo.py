@@ -21,7 +21,7 @@
 #
 
 import numpy as np
-from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
 
 if __name__ == '__main__':
     api = ClaimSpotterAPI()

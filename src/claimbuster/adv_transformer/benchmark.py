@@ -3,8 +3,8 @@ import pandas as pd
 import string
 import random
 import time
-from claimbuster_spotter.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
-from claimbuster_spotter.adv_transformer.core.utils.flags import FLAGS
+from claimbuster.adv_transformer.core.api.api_wrapper import ClaimSpotterAPI
+from claimbuster.adv_transformer.core.utils.flags import FLAGS
 
 
 def generate_sentence():
