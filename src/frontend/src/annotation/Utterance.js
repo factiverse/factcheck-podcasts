@@ -89,7 +89,7 @@ export default function Utterance({ url, utterance, utteranceContext }) {
             {renderRow(utterance, true)}
           </tbody>
         </Table>
-        {utterance && <ClaimSpan utterance={utterance}></ClaimSpan>}
+        {utterance && utterance.claimspan && <ClaimSpan utterance={utterance}></ClaimSpan>}
         <div>{utterance["text_coref"]}</div>
       </Card.Body>
 
