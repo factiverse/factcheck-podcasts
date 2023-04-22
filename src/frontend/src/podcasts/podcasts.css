@@ -38,6 +38,7 @@ body {
   .bd-aside .active {
     font-weight: 600;
     color: rgba(0, 0, 0, .85);
+    background-color: rgba(121, 82, 179, .1);
   }
   
   .bd-aside .btn {

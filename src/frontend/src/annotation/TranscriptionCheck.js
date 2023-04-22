@@ -34,9 +34,19 @@ const radios = [
 
 const qualifier = 'Transcription';
 
+const calculateRows = (text) => {
+  const lines = text.split('\n');
+  let rows = 0;
+  lines.forEach(line => {
+    rows += Math.ceil(line.length / 60) || 1;
+  });
+  return rows;
+};
+
 export default function TranscriptionCheck({ utterance, agent }) {
   const [radioValue, setRadioValue] = useState("");
   const [textValue, setTextValue] = useState(utterance.text);
+  const [textAreaRows, setTextAreaRows] = useState(calculateRows(utterance.text));
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -57,25 +67,24 @@ export default function TranscriptionCheck({ utterance, agent }) {
     });
   }, [utterance, agent]);
 
+  const handleTextChange = (e) => {
+    setTextValue(e.currentTarget.value);
+    setTextAreaRows(calculateRows(e.currentTarget.value));
+  };
+
   return (
     <Card>
       <Card.Header><Card.Title>Transcription</Card.Title></Card.Header>
       <Card.Body>
         <Form>
-          <Form.Group className="mt-3">
-            <Form.Label>Transcription</Form.Label>
             <Form.Control
               as="textarea"
-              rows={20}
+              rows={textAreaRows}
               value={textValue}
               className='mb-3'
               ref={inputRef}
               disabled={radioValue != 2}
-              onChange={
-                (e) => {
-                  setTextValue(e.currentTarget.value);
-                }
-              }
+              onChange={handleTextChange}
               onBlur={
                 (e) => {
                   if (radioValue == 2) { // edit with no approve
@@ -86,7 +95,7 @@ export default function TranscriptionCheck({ utterance, agent }) {
 
             />
 
-            <ButtonGroup vertical={true}>
+            <ButtonGroup>
               {radios.map((radio, k) => (
                 <ToggleButton
                   key={`transcript-button-${k}`}
@@ -120,7 +129,6 @@ export default function TranscriptionCheck({ utterance, agent }) {
                 </ToggleButton>
               ))}
             </ButtonGroup >
-          </Form.Group>
         </Form>
 
       </Card.Body>
