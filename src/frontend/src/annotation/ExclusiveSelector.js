@@ -6,6 +6,18 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import axios from "axios";
 import Card from 'react-bootstrap/Card';
 import Alert from 'react-bootstrap/Alert';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Button from 'react-bootstrap/Button';
+import Badge from 'react-bootstrap/Badge';
+
+const renderPopover = (content) => (
+    <Popover id="popover-basic">
+        <Popover.Content>
+            {content}
+        </Popover.Content>
+    </Popover>
+);
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
     axios.post('/api/classifications/' + utterance + "/", {
@@ -82,7 +94,34 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
 
     return (
         <Card>
-            <Card.Header><Card.Title>{qualifier}</Card.Title></Card.Header>
+            <Card.Header>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Card.Title>{qualifier}</Card.Title>
+                    <OverlayTrigger
+                        trigger="click"
+                        placement="left"
+                        overlay={renderPopover("Explanation of the card's contents.")}
+                    >
+                        <Badge
+                            pill
+                            variant="info"
+                            style={{
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                width: "24px",
+                                height: "24px",
+                                fontSize: "14px",
+                            }}
+                        >
+                            ?
+                        </Badge>
+                    </OverlayTrigger>
+                </div>
+            </Card.Header>
+
+
             <Card.Body>
                 <Card.Title>{labels.instruction1}</Card.Title>
                 <Card.Text>
@@ -92,7 +131,7 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                     {categories.map((cat) => {
                         return (
                             <Col key={cat}>
-                                <Alert key={`alert-${labels.key}`} variant={category === cat ? "primary": "light"} className='p-1'>
+                                <Alert key={`alert-${labels.key}`} variant={category === cat ? "primary" : "light"} className='p-1'>
                                     <h5>{cat}</h5>
                                 </Alert>
                                 <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>

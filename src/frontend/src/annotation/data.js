@@ -19,13 +19,16 @@ export const checkworthyLabels = {
 };
 
 export const advertisingLabels = {
-  instruction1: "Identify Advertising",
-  instruction2: "Choose whether this utterance is advertising, either inserted automatically into the audio, explicitly stated by presenters, or potential product placement.",
+  instruction1: "Select one choice about advertising",
+  instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement.",
   key: "advertising",
   labels: [
     {keyStroke: "1", label: "Not Advertising", category: "Not Advertising", help: "Regular audio content, no advertising."},
     {keyStroke: "2", label: "External Advertising", category: "Advertising", help: "Advertising that seems to have been externally inserted into the audio, usually at the beginning or end of the episode."},
     {keyStroke: "3", label: "Sponser Mentions", category: "Advertising", help: "Advertising that is explicitely read by presenters."},
+    {keyStroke: "3", label: "Obviously", category: "Product Placement", help: "Advertising that is explicitely read by presenters."},
+    {keyStroke: "3", label: "Could Be", category: "Product Placement", help: "Advertising that is explicitely read by presenters."},
+    {keyStroke: "3", label: "Possibly", category: "Product Placement", help: "Advertising that is explicitely read by presenters."},
   ]
 };
 

@@ -123,7 +123,7 @@ export default function AnnotationProject() {
     </div>,
     <div key="advertising">
       <ExclusiveSelector
-        qualifier="Advertising"
+        qualifier="Identify Advertising"
         agent={agent}
         labels={advertisingLabels}
         splitField="category"
