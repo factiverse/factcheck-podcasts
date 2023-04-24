@@ -2,6 +2,8 @@
 export const checkworthyLabels = {
   instruction1: "Select the label that best describes the claim.",
   instruction2: "Press the corresponding key to select the label.",
+  helpHeader: "Checkworthy Labels",
+  helpText: "Checkworthy labels are labels that are used to describe claims that can be checked. Non-checkworthy labels are labels that are used to describe claims that cannot be checked.",
   key: "checkworthy", // string that can be used in HTML id attributes
   labels: [
     {keyStroke: "1", label: "Actions (past/present)", category: "Checkworthy", help: "Some action that has been done or is being done."},
@@ -21,6 +23,8 @@ export const checkworthyLabels = {
 export const advertisingLabels = {
   instruction1: "Select one choice about advertising",
   instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement.",
+  helpHeader: "Advertising Labels",
+  helpText: "Advertising labels are labels that are used to describe advertising that is present in the audio.",
   key: "advertising",
   labels: [
     {keyStroke: "1", label: "Not Advertising", category: "Not Advertising", help: "Regular audio content, no advertising."},

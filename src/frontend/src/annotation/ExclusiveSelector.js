@@ -1,23 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
 import axios from "axios";
-import Card from 'react-bootstrap/Card';
-import Alert from 'react-bootstrap/Alert';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Button from 'react-bootstrap/Button';
-import Badge from 'react-bootstrap/Badge';
-
-const renderPopover = (content) => (
-    <Popover id="popover-basic">
-        <Popover.Content>
-            {content}
-        </Popover.Content>
-    </Popover>
-);
+import { Row, Col, Card, Alert, ToggleButton, ButtonGroup } from 'react-bootstrap';
+import HelpPopUp from './HelpPopUp';
+import HelpTooltipButton from './HelpTooltipButton';
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
     axios.post('/api/classifications/' + utterance + "/", {
@@ -37,19 +22,6 @@ const postToAPI = (utterance, qualifier, category, label, agent) => {
                 console.log(error.response.headers);
             }
         });
-};
-
-const headerStyle = {
-    deactivated: {
-        backgroundColor: "#f8f9fa",
-        color: "#6c757d",
-        fontWeight: "normal",
-    },
-    emphasized: {
-        backgroundColor: "#333333", // Use a more accessible color combination
-        color: "#ffffff",
-        fontWeight: "bold",
-    },
 };
 
 export default function ExclusiveSelector({ qualifier, agent, labels, splitField, utterance }) {
@@ -86,38 +58,15 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
         });
     }, [utterance, agent]);
 
-    // iterate over the unique values and create a column for each
-
-    // get the checkworthy label corresponding to the current radio button value and use this to set
-    // the style of the header using the headerStyle object
-
-
     return (
         <Card>
             <Card.Header>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>{qualifier}</Card.Title>
-                    <OverlayTrigger
-                        trigger="click"
-                        placement="left"
-                        overlay={renderPopover("Explanation of the card's contents.")}
-                    >
-                        <Badge
-                            pill
-                            variant="info"
-                            style={{
-                                cursor: "pointer",
-                                display: "inline-flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                width: "24px",
-                                height: "24px",
-                                fontSize: "14px",
-                            }}
-                        >
-                            ?
-                        </Badge>
-                    </OverlayTrigger>
+                    <HelpPopUp
+                        header={labels.helpHeader}
+                        text={labels.helpText}
+                        qualifier={qualifier} />
                 </div>
             </Card.Header>
 
@@ -136,40 +85,44 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                                 </Alert>
                                 <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
-                                        <ToggleButton
-                                            key={`radio-${labels.key}-${label.keyStroke}`}
-                                            id={`radio-${labels.key}-${label.keyStroke}`}
-                                            type="radio"
-                                            variant='outline-secondary'
-                                            name={`radio-${labels.key}`}
-                                            value={label.label}
-                                            checked={radioValue === label.label}
-                                            onClick={(e) => {
-                                                const selectedLabel = labels.labels.filter((item) => item.label === label.label).shift();
-                                                const cat = selectedLabel ? selectedLabel.category : '';
+                                        <HelpTooltipButton
+                                        text={label.help}
+                                            button={
+                                                <ToggleButton
+                                                    key={`radio-${labels.key}-${label.keyStroke}`}
+                                                    id={`radio-${labels.key}-${label.keyStroke}`}
+                                                    type="radio"
+                                                    variant='outline-secondary'
+                                                    name={`radio-${labels.key}`}
+                                                    value={label.label}
+                                                    checked={radioValue === label.label}
+                                                    onClick={(e) => {
+                                                        const selectedLabel = labels.labels.filter((item) => item.label === label.label).shift();
+                                                        const cat = selectedLabel ? selectedLabel.category : '';
 
-                                                if (radioValue === label.label) {
-                                                    setRadioValue('');
-                                                    setCategory('');
-                                                    postToAPI(utterance.uuid, qualifier, '', '', agent);
-                                                } else {
-                                                    setRadioValue(label.label);
-                                                    setCategory(cat);
-                                                    postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
-                                                }
-                                            }}
-                                            role="radio"
-                                            aria-checked={radioValue === label.label}
-                                        >
-                                            {label.label}
-                                        </ToggleButton>
+                                                        if (radioValue === label.label) {
+                                                            setRadioValue('');
+                                                            setCategory('');
+                                                            postToAPI(utterance.uuid, qualifier, '', '', agent);
+                                                        } else {
+                                                            setRadioValue(label.label);
+                                                            setCategory(cat);
+                                                            postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
+                                                        }
+                                                    }}
+                                                    role="radio"
+                                                    aria-checked={radioValue === label.label}
+                                                >
+                                                    {label.label}
+                                                </ToggleButton>
+                                            } tooltip={label.tooltip} key={label.label} />
+
                                     )}
                                 </ButtonGroup>
                             </Col>
                         );
                     })}
                 </Row>
-
             </Card.Body>
         </Card>
     );

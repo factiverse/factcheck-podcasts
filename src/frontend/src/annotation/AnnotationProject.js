@@ -13,15 +13,14 @@ import Container from 'react-bootstrap/Container';
 import Alert from "react-bootstrap/Alert";
 import Masonry from 'react-masonry-css';
 import './annotation.css';
-
-
 const numContextUtterances = 4;
 
 const breakpointCols = {
   default: 4, // The default number of columns.
-  1100: 5, // 3 columns for screens wider than 1100px.
-  700: 3, // 2 column for screens between 700px and 1100px.
-  500: 2, // 1 column for screens smaller than 500px.
+  1500: 3, // 3 columns for screens wider than 1500px.
+  1200: 2, // 2 columns for screens wider than 1100px.
+  700: 1, // 2 column for screens between 700px and 1100px.
+  500: 1, // 1 column for screens smaller than 500px.
 };
 
 export default function AnnotationProject() {
@@ -95,7 +94,7 @@ export default function AnnotationProject() {
     }
   }, [agent]);
 
-  const items = [
+  let items = [
     <div key="utterance">
       <Utterance
         utterance={utterance}
@@ -171,7 +170,7 @@ export default function AnnotationProject() {
             className="masonry-grid"
             columnClassName="masonry-grid_column"
           >
-            {items.map((item) => item)}
+            {items}
           </Masonry>
         )}
 
