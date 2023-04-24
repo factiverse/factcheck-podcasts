@@ -24,39 +24,16 @@ const postToAPI = (utterance, qualifier, category, label, agent) => {
         });
 };
 
-export default function ExclusiveSelector({ qualifier, agent, labels, splitField, utterance }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, updateFunction }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
-
     useEffect(() => {
-        axios({
-            method: "GET",
-            url: "/api/classifications/" + utterance.uuid + "/",
-        }).then((response) => {
-            const data = response.data;
-            // remove the classifications that are not from the current agent from data
-            const classifications = data.filter((item) => item.agent == agent);
-
-            if (classifications.length > 0) {
-                const currentValue = classifications.filter((item) => item.qualifier == qualifier).shift();
-                setRadioValue(currentValue.label);
-                setCategory(labels.labels.filter((item) => item.label == currentValue.label).shift().category); //e.g. checkworthy vs. non-checkworthy
-
-            } else {
-                setRadioValue("");
-                setCategory("");
-            }
-        }).catch((error) => {
-            if (error.response) {
-                console.log(error.response);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
-    }, [utterance, agent]);
+            setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0].label : '');
+            setCategory(classification ? labels.labels.filter((item) => item.category == classification.category)[0].category : '');
+    }, [utterance, classification]);
 
     return (
         <Card>
@@ -86,7 +63,7 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                                 <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <HelpTooltipButton
-                                        text={label.help}
+                                            text={label.help}
                                             button={
                                                 <ToggleButton
                                                     key={`radio-${labels.key}-${label.keyStroke}`}
@@ -104,10 +81,12 @@ export default function ExclusiveSelector({ qualifier, agent, labels, splitField
                                                             setRadioValue('');
                                                             setCategory('');
                                                             postToAPI(utterance.uuid, qualifier, '', '', agent);
+                                                            updateFunction();
                                                         } else {
                                                             setRadioValue(label.label);
                                                             setCategory(cat);
                                                             postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
+                                                            updateFunction();
                                                         }
                                                     }}
                                                     role="radio"

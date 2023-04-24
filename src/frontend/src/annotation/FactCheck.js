@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import Tab from 'react-bootstrap/Tab';
-import Nav from 'react-bootstrap/Nav';
-import Badge from 'react-bootstrap/Badge';
 import FactCheckDocument from './FactCheckDocument';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import InputGroup from 'react-bootstrap/InputGroup';
+import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup} from 'react-bootstrap';
 import { searchPlatforms } from './data.js';
-import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import HelpPopUp from './HelpPopUp';
 
 const postToAPI = (utterance, factChecks) => {
 
@@ -105,7 +98,15 @@ export default function FactCheck({ utterance, agent }) {
     return (
         <>
             <Card key={`factcheck-utt-${utterance.uuid}`}>
-                <Card.Header><Card.Title>Fact Check</Card.Title></Card.Header>
+                <Card.Header>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Card.Title>Fact Check</Card.Title>
+                    <HelpPopUp
+                        header={"fc help header"}
+                        text={"fc help text"}
+                        qualifier={"factcheck"} />
+                </div>
+            </Card.Header>
                 <Card.Body>
                     <Form>
                         <Tab.Container activeKey={activeFactCheck}>
@@ -170,14 +171,14 @@ export default function FactCheck({ utterance, agent }) {
                                                 {/* PLATFORM DROPDOWN: */}
                                                 {searchPlatforms.map((platform) => (
 
-                                                    <DropdownItem
+                                                    <Dropdown.Item
                                                         href="#"
                                                         key={`fc-${i}-platform-dropdown-${platform.key}`}
                                                         onClick={() => {
                                                             handlePlatformDropdownClick(platform.name, i);
                                                         }}
                                                     >{platform.name}
-                                                    </DropdownItem>
+                                                    </Dropdown.Item>
                                                 ))}
                                                 </DropdownButton>
                                                 {/* QUERY URL: */}

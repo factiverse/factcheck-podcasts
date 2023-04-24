@@ -2,7 +2,6 @@ import React, { useEffect} from 'react';
 import { TextAnnotate } from "react-text-annotate-blend"
 
 export default function ClaimSpan({ utterance }) {
-    console.log(utterance.claimspan)
     const [value, setValue] = React.useState([{
         "start": utterance.claimspan[0],
         "end": utterance.claimspan[1],
