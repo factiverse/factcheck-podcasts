@@ -158,6 +158,12 @@ const columnsMain = [
     name: 'Text',
     cell: row => <div><p className='h6'>{row.text}</p><div>{row.text_coref}</div></div>,
   },
+  {
+    name: 'Hidden',
+    selector: row => row.hidden * 1,
+    sortable: true,
+    width: '8rem',
+  },
 ];
 
 const styles = `

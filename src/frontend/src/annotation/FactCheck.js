@@ -102,8 +102,8 @@ export default function FactCheck({ utterance, agent }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>Fact Check</Card.Title>
                     <HelpPopUp
-                        header={"fc help header"}
-                        text={"fc help text"}
+                        header={"Carry out a basic fact check on the statement."}
+                        text={"Here you will search with a search engine and record the search phrase you use (or simply paste the link to the search results page in). You can also add a link to a search engine result. If you find a result that supports the statement, you can add it to the document set. If you find a result that does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."}
                         qualifier={"factcheck"} />
                 </div>
             </Card.Header>

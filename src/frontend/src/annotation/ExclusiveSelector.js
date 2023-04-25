@@ -31,8 +31,8 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
     useEffect(() => {
-            setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0].label : '');
-            setCategory(classification ? labels.labels.filter((item) => item.category == classification.category)[0].category : '');
+        setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0].label : '');
+        setCategory(classification ? labels.labels.filter((item) => item.category == classification.category)[0].category : '');
     }, [utterance, classification]);
 
     return (
@@ -94,7 +94,9 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                 >
                                                     {label.label}
                                                 </ToggleButton>
-                                            } tooltip={label.tooltip} key={label.label} />
+                                            }
+                                            key={label.label}
+                                        />
 
                                     )}
                                 </ButtonGroup>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Utterance from './Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
-import { checkworthyLabels, advertisingLabels } from './data.js';
+import { checkworthyLabels, advertisingLabels, motivationLabels } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './FactCheck';
@@ -154,17 +154,27 @@ useEffect(() => {
       </div>,
       isCheckworthyUtt && <div key="fact-check">
         <FactCheck agent={agent} utterance={utterance} />
+      </div>, 
+      <div key="motivation">
+        <ExclusiveSelector
+          qualifier="Motivations"
+          agent={agent}
+          labels={motivationLabels}
+          splitField="category"
+          utterance={utterance}
+          classification={classifications.filter((c) => c.qualifier === "Motivations")[0]}
+        />
       </div>,
       <div key="advertising">
         <ExclusiveSelector
-          qualifier="Identify Advertising"
+          qualifier="Advertising"
           agent={agent}
           labels={advertisingLabels}
           splitField="category"
           utterance={utterance}
-          classification={classifications.filter((c) => c.qualifier === "Identify Advertising")[0]}
+          classification={classifications.filter((c) => c.qualifier === "Advertising")[0]}
         />
-      </div>,
+      </div>,     
     ];
   };
 
@@ -192,7 +202,7 @@ useEffect(() => {
 
         {utterance && agent && classifications && (
           <Row>
-            <Col xs={12} xl={6} xxl={4}>
+            <Col xs={12} lg={6} xxl={4}>
               <Utterance
                 key={segmentation.uuid + "-utterance"}
                 utterance={utterance}

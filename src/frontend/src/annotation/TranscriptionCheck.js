@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
+import { ToggleButton, ButtonGroup, Form, Card } from 'react-bootstrap';
 import axios from "axios";
-import TextareaAutosize from 'react-textarea-autosize';
 import HelpPopUp from './HelpPopUp';
+import HelpTooltipButton from './HelpTooltipButton';
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
   axios.post('/api/classifications/' + utterance + "/", {
@@ -28,10 +25,10 @@ const postToAPI = (utterance, qualifier, category, label, agent) => {
 };
 
 const radios = [
-  { name: 'Approve Original', value: 1 },
-  { name: 'Edit', value: 2 },
-  { name: 'Approve Edit', value: 3 },
-  { name: 'Reset', value: 4 },
+  { name: 'Approve Original', value: 1, help: "Confirm the original transcription is correct." },
+  { name: 'Edit', value: 2, help: "Unlock the text box and make corrections to the original transcription." },
+  { name: 'Approve Edit', value: 3, help: "Confirm your edits to the original transcription." },
+  { name: 'Reset', value: 4, help: "Delete your edits and restore original." },
 ];
 
 export default function TranscriptionCheck({ qualifier, classification, agent, utterance }) {
@@ -50,8 +47,9 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Card.Title>Transcription</Card.Title>
           <HelpPopUp
-            header={"test"}
-            text={"test"}
+            header={"Transcription Verification"}
+            text={"Verify the accuracy of the transcription. FOCUS ON CORRECTING WORDS THAT ARE CLEARLY WRONG after listening to the audio. This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
+            }
             qualifier={"transcription"} />
         </div>
       </Card.Header>
@@ -79,37 +77,41 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
 
             <ButtonGroup>
               {radios.map((radio, k) => (
-                <ToggleButton
-                  key={`transcript-button-${k}`}
-                  id={`transcript-button-${k}`}
-                  type="radio"
-                  variant='outline-success'
-                  className='text-nowrap'
-                  name={`transcript-button`}
-                  value={radio.value}
-                  checked={radioValue == radio.value}
-                  onChange={
-                    (e) => {
-                      var val = e.currentTarget.value;
-                      if (val == 1) { // approve original
-                        setTextValue(utterance.text);
-                        setRadioValue(val);
-                        postToAPI(utterance.uuid, qualifier, radio.name, '', agent);
-                      } else if (val == 2 || val == 3) { // edit
-                        setRadioValue(val);
-                        if (inputRef.current.value != utterance.text) {
-                          postToAPI(utterance.uuid, qualifier, radio.name, inputRef.current.value, agent);
+                <HelpTooltipButton
+                  text={radio.help}
+                  button={
+                    <ToggleButton
+                      key={`transcript-button-${k}`}
+                      id={`transcript-button-${k}`}
+                      type="radio"
+                      variant='outline-success'
+                      className='text-nowrap'
+                      name={`transcript-button`}
+                      value={radio.value}
+                      checked={radioValue == radio.value}
+                      onChange={
+                        (e) => {
+                          var val = e.currentTarget.value;
+                          if (val == 1) { // approve original
+                            setTextValue(utterance.text);
+                            setRadioValue(val);
+                            postToAPI(utterance.uuid, qualifier, radio.name, '', agent);
+                          } else if (val == 2 || val == 3) { // edit
+                            setRadioValue(val);
+                            if (inputRef.current.value != utterance.text) {
+                              postToAPI(utterance.uuid, qualifier, radio.name, inputRef.current.value, agent);
+                            }
+                          } else if (val == 4) { // reset
+                            setTextValue(utterance.text);
+                            setRadioValue('');
+                            postToAPI(utterance.uuid, qualifier, '', '', agent);
+                          }
                         }
-                      } else if (val == 4) { // reset
-                        setTextValue(utterance.text);
-                        setRadioValue('');
-                        postToAPI(utterance.uuid, qualifier, '', '', agent);
                       }
-                    }
-                  }
-                >
-                  {radio.name}
-                </ToggleButton>
+                    >
+                      {radio.name}
+                    </ToggleButton>}
+                  key={`help-box-${k}`} />
               ))}
             </ButtonGroup >
           </Form.Group>
