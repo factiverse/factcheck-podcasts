@@ -158,9 +158,16 @@ class ClassificationApiView(APIView):
     
     def get(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-        classifications = Classification.objects.filter(utterance=utterance)
+        agent = request.query_params.get('agent', None)  # get the agent from the query string
+
+        if agent:
+            classifications = Classification.objects.filter(utterance=utterance, agent=agent)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ClassificationSerializer(classifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     
 # post queries and documents from the annotation interface
 # get a list of queries (and documents) for a given utterance for annotation interface

@@ -7,6 +7,15 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
+function isUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
 function getSpeech2TxtRowsRecursive(myDict, parentKey = '') {
     let rows = [];
     for (const key in myDict) {
@@ -14,10 +23,13 @@ function getSpeech2TxtRowsRecursive(myDict, parentKey = '') {
         if (typeof myDict[key] === 'object') {
             rows = rows.concat(getSpeech2TxtRowsRecursive(myDict[key], newKey));
         } else {
+            const value = myDict[key].toString();
             rows.push(
                 <tr key={newKey}>
                     <th>{key}</th>
-                    <td>{myDict[key].toString()}</td>
+                    <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                        {isUrl(value) ? <a href={value} target="_blank" rel="noopener noreferrer">{value}</a> : value}
+                    </td>
                 </tr>
             );
         }
@@ -25,11 +37,13 @@ function getSpeech2TxtRowsRecursive(myDict, parentKey = '') {
     return rows;
 }
 
-export default function TranscriptionCard({ transcription, hideTranscriptionButton }) {
+export default function TranscriptionCard({ transcription, hideTranscriptionButton, queryParams }) {
     const [open, setOpen] = useState(false);
-
+    if (!queryParams) {
+        queryParams = new URLSearchParams();
+    }
     return (
-        <Card style={{ minWidth: '25rem',  }}>
+        <Card className='mw-20'>
             <Card.Header>Transcription {transcription.name}</Card.Header>
             <Card.Body>
                 <div className="d-flex justify-content-center">
@@ -46,7 +60,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                             as={Link}
                             variant="secondary"
                             target="_blank"
-                            to={'/transcriptions/' + transcription.uuid}
+                            to={{ pathname: '/transcriptions/' + transcription.uuid, search: queryParams.toString() }}
                         >
                             View Transcript
                         </Button>
@@ -92,7 +106,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                             as={Link}
                                             variant="secondary"
                                             target="_blank"
-                                            to={'/segmentations/' + seg.uuid}
+                                            to={{ pathname: '/segmentations/' + seg.uuid, search: queryParams.toString() }}
                                         >
                                             Segmentation
                                         </Button>
@@ -100,7 +114,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                             as={Link}
                                             variant="secondary"
                                             target="_blank"
-                                            to={'/annotations/' + seg.uuid}
+                                            to={{ pathname: '/annotations/' + seg.uuid, search: queryParams.toString() }}
                                         >
                                             Annotations
                                         </Button>

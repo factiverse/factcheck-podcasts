@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import Tab from 'react-bootstrap/Tab';
-import Nav from 'react-bootstrap/Nav';
-import Badge from 'react-bootstrap/Badge';
 import FactCheckDocument from './FactCheckDocument';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import InputGroup from 'react-bootstrap/InputGroup';
+import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup} from 'react-bootstrap';
 import { searchPlatforms } from './data.js';
-import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import HelpPopUp from './HelpPopUp';
 
 const postToAPI = (utterance, factChecks) => {
 
@@ -105,7 +98,15 @@ export default function FactCheck({ utterance, agent }) {
     return (
         <>
             <Card key={`factcheck-utt-${utterance.uuid}`}>
-                <Card.Header><Card.Title>Fact Check</Card.Title></Card.Header>
+                <Card.Header>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Card.Title>Fact Check</Card.Title>
+                    <HelpPopUp
+                        header={"Carry out a basic fact check on the statement."}
+                        text={"Here you will search with a search engine and record the search phrase you use (or simply paste the link to the search results page in). You can also add a link to a search engine result. If you find a result that supports the statement, you can add it to the document set. If you find a result that does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."}
+                        qualifier={"factcheck"} />
+                </div>
+            </Card.Header>
                 <Card.Body>
                     <Form>
                         <Tab.Container activeKey={activeFactCheck}>
@@ -170,14 +171,14 @@ export default function FactCheck({ utterance, agent }) {
                                                 {/* PLATFORM DROPDOWN: */}
                                                 {searchPlatforms.map((platform) => (
 
-                                                    <DropdownItem
+                                                    <Dropdown.Item
                                                         href="#"
                                                         key={`fc-${i}-platform-dropdown-${platform.key}`}
                                                         onClick={() => {
                                                             handlePlatformDropdownClick(platform.name, i);
                                                         }}
                                                     >{platform.name}
-                                                    </DropdownItem>
+                                                    </Dropdown.Item>
                                                 ))}
                                                 </DropdownButton>
                                                 {/* QUERY URL: */}

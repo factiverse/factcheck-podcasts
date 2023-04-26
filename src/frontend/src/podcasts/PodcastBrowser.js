@@ -6,15 +6,17 @@ import axios from "axios";
 import EpisodeCard from './EpisodeCard';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ListGroup from 'react-bootstrap/ListGroup';
 import TranscriptionCard from './TranscriptionCard';
+
 
 export default function PodcastBrowser({ }) {
   const { podcastSlug, podcastGuid } = useParams();
   const [channels, setChannels] = useState([]);
   const [currentChannel, setCurrentChannel] = useState("");
   const [currentEpisode, setCurrentEpisode] = useState("");
+  let [searchParams, setSearchParams] = useSearchParams("");
 
   useEffect(() => {
     axios({
@@ -44,11 +46,11 @@ export default function PodcastBrowser({ }) {
     });
   }, []);
 
-
+  console.log(searchParams.get("p_id"), searchParams.get("pid"));
 
   return (
     <Row className="h-100">
-      <Col md="auto" className="bg-light h-100">
+      <Col className="bg-light h-100" sm={4} >
         <aside className="bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2">
           <nav className="small" id="toc">
             <ListGroup as="ul" className="list-unstyled">
@@ -57,23 +59,27 @@ export default function PodcastBrowser({ }) {
                   channel={chan}
                   setChan={setCurrentChannel}
                   setItem={setCurrentEpisode}
+                  currentEpisode={currentEpisode}
+                  currentChannel={currentChannel}
+                  queryParams={searchParams}
                   key={"menu_" + chan.slug}
                 />) : "loading"}
             </ListGroup>
           </nav>
         </aside>
       </Col>
-      <Col className="flex-grow-1 h-100">
+      <Col className="flex-grow-1 h-100 sticky-top" sm={8}>
         <Row className="h-100 mt-3">
 
-        {currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
+          {searchParams && currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>
             <Col className="mb-3"
               key={`transcard-${trans.uuid}`}>
               <TranscriptionCard
+                queryParams={searchParams}
                 transcription={trans} />
             </Col>
           ) : <div></div>}
-          
+
           {currentEpisode !== "" &&
             <Col className="mb-3">
               <EpisodeCard

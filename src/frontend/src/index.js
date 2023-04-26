@@ -15,6 +15,7 @@ import PodcastBrowser from './podcasts/PodcastBrowser';
 
 //dev
 axios.defaults.baseURL = 'http://localhost:8888/';
+//axios.defaults.baseURL = 'http://192.168.2.239/';
 //docker publish
 //axios.defaults.baseURL = '/';
 

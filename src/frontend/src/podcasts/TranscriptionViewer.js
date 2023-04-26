@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import EpisodeCard from './EpisodeCard';
 import { secondsToHms } from '../util/time';
 import Table from 'react-bootstrap/Table';
@@ -16,6 +16,7 @@ export default function TranscriptionViewer() {
   const [transcript, setTranscript] = useState("");
   const [currentEpisode, setCurrentEpisode] = useState("");
   const [currentChannel, setCurrentChannel] = useState("");
+  let [searchParams, setSearchParams] = useSearchParams("");
 
   useEffect(() => {
     axios({
@@ -55,7 +56,10 @@ export default function TranscriptionViewer() {
           <Col><EpisodeCard episode={currentEpisode} /></Col>
         }
         {transcript &&
-          <Col><TranscriptionCard transcription={transcript} hideTranscriptionButton /></Col>
+          <Col><TranscriptionCard 
+          queryParams={searchParams}
+          transcription={transcript} 
+          hideTranscriptionButton /></Col>
         }
 
       </Row>

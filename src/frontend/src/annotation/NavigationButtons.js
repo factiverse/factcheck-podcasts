@@ -76,7 +76,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
 
 
     return (
-        <div className='mt-3'>
+        <div className='mt-0'>
             <ButtonGroup>
                 <NavButton disabled={isFirst} text="First" keyStroke="↑" onClick={handleFirstClick} />
                 <NavButton disabled={isFirst} text="" keyStroke="←" onClick={handlePrevClick} />
@@ -84,13 +84,10 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                 <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
             </ButtonGroup>
 
-            <div className="progress mt-3" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                <div className="progress-bar" style={{ width: (index + 1) * 100 / segmentation.utterance_set.length + '%' }}></div>
+            <div className="progress mt-1 mb-2" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div className="progress-bar" style={{ width: (index + 1) * 100 / segmentation.utterance_set.length + '%' }}>({index + 1} of {segmentation.utterance_set.length})</div>
             </div>
 
-            <h3>
-                ({index + 1} of {segmentation.utterance_set.length})
-            </h3>
         </div>
     );
 }

@@ -14,7 +14,7 @@ export default function EpisodeCard({ episode }) {
 
   return (
     <>
-      <Card style={{ minWidth: '25rem' }}>
+      <Card className='mw-20'>
         <Card.Header>
           <Card.Title>{episode.title}</Card.Title>
           <Card.Subtitle className="text-muted">{episode.subtitle}</Card.Subtitle>
