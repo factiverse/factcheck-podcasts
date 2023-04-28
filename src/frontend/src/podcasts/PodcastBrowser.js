@@ -68,7 +68,7 @@ export default function PodcastBrowser({ }) {
           </nav>
         </aside>
       </Col>
-      <Col className="flex-grow-1 h-100 sticky-top" sm={8}>
+      <Col className="flex-grow-1 h-100 sticky-top pe-4" sm={8}>
         <Row className="h-100 mt-3">
 
           {searchParams && currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>

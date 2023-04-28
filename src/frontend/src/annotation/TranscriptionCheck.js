@@ -78,7 +78,7 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
             <ButtonGroup>
               {radios.map((radio, k) => (
                 <HelpTooltipButton
-                  text={radio.help}
+                  label={radio}
                   button={
                     <ToggleButton
                       key={`transcript-button-${k}`}

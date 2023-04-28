@@ -136,32 +136,36 @@ class ClassificationApiView(APIView):
     # same should apply if e.g. applying claimbuster labels, only one per agent/qualifier
     def post(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=request.data['utterance']).first()
-        # delete old entry for user
-        Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=request.data['agent']).delete()
-
-        # return after having deleted the old entry
-        if len(request.data['category']) == 0:
-            return Response(status=status.HTTP_200_OK)
-        
-        serializer = ClassificationSerializer(data={
-            'utterance': utterance.id,
-            'qualifier': request.data['qualifier'],
-            'category': request.data['category'],
-            'label': request.data['label'] if len(request.data['label']) > 0 else None,
-            'agent': request.data['agent'],
-        })
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        agent = request.data["agent"]  # get the agent from the query string
+        if agent:
+            # delete old entry for user
+            Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID")).delete()
+            # return after having deleted the old entry if no new classification
+            if len(request.data['category']) == 0:
+                return Response(status=status.HTTP_200_OK)
+            
+            serializer = ClassificationSerializer(data={
+                'utterance': utterance.id,
+                'qualifier': request.data['qualifier'],
+                'category': request.data['category'],
+                'label': request.data['label'] if len(request.data['label']) > 0 else None,
+                'agent': agent["PROLIFIC_PID"], 
+                'prolific_study': agent.get("STUDY_ID"), 
+                'prolific_session': agent.get("SESSION_ID")
+            })
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-        agent = request.query_params.get('agent', None)  # get the agent from the query string
-
+        agent = request.query_params  # get the agent from the query string
         if agent:
-            classifications = Classification.objects.filter(utterance=utterance, agent=agent)
+            classifications = Classification.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID"))
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -173,43 +177,54 @@ class ClassificationApiView(APIView):
 # get a list of queries (and documents) for a given utterance for annotation interface
 class QueryApiView(APIView):
     
-
     def post(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-        created_queries = []
+        agent = request.data["agent"]
+        if agent:
+            # delete old entry for user
+            Query.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID")).delete()
+            # return after having deleted the old entry if no new query
+            if len(request.data) == 0:
+                return Response(status=status.HTTP_200_OK)
+            created_queries = []
 
-        # Delete existing records for the user
-        agent = request.data[0]['agent']
-        Query.objects.filter(agent=agent, utterance=utterance).delete()
+            for query_data in request.data["queries"]:
+                # Deserialize the document_set using the DocumentSerializer
+                document_set_data = query_data.get('document_set')
+                document_serializer = DocumentSerializer(data=document_set_data, many=True)
 
+                # Validate the document_set data
+                if not document_serializer.is_valid():
+                    raise ValidationError(document_serializer.errors)
 
-        for query_data in request.data:
-            # Deserialize the document_set using the DocumentSerializer
-            document_set_data = query_data['document_set']
-            document_serializer = DocumentSerializer(data=document_set_data, many=True)
+                serializer = QuerySerializer(data={
+                    'utterance': utterance.id,
+                    'agent': agent['PROLIFIC_PID'],
+                    'query': query_data['query'],
+                    'platform': query_data.get('platform', None),
+                    'document_set': document_set_data,  # Pass the raw document_set data to the QuerySerializer
+                    'prolific_study': agent.get("STUDY_ID"), 
+                    'prolific_session': agent.get("SESSION_ID")
+                })
 
-            # Validate the document_set data
-            if not document_serializer.is_valid():
-                raise ValidationError(document_serializer.errors)
+                if serializer.is_valid():
+                    serializer.save()
+                    created_queries.append(serializer.data)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = QuerySerializer(data={
-                'utterance': utterance.id,
-                'agent': query_data['agent'],
-                'query': query_data['query'],
-                'platform': query_data.get('platform', None),
-                'document_set': document_set_data,  # Pass the raw document_set data to the QuerySerializer
-            })
-
-            if serializer.is_valid():
-                serializer.save()
-                created_queries.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(created_queries, status=status.HTTP_201_CREATED)
+            return Response(created_queries, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
     def get(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
-        queries = Query.objects.filter(utterance=utterance)
+
+        agent = request.query_params  # get the agent from the query string
+        if agent:
+            queries = Query.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID"))
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = QuerySerializer(queries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

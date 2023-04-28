@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import FactCheckDocument from './FactCheckDocument';
-import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup} from 'react-bootstrap';
+import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup } from 'react-bootstrap';
 import { searchPlatforms } from './data.js';
 import HelpPopUp from './HelpPopUp';
+import FactCheckQuery from './FactCheckQuery';
 
-const postToAPI = (utterance, factChecks) => {
+const postToAPI = (utterance, factChecks, agent) => {
 
     // filter the factChecks to remove any where the query is empty
     // and do the same for the document_set where the document is empty
@@ -18,19 +19,18 @@ const postToAPI = (utterance, factChecks) => {
         }
         return false;
     });
-    if (newfactChecks.length > 0) {
-        axios.post('/api/factchecks/' + utterance.uuid + "/", newfactChecks)
-            .then((response) => {
-                // do nothing
-            })
-            .catch((error) => {
-                if (error.response) {
-                    console.log(error.response);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                }
-            });
-    }
+    const data = { agent: agent, queries: newfactChecks }
+    axios.post('/api/factchecks/' + utterance.uuid + "/", data)
+        .then((response) => {
+            // do nothing
+        })
+        .catch((error) => {
+            if (error.response) {
+                console.log(error.response);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            }
+        });
 };
 
 const createEmptyFactCheck = (agent) => {
@@ -52,12 +52,11 @@ const createEmptyFactCheck = (agent) => {
 export default function FactCheck({ utterance, agent }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
-    const [platformDropdown, setPlatformDropdown] = useState('Platform');
 
     useEffect(() => {
         axios({
             method: "GET",
-            url: "/api/factchecks/" + utterance.uuid + "/",
+            url: `/api/factchecks/${utterance.uuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
         }).then((response) => {
             const data = response.data;
             if (data.length > 0) {
@@ -84,21 +83,9 @@ export default function FactCheck({ utterance, agent }) {
         });
     }, [utterance, agent]);
 
-    function handlePlatformDropdownClick(platform, fc_idx) {
-        setPlatformDropdown(platform);
-        // Update the state with the selected item
-        // You can use the same approach as in your previous code snippet
-        const newFactChecks = [...factChecks];
-        newFactChecks[fc_idx].platform = platform;
-        setFactChecks(newFactChecks);
-        postToAPI(utterance, newFactChecks);
-    }
-
-
     return (
-        <>
-            <Card key={`factcheck-utt-${utterance.uuid}`}>
-                <Card.Header>
+        <Card key={`factcheck-utt-${utterance.uuid}`}>
+            <Card.Header>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>Fact Check</Card.Title>
                     <HelpPopUp
@@ -107,118 +94,83 @@ export default function FactCheck({ utterance, agent }) {
                         qualifier={"factcheck"} />
                 </div>
             </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Tab.Container activeKey={activeFactCheck}>
-                            <Nav fill variant="tabs" onSelect={(selectedKey) => {
-                                setActiveFactCheck(selectedKey);
-                            }}>
-                                {factChecks.map((fc, i) => (
-                                    <Nav.Item key={`fc-${i}-navitem`}>
-                                        <Nav.Link key={`fc-${i}-tab`} eventKey={`fc-${i}-pane`}>
-                                            {i + 1}
+            <Card.Body>
+                <Form>
+                    <Tab.Container activeKey={activeFactCheck}>
+                        <Nav fill variant="tabs" onSelect={(selectedKey) => {
+                            setActiveFactCheck(selectedKey);
+                        }}>
+                            {factChecks.map((fc, i) => (
+                                <Nav.Item key={`fc-${i}-navitem`}>
+                                    <Nav.Link key={`fc-${i}-tab`} eventKey={`fc-${i}-pane`}>
+                                        {i + 1}
 
-                                            {/* Delete factcheck button */}
-                                            {i != 0 && <Badge
-                                                pill
-                                                bg="danger"
-                                                style={{ marginLeft: '10px', cursor: 'pointer' }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Prevent the default behavior of the Nav.Link
-                                                    const newFactChecks = factChecks.filter((_, index) => index !== i);
-                                                    setFactChecks(newFactChecks);
-                                                    setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
-                                                    postToAPI(utterance, newFactChecks);
-                                                }}
-                                            >
-                                                &times;
-                                            </Badge>}
-                                        </Nav.Link>
-                                    </Nav.Item>
-                                ))}
-                                {/* Add new factcheck button */}
-                                <Nav.Item className="ml-auto" key={`add-factcheck-button`}>
-                                    <Badge
-                                        pill
-                                        variant="success"
-                                        style={{ marginLeft: '10px', cursor: 'pointer' }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            const newFactChecks = [...factChecks];
-                                            newFactChecks.push(createEmptyFactCheck(agent));
-                                            setFactChecks(newFactChecks);
-                                            setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
-                                        }}
-                                    >
-                                        +
-                                    </Badge>
+                                        {/* Delete factcheck button */}
+                                        {i != 0 && <Badge
+                                            pill
+                                            bg="danger"
+                                            style={{ marginLeft: '10px', cursor: 'pointer' }}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevent the default behavior of the Nav.Link
+                                                const newFactChecks = factChecks.filter((_, index) => index !== i);
+                                                setFactChecks(newFactChecks);
+                                                setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
+                                                postToAPI(utterance, newFactChecks, agent);
+                                            }}
+                                        >
+                                            &times;
+                                        </Badge>}
+                                    </Nav.Link>
                                 </Nav.Item>
-                            </Nav>
-                            <Tab.Content>
-                                {factChecks.map((fc, i) => (
-                                    <Tab.Pane key={`fc-${i}-pane`} eventKey={`fc-${i}-pane`} title={i}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>search phrase or link to search</Form.Label>
-                                            <InputGroup className="mb-3">
+                            ))}
+                            {/* Add new factcheck button */}
+                            <Nav.Item className="ml-auto" key={`add-factcheck-button`}>
+                                <Badge
+                                    pill
+                                    variant="success"
+                                    style={{ marginLeft: '10px', cursor: 'pointer' }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const newFactChecks = [...factChecks];
+                                        newFactChecks.push(createEmptyFactCheck(agent));
+                                        setFactChecks(newFactChecks);
+                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
+                                    }}
+                                >
+                                    +
+                                </Badge>
+                            </Nav.Item>
+                        </Nav>
+                        <Tab.Content>
+                            {factChecks.map((fc, i) => (
+                                <Tab.Pane key={`fc-${i}-pane`} eventKey={`fc-${i}-pane`} title={i}>
+                                    <FactCheckQuery
+                                        fc_idx={i}
+                                        factChecks={factChecks}
+                                        setFactChecks={setFactChecks}
+                                        postToAPI={postToAPI}
+                                        utterance={utterance}
+                                        agent={agent} />
 
-                                                <DropdownButton
-                                                    variant="outline-secondary"
-                                                    title={fc.platform ? fc.platform : "Platform"}
-                                                    id={`fc-${i}-platform-dropdown`}
-                                                    key={`fc-${i}-platform-dropdown`}
-                                                >
-                                                    
-                                                {/* PLATFORM DROPDOWN: */}
-                                                {searchPlatforms.map((platform) => (
-
-                                                    <Dropdown.Item
-                                                        href="#"
-                                                        key={`fc-${i}-platform-dropdown-${platform.key}`}
-                                                        onClick={() => {
-                                                            handlePlatformDropdownClick(platform.name, i);
-                                                        }}
-                                                    >{platform.name}
-                                                    </Dropdown.Item>
-                                                ))}
-                                                </DropdownButton>
-                                                {/* QUERY URL: */}
-                                                <Form.Control
-                                                    type="text"
-                                                    placeholder="https://www.google.com/search?q=..."
-                                                    autoComplete="off"
-                                                    value={fc.query}
-                                                    onChange={
-                                                        (e) => {
-                                                            const newFactChecks = [...factChecks];
-                                                            newFactChecks[i].query = e.target.value;
-                                                            setFactChecks(newFactChecks);
-                                                        }}
-                                                    onBlur={
-                                                        (e) => {
-                                                            postToAPI(utterance, factChecks);
-                                                        }} />
-                                            </InputGroup>
-                                        </Form.Group>
-
-                                        {/* Check if fc.document_set is empty and render a default FactCheckDocument */}
-                                        {(fc.document_set.length === 0 ? [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
-                                            <FactCheckDocument
-                                                document={doc}
-                                                fc_idx={i}
-                                                doc_idx={j}
-                                                factChecks={factChecks}
-                                                setFactChecks={setFactChecks}
-                                                key={`fc-${i}-${j}`}
-                                                postToAPI={postToAPI}
-                                                utterance={utterance} />
-                                        ))}
-                                    </Tab.Pane>
-                                ))}
-                            </Tab.Content>
-                        </Tab.Container>
-                    </Form>
-                </Card.Body>
-            </Card>
-        </>
+                                    {/* Check if fc.document_set is empty and render a default FactCheckDocument */}
+                                    {(fc.document_set.length === 0 ? [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
+                                        <FactCheckDocument
+                                            document={doc}
+                                            fc_idx={i}
+                                            doc_idx={j}
+                                            factChecks={factChecks}
+                                            setFactChecks={setFactChecks}
+                                            key={`fc-${i}-${j}`}
+                                            postToAPI={postToAPI}
+                                            agent={agent}
+                                            utterance={utterance} />
+                                    ))}
+                                </Tab.Pane>
+                            ))}
+                        </Tab.Content>
+                    </Tab.Container>
+                </Form>
+            </Card.Body>
+        </Card>
     );
 }

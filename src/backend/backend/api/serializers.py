@@ -26,7 +26,9 @@ class QuerySerializer(serializers.ModelSerializer):
             'platform',
             'agent',
             'uuid',
-            'document_set'
+            'document_set',
+            'prolific_session',
+            'prolific_study',
         ]
 
     def create(self, validated_data):
@@ -48,7 +50,9 @@ class ClassificationSerializer(serializers.ModelSerializer):
             'qualifier',
             'label',
             'category',
-            'agent'
+            'agent',
+            'prolific_session',
+            'prolific_study',
         ]
 
     def create(self, validated_data):

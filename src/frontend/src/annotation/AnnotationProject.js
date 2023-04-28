@@ -39,7 +39,7 @@ export default function AnnotationProject() {
   const getClassifications = () => {
     axios({
       method: "GET",
-      url: "/api/classifications/" + utterance.uuid + "?agent=" + agent,
+      url: `/api/classifications/${utterance.uuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
     }).then((response) => {
       const data = response.data;
       setClassifications(data);
@@ -52,7 +52,6 @@ export default function AnnotationProject() {
     });
   };
 
-
   const swipeConfig = { delta: 100 };
   const handlers = useSwipeable({
     onSwiped: (eventData) => {
@@ -64,17 +63,16 @@ export default function AnnotationProject() {
         setUtterance(segmentation.utterance_set[index - 1]);
       }
     },
-    onTap: (event) => {
-      // make sure the tap is not on a button
-      if (event.event.target.tagName !== 'BUTTON') {
-        setAudioPlaying(!audioPlaying);
-      }
-    },
+    //onTap: (event) => {
+    // make sure the tap is not on a button
+    //  if (event.event.target.tagName !== 'BUTTON') {
+    //    setAudioPlaying(!audioPlaying);
+    //  }
+    //},
     ...swipeConfig
   });
 
   // get the segmentation set from API, including the utterance set that will be cycled through
-  // TODO filter by agent
   useEffect(() => {
     axios({
       method: "GET",
@@ -95,22 +93,20 @@ export default function AnnotationProject() {
     });
   }, []);
 
-// check if the classification set has a checkworthy classification and set isCheckworthyUtt
-useEffect(() => {
-  const checkForCheckworthyClassification = () => {
-    if (classifications) {
-      const checkworthyClassification = classifications.filter((c) => c.qualifier === "Checkworthiness" && c.category === "Checkworthy")[0];
-      if (checkworthyClassification) {
-        return true;
+  // check if the classification set has a checkworthy classification and set isCheckworthyUtt (FOR SHOW/HIDE FACT CHECK)
+  useEffect(() => {
+    const checkForCheckworthyClassification = () => {
+      if (classifications) {
+        const checkworthyClassification = classifications.filter((c) => c.qualifier === "Checkworthiness" && c.category === "Checkworthy")[0];
+        if (checkworthyClassification) {
+          return true;
+        }
       }
-    }
-    return false;
-  };
-
-  const checkworthyExists = checkForCheckworthyClassification();
-  setIsCheckworthyUtt(checkworthyExists);
-}, [JSON.stringify(classifications)]);
-
+      return false;
+    };
+    const checkworthyExists = checkForCheckworthyClassification();
+    setIsCheckworthyUtt(checkworthyExists);
+  }, [JSON.stringify(classifications)]);
 
   // get the classification for the current utterance
   useEffect(() => {
@@ -128,11 +124,22 @@ useEffect(() => {
   }, [utterance]);
 
   useEffect(() => {
-    if (searchParams.get("PROLIFIC_PID")) {
-      setAgent(searchParams.get("PROLIFIC_PID"));
+    if (agent) {
+      setSearchParams(agent)
     } else {
-      if (agent) {
-        setSearchParams({ PROLIFIC_PID: agent })
+      let agent = {};
+      if (searchParams.get("PROLIFIC_PID")) {
+        agent["PROLIFIC_PID"] = searchParams.get("PROLIFIC_PID");
+      }
+      if (searchParams.get("STUDY_ID")) {
+        agent["STUDY_ID"] = searchParams.get("STUDY_ID");
+      }
+      if (searchParams.get("SESSION_ID")) {
+        agent["SESSION_ID"] = searchParams.get("SESSION_ID");
+      }
+      if (agent.length > 0) {
+        setAgent(agent);
+        setSearchParams(agent);
       }
     }
   }, [agent]);
@@ -154,7 +161,7 @@ useEffect(() => {
       </div>,
       isCheckworthyUtt && <div key="fact-check">
         <FactCheck agent={agent} utterance={utterance} />
-      </div>, 
+      </div>,
       <div key="motivation">
         <ExclusiveSelector
           qualifier="Motivations"
@@ -163,6 +170,7 @@ useEffect(() => {
           splitField="category"
           utterance={utterance}
           classification={classifications.filter((c) => c.qualifier === "Motivations")[0]}
+          updateFunction={getClassifications}
         />
       </div>,
       <div key="advertising">
@@ -173,8 +181,9 @@ useEffect(() => {
           splitField="category"
           utterance={utterance}
           classification={classifications.filter((c) => c.qualifier === "Advertising")[0]}
+          updateFunction={getClassifications}
         />
-      </div>,     
+      </div>,
     ];
   };
 

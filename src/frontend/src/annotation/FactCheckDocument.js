@@ -12,7 +12,7 @@ const radios = [
 ];
 
 
-export default function FactCheckDocument({ document, fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance }) {
+export default function FactCheckDocument({ document, fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
     const inputRef = useRef(null);
 
     return (
@@ -27,6 +27,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     autoComplete="off"
                     ref={inputRef}
                     value={document.document ? document.document : ''}
+                    disabled={factChecks[fc_idx].query.length === 0}
                     onChange={
                         (e) => {
                             const newFactChecks = [...factChecks];
@@ -36,13 +37,17 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                                 newFactChecks[fc_idx].document_set[doc_idx] = {};
                             }
                             newFactChecks[fc_idx].document_set[doc_idx].document = e.currentTarget.value;
+                            if (e.currentTarget.value.length === 0) {
+                                newFactChecks[fc_idx].document_set[doc_idx].supports = 0;
+                            }
                             setFactChecks(newFactChecks);
                         }}
                     onBlur={
                         (e) => {
-                            postToAPI(utterance, factChecks);
+                            postToAPI(utterance, factChecks, agent);
                         }
-                    } />
+                    }
+                />
 
                 {/* REFUTES / NOT RELEVANT / SUPPORTS buttons */}
                 <ButtonGroup vertical={true}>
@@ -57,13 +62,13 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             value={radio.value}
                             checked={document.supports == radio.value}
                             disabled={!document.document}
-                            onClick = {!document.document ? inputRef.current ? inputRef.current.focus() : null : null } 
+                            //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={
                                 (e) => {
                                     const newFactChecks = [...factChecks];
                                     newFactChecks[fc_idx].document_set[doc_idx].supports = e.currentTarget.value;
                                     setFactChecks(newFactChecks);
-                                    postToAPI(utterance, newFactChecks);
+                                    postToAPI(utterance, newFactChecks, agent);
                                 }
                             }
                         >
@@ -81,7 +86,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                                     const newFactChecks = [...factChecks];
                                     newFactChecks[fc_idx].document_set.splice(doc_idx, 1);
                                     setFactChecks(newFactChecks);
-                                    postToAPI(utterance, newFactChecks);
+                                    postToAPI(utterance, newFactChecks, agent);
                                 }
                             }
                         >-</Button>}
@@ -122,12 +127,19 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             if (!newFactChecks[fc_idx].document_set[doc_idx]) {
                                 newFactChecks[fc_idx].document_set[doc_idx] = {};
                             }
-                            newFactChecks[fc_idx].document_set[doc_idx].comment = e.currentTarget.value;
-                            setFactChecks(newFactChecks);
+                            if (e.currentTarget.value.length > 0) {
+
+                                newFactChecks[fc_idx].document_set[doc_idx].comment = e.currentTarget.value;
+                                setFactChecks(newFactChecks);
+                            } else {
+                                newFactChecks[fc_idx].document_set[doc_idx].comment = null;
+                                setFactChecks(newFactChecks);
+                            }
+
                         }}
                     onBlur={
                         (e) => {
-                            postToAPI(utterance, factChecks);
+                            postToAPI(utterance, factChecks, agent);
                         }
 
                     } />

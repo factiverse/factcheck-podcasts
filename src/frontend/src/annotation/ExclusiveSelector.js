@@ -63,7 +63,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                 <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <HelpTooltipButton
-                                            text={label.help}
+                                            label={label}
                                             button={
                                                 <ToggleButton
                                                     key={`radio-${labels.key}-${label.keyStroke}`}

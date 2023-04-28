@@ -121,6 +121,8 @@ class Classification(models.Model):
     category = models.CharField("category", max_length=255) # e.g. "Checkworthy", "Not Checkworthy"
     label = models.TextField("label", null=True) # e.g. "Predictions", "Cause and Effect" for "Checkworthiness" qualifier
     agent = models.CharField("agent", max_length=100)
+    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
+    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
 
 class Query(models.Model):
     """
@@ -131,6 +133,8 @@ class Query(models.Model):
     query = models.CharField("query", max_length=500)
     platform = models.CharField("platform", max_length=100, null=True)
     agent = models.CharField("agent", max_length=100)
+    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
+    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
 
 class Document(models.Model):
     """

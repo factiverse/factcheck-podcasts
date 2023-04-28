@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 
@@ -15,7 +15,7 @@ export default function UserModal({ setAgent }) {
   
   const handleSaveChanges = () => {
     if (inputValue) {
-      setAgent(inputValue);
+      setAgent({PROLIFIC_PID: inputValue});
       setLoggedIn(true);
       setShow(false);
     }
@@ -34,7 +34,7 @@ export default function UserModal({ setAgent }) {
         <Modal.Title>Enter a username</Modal.Title>
       </Modal.Header>
 
-      <Modal.Body>Use the same username (caps sensitive) to restore your previous annotations</Modal.Body>
+      <Modal.Body>Use the same username (case sensitive) to store and return to your annotations.</Modal.Body>
       <Modal.Body>
         <Form>
           <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
