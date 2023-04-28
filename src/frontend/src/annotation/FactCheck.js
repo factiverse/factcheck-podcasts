@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import FactCheckDocument from './FactCheckDocument';
-import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup } from 'react-bootstrap';
-import { searchPlatforms } from './data.js';
+import { Badge, Nav, Tab, Form, Card } from 'react-bootstrap';
 import HelpPopUp from './HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const postToAPI = (utterance, factChecks, agent) => {
-
     // filter the factChecks to remove any where the query is empty
     // and do the same for the document_set where the document is empty
     const newfactChecks = factChecks.filter((fc) => {
@@ -22,7 +21,7 @@ const postToAPI = (utterance, factChecks, agent) => {
     const data = { agent: agent, queries: newfactChecks }
     axios.post('/api/factchecks/' + utterance.uuid + "/", data)
         .then((response) => {
-            // do nothing
+            // do nothing, even though I maybe should update the state with this?
         })
         .catch((error) => {
             if (error.response) {
@@ -38,16 +37,26 @@ const createEmptyFactCheck = (agent) => {
         query: "",
         platform: null,
         agent: agent,
+        valid: false,
         document_set: [
             {
                 document: "",
                 supports: null,
                 agent: agent,
-                comment: ""
+                comment: null,
+                valid: false,
             },
         ],
     };
 };
+
+const allValid = (fc) => {
+    console.log(fc)
+    return fc.valid && fc.document_set.every((doc) => {
+        return doc.valid;
+    });
+};
+
 
 export default function FactCheck({ utterance, agent }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
@@ -104,7 +113,16 @@ export default function FactCheck({ utterance, agent }) {
                                 <Nav.Item key={`fc-${i}-navitem`}>
                                     <Nav.Link key={`fc-${i}-tab`} eventKey={`fc-${i}-pane`}>
                                         {i + 1}
-
+                                        {/* check if the fact check, and all its child documents have valid=true */}
+                                        {allValid(fc) ? (
+                                            <span style={{ color: 'green', marginRight: '5px' }}>
+                                                <FaCheck />
+                                            </span>
+                                        ) : (
+                                            <span style={{ color: 'red', marginRight: '5px' }}>
+                                                <FaTimes />
+                                            </span>
+                                        )}
                                         {/* Delete factcheck button */}
                                         {i != 0 && <Badge
                                             pill
@@ -112,6 +130,7 @@ export default function FactCheck({ utterance, agent }) {
                                             style={{ marginLeft: '10px', cursor: 'pointer' }}
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent the default behavior of the Nav.Link
+                                                e.preventDefault(); // Prevent the default behavior of the Nav.Link
                                                 const newFactChecks = factChecks.filter((_, index) => index !== i);
                                                 setFactChecks(newFactChecks);
                                                 setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check

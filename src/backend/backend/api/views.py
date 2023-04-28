@@ -203,6 +203,7 @@ class QueryApiView(APIView):
                     'query': query_data['query'],
                     'platform': query_data.get('platform', None),
                     'document_set': document_set_data,  # Pass the raw document_set data to the QuerySerializer
+                    'valid': query_data.get('valid', False),
                     'prolific_study': agent.get("STUDY_ID"), 
                     'prolific_session': agent.get("SESSION_ID")
                 })

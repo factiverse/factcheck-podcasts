@@ -3,6 +3,8 @@ import axios from "axios";
 import { Row, Col, Card, Alert, ToggleButton, ButtonGroup } from 'react-bootstrap';
 import HelpPopUp from './HelpPopUp';
 import HelpTooltipButton from './HelpTooltipButton';
+import { FaCheck, FaTimes } from 'react-icons/fa';
+
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
     axios.post('/api/classifications/' + utterance + "/", {
@@ -24,9 +26,17 @@ const postToAPI = (utterance, qualifier, category, label, agent) => {
         });
 };
 
-export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, updateFunction }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, updateFunction, annotationComplete, setAnnotationComplete }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
+
+    // check if this task card is completed, and set its entry in the annotationComplete object
+    useEffect(() => {
+        setAnnotationComplete((prevAnnotationComplete) => ({
+            ...prevAnnotationComplete,
+            [qualifier]: radioValue !== ''
+        }));
+    }, [radioValue, utterance]);
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
@@ -40,10 +50,21 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
             <Card.Header>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>{qualifier}</Card.Title>
-                    <HelpPopUp
-                        header={labels.helpHeader}
-                        text={labels.helpText}
-                        qualifier={qualifier} />
+                    <div>
+                        {radioValue ? (
+                            <span style={{ color: 'green', marginRight: '5px' }}>
+                                <FaCheck />
+                            </span>
+                        ) : (
+                            <span style={{ color: 'red', marginRight: '5px' }}>
+                                <FaTimes />
+                            </span>
+                        )}
+                        <HelpPopUp
+                            header={labels.helpHeader}
+                            text={labels.helpText}
+                            qualifier={qualifier} />
+                    </div>
                 </div>
             </Card.Header>
 

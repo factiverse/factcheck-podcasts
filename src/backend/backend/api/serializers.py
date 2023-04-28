@@ -10,6 +10,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             'document',
             'supports',
             'comment',
+            'valid',
             'uuid'
         ]
 
@@ -27,6 +28,7 @@ class QuerySerializer(serializers.ModelSerializer):
             'agent',
             'uuid',
             'document_set',
+            'valid',
             'prolific_session',
             'prolific_study',
         ]

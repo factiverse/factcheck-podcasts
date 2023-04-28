@@ -1,20 +1,35 @@
-import React, { useState } from 'react';
-import { Dropdown, DropdownButton, Badge, Nav, Tab, Form, Card, InputGroup } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Dropdown, DropdownButton, Form, InputGroup } from 'react-bootstrap';
 import { searchPlatforms } from './data.js';
-
-
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
-    const factCheck = factChecks[fc_idx];
+    const [factCheck, setFactCheck] = useState(factChecks[fc_idx]);
     const [platformDropdown, setPlatformDropdown] = useState('Platform');
-    const [queryInput, setQueryInput] = useState(factCheck.query ? factCheck.query : '');
+    const [isValid, setIsValid] = useState(factCheck.valid);
+
+    useEffect(() => {
+        setFactCheck(factChecks[fc_idx]);
+        validateFactCheckQuery();
+    }, [factChecks, fc_idx]);
+
+    useEffect(() => {
+        validateFactCheckQuery();
+    }, [factCheck]);
+
+    function validateFactCheckQuery() {
+        const hasQuery = factCheck.query ? factCheck.query && factCheck.query.trim().length > 0 : false;
+        const hasPlatform = factCheck.platform ? factCheck.platform && factCheck.platform !== 'Platform' : false;
+        setIsValid(hasQuery && hasPlatform);
+        return hasQuery && hasPlatform;
+    }
 
     function handlePlatformDropdownClick(platform, fc_idx) {
         setPlatformDropdown(platform);
-        // Update the state with the selected item
-        // You can use the same approach as in your previous code snippet
+        const newFactCheck = { ...factCheck, platform: platform, valid: validateFactCheckQuery() };
+        setFactCheck(newFactCheck);
         const newFactChecks = [...factChecks];
-        newFactChecks[fc_idx].platform = platform;
+        newFactChecks[fc_idx] = newFactCheck;
         setFactChecks(newFactChecks);
         postToAPI(utterance, newFactChecks, agent);
     }
@@ -23,6 +38,7 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
         <Form.Group className="mb-3">
             <Form.Label>search phrase or link to search</Form.Label>
             <InputGroup className="mb-3">
+
                 {/* QUERY URL: */}
                 <Form.Control
                     type="text"
@@ -31,9 +47,10 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                     key={`fc-${fc_idx}-query-input`}
                     onChange={
                         (e) => {
-                            //setQueryInput(e.target.value);                            
+                            const newFactCheck = { ...factCheck, query: e.target.value, valid: validateFactCheckQuery() };
+                            setFactCheck(newFactCheck);                     
                             const newFactChecks = [...factChecks];
-                            newFactChecks[fc_idx].query = e.target.value;
+                            newFactChecks[fc_idx] = newFactCheck;
                             setFactChecks(newFactChecks);
                         }}
                     onBlur={
@@ -47,6 +64,7 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                     title={factCheck.platform ? factCheck.platform : "Platform"}
                     id={`fc-${fc_idx}-platform-dropdown`}
                     key={`fc-${fc_idx}-platform-dropdown`}
+                    value={platformDropdown}
                 >
                     {/* PLATFORM DROPDOWN: */}
                     {searchPlatforms.map((platform) => (
@@ -61,6 +79,15 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                         </Dropdown.Item>
                     ))}
                 </DropdownButton>
+                {isValid ? (
+                    <span style={{ color: 'green', marginRight: '5px' }}>
+                        <FaCheck />
+                    </span>
+                ) : (
+                    <span style={{ color: 'red', marginRight: '5px' }}>
+                        <FaTimes />
+                    </span>
+                )}
             </InputGroup>
 
 

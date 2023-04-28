@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const radios = [
     { name: 'Refutes', value: 1 },
@@ -14,6 +15,27 @@ const radios = [
 
 export default function FactCheckDocument({ document, fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
     const inputRef = useRef(null);
+    const [radioValue, setRadioValue] = useState(document.supports);
+    const [isValid, setIsValid] = useState(document.valid);
+
+
+    function validateFactCheckDoc() {
+        const hasDocument = document.document ? document.document && document.document.trim().length > 0 : false;
+        const hasSupports = document.supports ? document.supports && document.supports !== 0 : false;
+        const hasComment = document.comment ? document.comment && document.comment.trim().length > 0 : false;
+        setIsValid(hasDocument && hasSupports && hasComment);
+        return hasDocument && hasSupports && hasComment;
+    }
+
+    useEffect(() => {
+        validateFactCheckDoc();
+        console.log(factChecks)
+    }, [document, factChecks]);
+
+    useEffect(() => {
+        setRadioValue(document.supports);
+    }, [document.supports])
+
 
     return (
         <Form.Group className="mb-3">
@@ -30,16 +52,14 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     disabled={factChecks[fc_idx].query.length === 0}
                     onChange={
                         (e) => {
+                            const newDocument = { ...document, document: e.target.value, valid: validateFactCheckDoc() };
                             const newFactChecks = [...factChecks];
-                            // set the document object's document field to the current target value
-                            // creating a new object if one doesn't already exist
-                            if (!newFactChecks[fc_idx].document_set[doc_idx]) {
-                                newFactChecks[fc_idx].document_set[doc_idx] = {};
+                            if (newDocument.document.length === 0) {
+                                newDocument.supports = null;
+                                newDocument.comment = null;
+                                newDocument.valid = false;
                             }
-                            newFactChecks[fc_idx].document_set[doc_idx].document = e.currentTarget.value;
-                            if (e.currentTarget.value.length === 0) {
-                                newFactChecks[fc_idx].document_set[doc_idx].supports = 0;
-                            }
+                            newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
                             setFactChecks(newFactChecks);
                         }}
                     onBlur={
@@ -56,21 +76,34 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             key={`radio-doc-${fc_idx}-${doc_idx}-${k}`}
                             id={`radio-doc-${fc_idx}-${doc_idx}-${k}`}
                             type="radio"
-                            variant='outline-success'
+                            variant={radioValue == radio.value ? "outline-success" : "outline-secondary"}
                             size='sm'
                             name={`radio-doc-${fc_idx}-${doc_idx}`}
                             value={radio.value}
-                            checked={document.supports == radio.value}
+                            checked={radioValue == radio.value}
                             disabled={!document.document}
                             //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={
                                 (e) => {
+                                    const newDocument = { ...document, supports: e.target.value, valid: document.document && document.document.trim().length > 0  && document.comment && document.comment.trim().length > 0 };
                                     const newFactChecks = [...factChecks];
-                                    newFactChecks[fc_idx].document_set[doc_idx].supports = e.currentTarget.value;
+                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
                                     setFactChecks(newFactChecks);
+
                                     postToAPI(utterance, newFactChecks, agent);
+                                    setRadioValue(e.currentTarget.value);
                                 }
                             }
+                            onClick={(e) => {
+                                if (radioValue == radio.value) {
+                                    const newDocument = { ...document, supports: null, valid: validateFactCheckDoc() };
+                                    const newFactChecks = [...factChecks];
+                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
+                                    setFactChecks(newFactChecks);
+                                    postToAPI(utterance, newFactChecks, agent);
+                                    
+                                }
+                            }}
                         >
                             {radio.name}
                         </ToggleButton>
@@ -101,7 +134,8 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                                     newFactChecks[fc_idx].document_set.push({
                                         document: "",
                                         support: "",
-                                        comment: "",
+                                        comment: null,
+                                        valid: false
                                     });
                                     setFactChecks(newFactChecks);
                                 }
@@ -121,21 +155,10 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     value={document.comment ? document.comment : ""}
                     onChange={
                         (e) => {
+                            const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null, valid: document.document && document.document.trim().length > 0 && document.supports && document.supports !== 0};
                             const newFactChecks = [...factChecks];
-                            // set the document object's comment field to the current target value
-                            // creating a new object if one doesn't already exist
-                            if (!newFactChecks[fc_idx].document_set[doc_idx]) {
-                                newFactChecks[fc_idx].document_set[doc_idx] = {};
-                            }
-                            if (e.currentTarget.value.length > 0) {
-
-                                newFactChecks[fc_idx].document_set[doc_idx].comment = e.currentTarget.value;
-                                setFactChecks(newFactChecks);
-                            } else {
-                                newFactChecks[fc_idx].document_set[doc_idx].comment = null;
-                                setFactChecks(newFactChecks);
-                            }
-
+                            newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
+                            setFactChecks(newFactChecks);
                         }}
                     onBlur={
                         (e) => {
@@ -143,6 +166,15 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         }
 
                     } />
+                {isValid ? (
+                    <span style={{ color: 'green', marginRight: '5px' }}>
+                        <FaCheck />
+                    </span>
+                ) : (
+                    <span style={{ color: 'red', marginRight: '5px' }}>
+                        <FaTimes />
+                    </span>
+                )}
             </InputGroup>
 
         </Form.Group>

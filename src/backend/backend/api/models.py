@@ -133,6 +133,7 @@ class Query(models.Model):
     query = models.CharField("query", max_length=500)
     platform = models.CharField("platform", max_length=100, null=True)
     agent = models.CharField("agent", max_length=100)
+    valid = models.BooleanField("valid", default=False)
     prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
     prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
 
@@ -146,3 +147,4 @@ class Document(models.Model):
     supports = models.PositiveSmallIntegerField("supports", choices=SUPPORTS_CHOICES, null=True)
     comment = models.CharField("comment", max_length=500, null=True)
     agent = models.CharField("agent", max_length=100)
+    valid = models.BooleanField("valid", default=False)

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-function NavButton({ disabled, text, onClick, keyStroke }) {
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
+
+function NavButton({ disabled, text, onClick, keyStroke }) {
     return (
         <button disabled={disabled} onClick={onClick} className="NavButton btn btn-secondary">
             {text} <span className="badge rounded-pill text-bg-light">{keyStroke}</span>
@@ -9,8 +11,7 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-
-export default function NavigationButtons({ index, segmentation, setIndex, setUtterance }) {
+export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, annotationComplete }) {
     let isFirst = false;
     let isLast = false;
 
@@ -74,7 +75,8 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
         setUtterance(segmentation.utterance_set[idx]);
     }
 
-
+    const progressPercentage = (index + 1) * 100 / segmentation.utterance_set.length;
+    
     return (
         <div className='mt-0'>
             <ButtonGroup>
@@ -83,10 +85,31 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                 <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
                 <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
             </ButtonGroup>
+            {Object.values(annotationComplete).some(value => value === false) ? (
+
+                <span style={{ color: 'red', marginRight: '5px' }}>
+                    <FaTimes />
+                </span>
+            ) : (
+
+                <span style={{ color: 'green', marginRight: '5px' }}>
+                    <FaCheck />
+                </span>
+            )}
 
             <div className="progress mt-1 mb-2" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                <div className="progress-bar" style={{ width: (index + 1) * 100 / segmentation.utterance_set.length + '%' }}>({index + 1} of {segmentation.utterance_set.length})</div>
+                <div className="progress-bar" style={{ width: progressPercentage + '%' }}>
+                    <span style={{
+                        color: progressPercentage < 50 ? 'black' : 'white',
+                        position: 'absolute',
+                        left: '50%',
+                        transform: 'translateX(-50%)'
+                    }}>
+                        ({index + 1} of {segmentation.utterance_set.length})
+                    </span>
+                </div>
             </div>
+
 
         </div>
     );

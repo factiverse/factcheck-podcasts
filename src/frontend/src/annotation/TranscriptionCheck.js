@@ -3,6 +3,7 @@ import { ToggleButton, ButtonGroup, Form, Card } from 'react-bootstrap';
 import axios from "axios";
 import HelpPopUp from './HelpPopUp';
 import HelpTooltipButton from './HelpTooltipButton';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
   axios.post('/api/classifications/' + utterance + "/", {
@@ -31,10 +32,18 @@ const radios = [
   { name: 'Reset', value: 4, help: "Delete your edits and restore original." },
 ];
 
-export default function TranscriptionCheck({ qualifier, classification, agent, utterance }) {
+export default function TranscriptionCheck({ qualifier, classification, agent, utterance, annotationComplete, setAnnotationComplete }) {
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
+
+  // check if this task card is completed, and set its entry in the annotationComplete object
+  useEffect(() => {
+    setAnnotationComplete((prevAnnotationComplete) => ({
+      ...prevAnnotationComplete,
+      [qualifier]: radioValue !== ''
+    }));
+  }, [radioValue, utterance]);
 
   useEffect(() => {
     setRadioValue(classification ? radios.filter((item) => item.name === classification.category)[0].value : '');
@@ -46,11 +55,22 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
       <Card.Header>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Card.Title>Transcription</Card.Title>
+          <div>
+          {radioValue ? (
+            <span style={{ color: 'green', marginRight: '5px' }}>
+              <FaCheck />
+            </span>
+          ) : (
+            <span style={{ color: 'red', marginRight: '5px' }}>
+              <FaTimes />
+            </span>
+          )}
           <HelpPopUp
             header={"Transcription Verification"}
             text={"Verify the accuracy of the transcription. FOCUS ON CORRECTING WORDS THAT ARE CLEARLY WRONG after listening to the audio. This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
             }
             qualifier={"transcription"} />
+          </div>
         </div>
       </Card.Header>
 

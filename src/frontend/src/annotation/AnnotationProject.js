@@ -32,6 +32,7 @@ export default function AnnotationProject() {
   const [agent, setAgent] = useState(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false);
+  const [annotationComplete, setAnnotationComplete] = useState({});
   const { segmentationUuid } = useParams();
   let [searchParams, setSearchParams] = useSearchParams();
 
@@ -137,7 +138,7 @@ export default function AnnotationProject() {
       if (searchParams.get("SESSION_ID")) {
         agent["SESSION_ID"] = searchParams.get("SESSION_ID");
       }
-      if (agent.length > 0) {
+      if (Object.keys(agent).length != 0) {
         setAgent(agent);
         setSearchParams(agent);
       }
@@ -157,6 +158,8 @@ export default function AnnotationProject() {
           utterance={utterance}
           classification={classifications.filter((c) => c.qualifier === "Checkworthiness")[0]}
           updateFunction={getClassifications}
+          annotationComplete={annotationComplete}
+          setAnnotationComplete={setAnnotationComplete}
         />
       </div>,
       isCheckworthyUtt && <div key="fact-check">
@@ -171,6 +174,8 @@ export default function AnnotationProject() {
           utterance={utterance}
           classification={classifications.filter((c) => c.qualifier === "Motivations")[0]}
           updateFunction={getClassifications}
+          annotationComplete={annotationComplete}
+          setAnnotationComplete={setAnnotationComplete}
         />
       </div>,
       <div key="advertising">
@@ -182,6 +187,8 @@ export default function AnnotationProject() {
           utterance={utterance}
           classification={classifications.filter((c) => c.qualifier === "Advertising")[0]}
           updateFunction={getClassifications}
+          annotationComplete={annotationComplete}
+          setAnnotationComplete={setAnnotationComplete}
         />
       </div>,
     ];
@@ -207,6 +214,7 @@ export default function AnnotationProject() {
           segmentation={segmentation}
           setIndex={setIndex}
           setUtterance={setUtterance}
+          annotationComplete={annotationComplete}
         />
 
         {utterance && agent && classifications && (
@@ -233,6 +241,8 @@ export default function AnnotationProject() {
                 qualifier={"Transcription"}
                 classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
                 utterance={utterance}
+                annotationComplete={annotationComplete}
+                setAnnotationComplete={setAnnotationComplete}
               />
             </Col>
             <Col>
