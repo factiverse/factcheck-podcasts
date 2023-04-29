@@ -6,52 +6,55 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
     const [factCheck, setFactCheck] = useState(factChecks[fc_idx]);
     const [platformDropdown, setPlatformDropdown] = useState('Platform');
-    const [isValid, setIsValid] = useState(factCheck.valid);
+    const [inputValue, setInputValue] = useState(factCheck.query || '');
 
     useEffect(() => {
         setFactCheck(factChecks[fc_idx]);
-        validateFactCheckQuery();
     }, [factChecks, fc_idx]);
 
     useEffect(() => {
-        validateFactCheckQuery();
+        setInputValue(factCheck.query || '');
     }, [factCheck]);
 
-    function validateFactCheckQuery() {
-        const hasQuery = factCheck.query ? factCheck.query && factCheck.query.trim().length > 0 : false;
-        const hasPlatform = factCheck.platform ? factCheck.platform && factCheck.platform !== 'Platform' : false;
-        setIsValid(hasQuery && hasPlatform);
-        return hasQuery && hasPlatform;
-    }
-
-    function handlePlatformDropdownClick(platform, fc_idx) {
-        setPlatformDropdown(platform);
-        const newFactCheck = { ...factCheck, platform: platform, valid: validateFactCheckQuery() };
+    function validateInsertQuery(fc) {
+        const hasQuery = fc.query ? fc.query && fc.query.trim().length > 0 : false;
+        const hasPlatform = fc.platform ? fc.platform && fc.platform !== 'Platform' : false;
+        const valid = hasQuery && hasPlatform;
+        const newFactCheck = { ...fc, valid: valid };
         setFactCheck(newFactCheck);
         const newFactChecks = [...factChecks];
         newFactChecks[fc_idx] = newFactCheck;
         setFactChecks(newFactChecks);
-        postToAPI(utterance, newFactChecks, agent);
+        return valid;
+    }
+
+    function handlePlatformDropdownClick(platform) {
+        setPlatformDropdown(platform);
+        const newFactCheck = { ...factCheck, platform: platform };
+        validateInsertQuery(newFactCheck);
+        postToAPI(utterance, factChecks, agent);
     }
 
     return (
         <Form.Group className="mb-3">
-            <Form.Label>search phrase or link to search</Form.Label>
+            <Form.Label className='d-flex mt-2'>
+                <p className='m-0'>
+                    <em>QUERY</em> search phrase or link to search
+                </p>
+            </Form.Label>
             <InputGroup className="mb-3">
 
                 {/* QUERY URL: */}
                 <Form.Control
                     type="text"
                     autoComplete='off'
-                    value={factCheck.query ? factCheck.query : ''}
+                    value={inputValue}
                     key={`fc-${fc_idx}-query-input`}
                     onChange={
                         (e) => {
-                            const newFactCheck = { ...factCheck, query: e.target.value, valid: validateFactCheckQuery() };
-                            setFactCheck(newFactCheck);                     
-                            const newFactChecks = [...factChecks];
-                            newFactChecks[fc_idx] = newFactCheck;
-                            setFactChecks(newFactChecks);
+                            setInputValue(e.target.value);
+                            const newFactCheck = { ...factCheck, query: e.target.value };
+                            validateInsertQuery(newFactCheck);
                         }}
                     onBlur={
                         (e) => {
@@ -68,7 +71,6 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                 >
                     {/* PLATFORM DROPDOWN: */}
                     {searchPlatforms.map((platform) => (
-
                         <Dropdown.Item
                             href="#"
                             key={`fc-${fc_idx}-platform-dropdown-${platform.key}`}
@@ -79,19 +81,18 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                         </Dropdown.Item>
                     ))}
                 </DropdownButton>
-                {isValid ? (
-                    <span style={{ color: 'green', marginRight: '5px' }}>
-                        <FaCheck />
-                    </span>
-                ) : (
-                    <span style={{ color: 'red', marginRight: '5px' }}>
-                        <FaTimes />
-                    </span>
-                )}
+                <InputGroup.Text className='ps-1' style={{ backgroundColor: "transparent" }}>
+                    {factCheck.valid ? (
+                        <span style={{ color: 'green', marginLeft: '5px' }}>
+                            <FaCheck />
+                        </span>
+                    ) : (
+                        <span style={{ color: 'red', marginLeft: '5px' }}>
+                            <FaTimes />
+                        </span>
+                    )}
+                </InputGroup.Text>
             </InputGroup>
-
-
         </Form.Group>
-
-    );
+    )
 }

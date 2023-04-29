@@ -87,12 +87,12 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
             </ButtonGroup>
             {Object.values(annotationComplete).some(value => value === false) ? (
 
-                <span style={{ color: 'red', marginRight: '5px' }}>
+                <span style={{ color: 'red', marginLeft: '5px' }}>
                     <FaTimes />
                 </span>
             ) : (
 
-                <span style={{ color: 'green', marginRight: '5px' }}>
+                <span style={{ color: 'green', marginLeft: '5px' }}>
                     <FaCheck />
                 </span>
             )}

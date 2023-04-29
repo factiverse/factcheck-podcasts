@@ -4,6 +4,8 @@ import axios from "axios";
 import HelpPopUp from './HelpPopUp';
 import HelpTooltipButton from './HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+//import { StringDiff } from 'react-string-diff';
+import StringDiff from './StringDiff';
 
 const postToAPI = (utterance, qualifier, category, label, agent) => {
   axios.post('/api/classifications/' + utterance + "/", {
@@ -36,6 +38,7 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
+  const isCoref = qualifier === 'Coreference';
 
   // check if this task card is completed, and set its entry in the annotationComplete object
   useEffect(() => {
@@ -47,53 +50,61 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
 
   useEffect(() => {
     setRadioValue(classification ? radios.filter((item) => item.name === classification.category)[0].value : '');
-    setTextValue(classification?.label || utterance.text);
+    setTextValue(isCoref ? classification?.label || utterance.text_coref : classification?.label || utterance.text);
   }, [utterance, classification]);
 
   return (
     <Card className='mt-3 mb-3'>
-      <Card.Header>
+      <Card.Header className='pb-0'>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Card.Title>Transcription</Card.Title>
-          <div>
-          {radioValue ? (
-            <span style={{ color: 'green', marginRight: '5px' }}>
-              <FaCheck />
-            </span>
-          ) : (
-            <span style={{ color: 'red', marginRight: '5px' }}>
-              <FaTimes />
-            </span>
-          )}
-          <HelpPopUp
-            header={"Transcription Verification"}
-            text={"Verify the accuracy of the transcription. FOCUS ON CORRECTING WORDS THAT ARE CLEARLY WRONG after listening to the audio. This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
-            }
-            qualifier={"transcription"} />
+          <Card.Title>{qualifier}</Card.Title>
+          <div className='pb-2'>
+            {radioValue ? (
+              <span style={{ color: 'green', marginRight: '5px' }}>
+                <FaCheck />
+              </span>
+            ) : (
+              <span style={{ color: 'red', marginRight: '5px' }}>
+                <FaTimes />
+              </span>
+            )}
+            <HelpPopUp
+              header={"Transcription Verification"}
+              text={"Verify the accuracy of the transcription. FOCUS ON CORRECTING WORDS THAT ARE CLEARLY WRONG after listening to the audio. This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
+              }
+              qualifier={qualifier} />
           </div>
         </div>
       </Card.Header>
 
-      <Card.Body>
+      <Card.Body className='pb-0'>
         <Form>
           <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Control
-              as="textarea"
-              aria-label="With textarea"
-              style={{ height: textValue.length > 150 ? (textValue.length / 1.5) + 'px' : '75px' }}
-              value={textValue}
-              className='form-control mb-2 overflow-visible'
-              ref={inputRef}
-              disabled={radioValue != 2}
-              onChange={(e) => setTextValue(e.target.value)}
-              onBlur={
-                (e) => {
-                  if (radioValue == 2) { // edit with no approve
-                    postToAPI(utterance.uuid, qualifier, radios.filter((item) => item.value == radioValue).shift().name, e.currentTarget.value, agent);
+            {isCoref ? (
+              <>
+              <StringDiff stringA={utterance.text} stringB={utterance.text_coref} method='diffWordsWithSpace' />
+              ...
+              <p>{utterance.text_coref}</p>
+              </>
+            ) :
+
+              <Form.Control
+                as="textarea"
+                aria-label="With textarea"
+                style={{ height: textValue.length > 150 ? (textValue.length / 1.5) + 'px' : '75px' }}
+                value={textValue}
+                className='form-control mb-2 overflow-visible'
+                ref={inputRef}
+                disabled={radioValue != 2}
+                onChange={(e) => setTextValue(e.target.value)}
+                onBlur={
+                  (e) => {
+                    if (radioValue == 2) { // edit with no approve
+                      postToAPI(utterance.uuid, qualifier, radios.filter((item) => item.value == radioValue).shift().name, e.currentTarget.value, agent);
+                    }
                   }
                 }
-              }
-            />
+              />}
 
             <ButtonGroup>
               {radios.map((radio, k) => (
@@ -101,12 +112,12 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
                   label={radio}
                   button={
                     <ToggleButton
-                      key={`transcript-button-${k}`}
-                      id={`transcript-button-${k}`}
+                      key={`${qualifier}-button-${k}`}
+                      id={`${qualifier}-button-${k}`}
                       type="radio"
                       variant='outline-success'
                       className='text-nowrap'
-                      name={`transcript-button`}
+                      name={`${qualifier}-button`}
                       value={radio.value}
                       checked={radioValue == radio.value}
                       onChange={

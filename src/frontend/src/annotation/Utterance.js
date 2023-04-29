@@ -43,7 +43,7 @@ export default function Utterance({ url, utterance, utteranceContext, audioPlayi
     <React.Fragment key={rowUtterance.uuid}>
       <tr className="info-row" id={`${rowUtterance.uuid}-${i}-text`}>
         <td colSpan="5" style={{ textAlign: 'left', fontSize: isHighlighted ? "1.5em" : "1em" }}>
-          {rowUtterance.text}
+          {isHighlighted ? <ClaimSpan utterance={rowUtterance} /> : rowUtterance.text}
         </td>
       </tr>
       <tr id={`${rowUtterance.uuid}-${i++}-extra`} className={`p-0 m-0 border-bottom ${isHighlighted ? '' : 'text-muted'}`}>
@@ -97,7 +97,7 @@ export default function Utterance({ url, utterance, utteranceContext, audioPlayi
           </tbody>
         </Table>
         {utterance && utterance.claimspan && <ClaimSpan utterance={utterance}></ClaimSpan>}
-        <div>{utterance["text_coref"]}</div>
+
       </Card.Body>
     </Card>
   );

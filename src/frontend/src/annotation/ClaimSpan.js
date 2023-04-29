@@ -3,22 +3,22 @@ import { TextAnnotate } from "react-text-annotate-blend"
 
 export default function ClaimSpan({ utterance }) {
     const [value, setValue] = React.useState([{
-        "start": utterance.claimspan[0],
-        "end": utterance.claimspan[1],
-        "text": utterance["text"].substring(utterance.claimspan[0], utterance.claimspan[1]),
-        "tag": "ClaimSpan",
-        "color": "rgb(179, 245, 66)"
+        start: 0,
+        end: utterance.length,
+        text: utterance["text"],
+        tag: "ClaimSpan",
+        color: "rgb(179, 245, 66)"
     }]);
     const [tag, setTag] = React.useState("ClaimSpan");
 
     useEffect(() => {
         setValue([
           {
-            start: utterance.claimspan[0],
-            end: utterance.claimspan[1],
-            text: utterance['text'].substring(utterance.claimspan[0], utterance.claimspan[1]),
-            tag: 'ClaimSpan',
-            color: 'rgb(179, 245, 66)',
+            start: 0,
+            end: utterance.length,
+            text: utterance["text"],
+            tag: "ClaimSpan",
+            color: "rgb(179, 245, 66)"
           },
         ]);
       }, [utterance]);

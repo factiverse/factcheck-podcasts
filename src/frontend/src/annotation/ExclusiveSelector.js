@@ -47,10 +47,10 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
 
     return (
         <Card>
-            <Card.Header>
+            <Card.Header className='pb-0'>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>{qualifier}</Card.Title>
-                    <div>
+                    <div className='pb-2'>
                         {radioValue ? (
                             <span style={{ color: 'green', marginRight: '5px' }}>
                                 <FaCheck />
@@ -69,7 +69,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
             </Card.Header>
 
 
-            <Card.Body>
+            <Card.Body className='pt-1 pb-1'>
                 <Card.Title>{labels.instruction1}</Card.Title>
                 <Card.Text>
                     {labels.instruction2}
@@ -78,10 +78,15 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                     {categories.map((cat) => {
                         return (
                             <Col key={cat}>
-                                <Alert key={`alert-${labels.key}`} variant={category === cat ? "primary" : "light"} className='p-1'>
+                                <Alert
+                                    key={`alert-${labels.key}`}
+                                    variant={category === cat ? "primary" : "light"}
+                                    className='p-1 pb-0 mb-0'>
                                     <h5>{cat}</h5>
                                 </Alert>
-                                <ButtonGroup vertical role="radiogroup" className='mt-1 mb-3'>
+                                <ButtonGroup
+                                    vertical role="radiogroup"
+                                    className='my-1 pb-1'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <HelpTooltipButton
                                             label={label}

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http import FileResponse, Http404
+from django.db.models import Prefetch
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -111,8 +112,19 @@ class UtteranceApiView(APIView):
 class SegmentationApiView(APIView):
 
     def get(self, request, *args, **kwargs):
-        # return all utterance sets for a given channel and item
-        seg = Segmentation.objects.filter(uuid=kwargs['uuid']).first()
+        agent = request.query_params.get('PROLIFIC_PID', None)
+        uuid = kwargs['uuid']
+
+        if agent:
+            classification_prefetch = Prefetch('utterance_set__classification_set', queryset=Classification.objects.filter(agent=agent))
+            query_prefetch = Prefetch('utterance_set__query_set', queryset=Query.objects.filter(agent=agent))
+            seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(classification_prefetch, query_prefetch).first()
+        else:
+            seg = Segmentation.objects.filter(uuid=uuid).first()
+
+        if seg is None:
+            return Response({"detail": "Segmentation not found"}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = SegmentationSerializer(seg)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

@@ -82,6 +82,22 @@ class UtteranceSerializer(serializers.ModelSerializer):
             'query_set'
         ]
 
+# read in annotation interface and segmentation view, wrote by utterance updater
+class UtteranceSerializerSimple(serializers.ModelSerializer):
+    class Meta:
+        model = Utterance
+        fields = [
+            'hidden',
+            'start',
+            'end',
+            'speaker',
+            'text',
+            'text_coref',
+            'microfacts',
+            'claimspan',
+            'uuid',
+        ]
+
 
 # read by segmentation viewer, wrote by data population notebook
 class SegmentationSerializer(serializers.ModelSerializer):
