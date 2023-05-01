@@ -18,19 +18,22 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
     const [radioValue, setRadioValue] = useState(document.supports);
     const [isValid, setIsValid] = useState(document.valid);
 
-
-    function validateFactCheckDoc() {
-        const hasDocument = document.document ? document.document && document.document.trim().length > 0 : false;
-        const hasSupports = document.supports ? document.supports && document.supports !== 0 : false;
-        const hasComment = document.comment ? document.comment && document.comment.trim().length > 0 : false;
-        setIsValid(hasDocument && hasSupports && hasComment);
-        return hasDocument && hasSupports && hasComment;
+    function validateInsertDoc(newDoc) {
+        const hasDocument = newDoc.document ? newDoc.document && newDoc.document.trim().length > 0 : false;
+        const hasSupports = newDoc.supports ? newDoc.supports && newDoc.supports !== 0 : false;
+        const hasComment = newDoc.comment ? newDoc.comment && newDoc.comment.trim().length > 0 : false;
+        const valid = hasDocument && hasSupports && hasComment;
+        const newDocument = { ...newDoc, valid: valid };
+        const newFactChecks = [...factChecks];
+        newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
+        setFactChecks(newFactChecks);
+        setIsValid(valid);
+        return valid;
     }
 
     useEffect(() => {
-        validateFactCheckDoc();
-        console.log(factChecks)
-    }, [document, factChecks]);
+        setIsValid(document.valid);
+    }, [document]);
 
     useEffect(() => {
         setRadioValue(document.supports);
@@ -39,28 +42,30 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
 
     return (
         <Form.Group className="mb-3">
-            <Form.Label>link to fact check document</Form.Label>
+            <Form.Label className='d-flex mt-2'>
+                <p className='m-0'>
+                    <em>EVIDENCE</em> link to document returned by query
+                </p>
+            </Form.Label>
             <InputGroup className="mb-3">
                 {/* EVIDENCE URL: */}
                 <Form.Control
                     type="text"
                     readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
-                    placeholder=""
+                    placeholder="paste URL here"
                     autoComplete="off"
                     ref={inputRef}
                     value={document.document ? document.document : ''}
                     disabled={factChecks[fc_idx].query.length === 0}
                     onChange={
                         (e) => {
-                            const newDocument = { ...document, document: e.target.value, valid: validateFactCheckDoc() };
-                            const newFactChecks = [...factChecks];
+                            const newDocument = { ...document, document: e.target.value };
                             if (newDocument.document.length === 0) {
                                 newDocument.supports = null;
                                 newDocument.comment = null;
                                 newDocument.valid = false;
                             }
-                            newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-                            setFactChecks(newFactChecks);
+                            validateInsertDoc(newDocument);
                         }}
                     onBlur={
                         (e) => {
@@ -70,7 +75,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                 />
 
                 {/* REFUTES / NOT RELEVANT / SUPPORTS buttons */}
-                <ButtonGroup vertical={true}>
+                <ButtonGroup>
                     {radios.map((radio, k) => (
                         <ToggleButton
                             key={`radio-doc-${fc_idx}-${doc_idx}-${k}`}
@@ -85,23 +90,17 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={
                                 (e) => {
-                                    const newDocument = { ...document, supports: e.target.value, valid: document.document && document.document.trim().length > 0  && document.comment && document.comment.trim().length > 0 };
-                                    const newFactChecks = [...factChecks];
-                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-                                    setFactChecks(newFactChecks);
-
-                                    postToAPI(utterance, newFactChecks, agent);
-                                    setRadioValue(e.currentTarget.value);
+                                    const newDocument = { ...document, supports: e.target.value };
+                                    validateInsertDoc(newDocument);
+                                    postToAPI(utterance, factChecks, agent);
                                 }
                             }
                             onClick={(e) => {
-                                if (radioValue == radio.value) {
-                                    const newDocument = { ...document, supports: null, valid: validateFactCheckDoc() };
-                                    const newFactChecks = [...factChecks];
-                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-                                    setFactChecks(newFactChecks);
-                                    postToAPI(utterance, newFactChecks, agent);
-                                    
+                                // if the radio button is already selected, then unselect it
+                                if (radio.value == radioValue) {
+                                    const newDocument = { ...document, supports: null };
+                                    validateInsertDoc(newDocument);
+                                    postToAPI(utterance, factChecks, agent);
                                 }
                             }}
                         >
@@ -143,6 +142,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         >+</Button>}
                 </ButtonGroup>
             </InputGroup>
+
             <InputGroup className="mb-3">
                 {/* COMMENT: input field for a comment made on this document which will be sent back to api also*/}
                 <Form.Control
@@ -155,10 +155,8 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     value={document.comment ? document.comment : ""}
                     onChange={
                         (e) => {
-                            const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null, valid: document.document && document.document.trim().length > 0 && document.supports && document.supports !== 0};
-                            const newFactChecks = [...factChecks];
-                            newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-                            setFactChecks(newFactChecks);
+                            const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null, valid: document.document && document.document.trim().length > 0 && document.supports && document.supports !== 0 };
+                            validateInsertDoc(newDocument);
                         }}
                     onBlur={
                         (e) => {
@@ -166,15 +164,17 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                         }
 
                     } />
-                {isValid ? (
-                    <span style={{ color: 'green', marginRight: '5px' }}>
-                        <FaCheck />
-                    </span>
-                ) : (
-                    <span style={{ color: 'red', marginRight: '5px' }}>
-                        <FaTimes />
-                    </span>
-                )}
+                <InputGroup.Text className='ps-1' style={{ backgroundColor: "transparent" }}>
+                    {isValid ? (
+                        <span style={{ color: 'green', marginLeft: '5px' }}>
+                            <FaCheck />
+                        </span>
+                    ) : (
+                        <span style={{ color: 'red', marginLeft: '5px' }}>
+                            <FaTimes />
+                        </span>
+                    )}
+                </InputGroup.Text>
             </InputGroup>
 
         </Form.Group>

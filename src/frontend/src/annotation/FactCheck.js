@@ -4,7 +4,7 @@ import FactCheckDocument from './FactCheckDocument';
 import { Badge, Nav, Tab, Form, Card } from 'react-bootstrap';
 import HelpPopUp from './HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
 
 const postToAPI = (utterance, factChecks, agent) => {
     // filter the factChecks to remove any where the query is empty
@@ -51,16 +51,29 @@ const createEmptyFactCheck = (agent) => {
 };
 
 const allValid = (fc) => {
-    console.log(fc)
-    return fc.valid && fc.document_set.every((doc) => {
+    return fc.valid && fc.document_set.length > 0 && fc.document_set.every((doc) => {
         return doc.valid;
     });
 };
 
-
-export default function FactCheck({ utterance, agent }) {
+export default function FactCheck({ utterance, agent, setAnnotationComplete, annotationComplete }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
+    // Fact check shows complete (allows progress to next card) if any of the fact checks are valid
+    const [isValid, setIsValid] = useState(factChecks.some((fc) => allValid(fc)));
+    // update the isValid state whenever the factChecks state changes
+    useEffect(() => {
+        setIsValid(factChecks.some((fc) => allValid(fc)));
+    }, [factChecks]);
+
+    // check if this task card is completed, and set its entry in the annotationComplete object
+    useEffect(() => {
+        setAnnotationComplete((prevAnnotationComplete) => ({
+            ...prevAnnotationComplete,
+            'factcheck': isValid
+        }));
+    }, [isValid]);
+
 
     useEffect(() => {
         axios({
@@ -94,16 +107,27 @@ export default function FactCheck({ utterance, agent }) {
 
     return (
         <Card key={`factcheck-utt-${utterance.uuid}`}>
-            <Card.Header>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Card.Header className='pb-0'>
+                <div className="d-flex justify-content-between">
                     <Card.Title>Fact Check</Card.Title>
-                    <HelpPopUp
-                        header={"Carry out a basic fact check on the statement."}
-                        text={"Here you will search with a search engine and record the search phrase you use (or simply paste the link to the search results page in). You can also add a link to a search engine result. If you find a result that supports the statement, you can add it to the document set. If you find a result that does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."}
-                        qualifier={"factcheck"} />
+                    <div>
+                        {isValid ? (
+                            <span style={{ color: 'green', marginRight: '5px' }}>
+                                <FaCheck />
+                            </span>
+                        ) : (
+                            <span style={{ color: 'red', marginRight: '5px' }}>
+                                <FaTimes />
+                            </span>
+                        )}
+                        <HelpPopUp
+                            header={"Carry out a basic fact check on the statement."}
+                            text={"Here you will search with a search engine and record the search phrase you use (or simply paste the link to the search results page in). You can also add a link to a search engine result. If you find a result that supports the statement, you can add it to the document set. If you find a result that does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."}
+                            qualifier={"factcheck"} />
+                    </div>
                 </div>
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="pb-0">
                 <Form>
                     <Tab.Container activeKey={activeFactCheck}>
                         <Nav fill variant="tabs" onSelect={(selectedKey) => {
@@ -112,33 +136,41 @@ export default function FactCheck({ utterance, agent }) {
                             {factChecks.map((fc, i) => (
                                 <Nav.Item key={`fc-${i}-navitem`}>
                                     <Nav.Link key={`fc-${i}-tab`} eventKey={`fc-${i}-pane`}>
-                                        {i + 1}
-                                        {/* check if the fact check, and all its child documents have valid=true */}
-                                        {allValid(fc) ? (
-                                            <span style={{ color: 'green', marginRight: '5px' }}>
-                                                <FaCheck />
-                                            </span>
-                                        ) : (
-                                            <span style={{ color: 'red', marginRight: '5px' }}>
-                                                <FaTimes />
-                                            </span>
-                                        )}
-                                        {/* Delete factcheck button */}
-                                        {i != 0 && <Badge
-                                            pill
-                                            bg="danger"
-                                            style={{ marginLeft: '10px', cursor: 'pointer' }}
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent the default behavior of the Nav.Link
-                                                e.preventDefault(); // Prevent the default behavior of the Nav.Link
-                                                const newFactChecks = factChecks.filter((_, index) => index !== i);
-                                                setFactChecks(newFactChecks);
-                                                setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
-                                                postToAPI(utterance, newFactChecks, agent);
-                                            }}
-                                        >
-                                            &times;
-                                        </Badge>}
+                                        <div className="d-flex justify-content-between">
+                                            <div>
+                                                <span>{i + 1}</span>
+                                                {/* check if the fact check, and all its child documents have valid=true */}
+                                                {allValid(fc) ? (
+                                                    <span style={{ color: 'green', marginLeft: '5px' }}>
+                                                        <FaCheck />
+                                                    </span>
+                                                ) : (
+                                                    <span style={{ color: 'red', marginLeft: '5px' }}>
+                                                        <FaTimes />
+                                                    </span>
+                                                )}
+                                                </div>
+                                            <div>
+                                                {/* Delete factcheck button */}
+                                                {i != 0 && <Badge
+                                                    pill
+                                                    className='p-1'
+                                                    bg="danger"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevent the default behavior of the Nav.Link
+                                                        e.preventDefault(); // Prevent the default behavior of the Nav.Link
+                                                        const newFactChecks = factChecks.filter((_, index) => index !== i);
+                                                        setFactChecks(newFactChecks);
+                                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
+                                                        postToAPI(utterance, newFactChecks, agent);
+                                                    }}
+                                                >
+                                                    <span style={{ color: 'white' }}>
+                                                        <FaTimes />
+                                                    </span>
+                                                </Badge>}
+                                            </div>
+                                        </div>
                                     </Nav.Link>
                                 </Nav.Item>
                             ))}
@@ -147,7 +179,7 @@ export default function FactCheck({ utterance, agent }) {
                                 <Badge
                                     pill
                                     variant="success"
-                                    style={{ marginLeft: '10px', cursor: 'pointer' }}
+                                    className='p-1'
                                     onClick={(e) => {
                                         e.preventDefault();
                                         const newFactChecks = [...factChecks];
@@ -156,7 +188,7 @@ export default function FactCheck({ utterance, agent }) {
                                         setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
                                     }}
                                 >
-                                    +
+                                    <FaPlus />
                                 </Badge>
                             </Nav.Item>
                         </Nav>

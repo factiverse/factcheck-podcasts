@@ -34,7 +34,9 @@ export default function AnnotationProject() {
   const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false);
   const [annotationComplete, setAnnotationComplete] = useState({});
   const { segmentationUuid } = useParams();
-  let [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const minFactChecks = 30;
+  const minDocs = 50;
 
   // function to get the classification set for the current utterance from the api
   const getClassifications = () => {
@@ -75,24 +77,27 @@ export default function AnnotationProject() {
 
   // get the segmentation set from API, including the utterance set that will be cycled through
   useEffect(() => {
-    axios({
-      method: "GET",
-      url: "/api/segmentations/" + segmentationUuid + "/",
-    }).then((response) => {
-      const data = response.data;
-      setSegmentationUnfiltered(data);
-      let filteredData = { ...data };
-      filteredData.utterance_set = filteredData.utterance_set.filter((utterance) => utterance.hidden === false);
-      setSegmentation(filteredData);
-      setUtterance(filteredData.utterance_set[index]);
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    });
-  }, []);
+    if (agent) {
+      axios({
+        method: "GET",
+        url: `/api/segmentations/${segmentationUuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
+      }).then((response) => {
+        const data = response.data;
+        setSegmentationUnfiltered(data);
+        let filteredData = { ...data };
+        filteredData.utterance_set = filteredData.utterance_set.filter((utterance) => utterance.hidden === false);
+        setSegmentation(filteredData);
+        setUtterance(filteredData.utterance_set[index]);
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
+    }
+
+  }, [agent]);
 
   // check if the classification set has a checkworthy classification and set isCheckworthyUtt (FOR SHOW/HIDE FACT CHECK)
   useEffect(() => {
@@ -163,7 +168,12 @@ export default function AnnotationProject() {
         />
       </div>,
       isCheckworthyUtt && <div key="fact-check">
-        <FactCheck agent={agent} utterance={utterance} />
+        <FactCheck
+          agent={agent}
+          utterance={utterance}
+          annotationComplete={annotationComplete}
+          setAnnotationComplete={setAnnotationComplete}
+        />
       </div>,
       <div key="motivation">
         <ExclusiveSelector
@@ -244,6 +254,15 @@ export default function AnnotationProject() {
                 annotationComplete={annotationComplete}
                 setAnnotationComplete={setAnnotationComplete}
               />
+              {utterance.text_coref && <TranscriptionCheck
+                agent={agent}
+                key={segmentation.uuid + "-coreference"}
+                qualifier={"Coreference"}
+                classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
+                utterance={utterance}
+                annotationComplete={annotationComplete}
+                setAnnotationComplete={setAnnotationComplete}
+              />}
             </Col>
             <Col>
               <Masonry
