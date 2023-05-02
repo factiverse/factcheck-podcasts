@@ -130,7 +130,7 @@ export default function AnnotationProject() {
     };
     const checkworthyExists = checkForCheckworthyClassification();
     setIsCheckworthyUtt(checkworthyExists);
-  }, [classifications]);
+  }, [utterance, classifications]);
 
 
   // find and set the indexUnfiltered in segmentationUnfiltered based on the uuid of the utterance
