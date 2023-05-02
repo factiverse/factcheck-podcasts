@@ -7,26 +7,6 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 //import { StringDiff } from 'react-string-diff';
 import StringDiff from './StringDiff';
 
-const postToAPI = (utterance, qualifier, category, label, agent) => {
-  axios.post('/api/classifications/' + utterance + "/", {
-    utterance,
-    qualifier,
-    category,
-    label,
-    agent,
-  })
-    .then((response) => {
-      // do nothing
-    })
-    .catch((error) => {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    });
-};
-
 const radios = [
   { name: 'Approve Original', value: 1, help: "Confirm the original transcription is correct." },
   { name: 'Edit', value: 2, help: "Unlock the text box and make corrections to the original transcription." },
@@ -34,11 +14,39 @@ const radios = [
   { name: 'Reset', value: 4, help: "Delete your edits and restore original." },
 ];
 
-export default function TranscriptionCheck({ qualifier, classification, agent, utterance, annotationComplete, setAnnotationComplete }) {
+export default function TranscriptionCheck({ qualifier, classification, agent, utterance, setUtterance, setAnnotationComplete }) {
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
   const isCoref = qualifier === 'Coreference';
+
+  const postToAPI = (utt_uuid, qualifier, category, label, agent) => {
+    axios.post('/api/classifications/' + utterance + "/", {
+      utterance: utt_uuid,
+      qualifier,
+      category,
+      label,
+      agent,
+    })
+      .then((response) => {
+        // update the classifications list in the utterance with the new classification received back from the API
+        var newClassificationSet = [...utterance.classification_set];
+        const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
+        if (classificationIndex !== -1) {
+          newClassificationSet[classificationIndex] = response.data;
+        } else {
+          newClassificationSet.push(response.data);
+        }
+        setUtterance({ ...utterance, classification_set: newClassificationSet });
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
+  };
 
   // check if this task card is completed, and set its entry in the annotationComplete object
   useEffect(() => {
@@ -46,12 +54,12 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
       ...prevAnnotationComplete,
       [qualifier]: radioValue !== ''
     }));
-  }, [radioValue, utterance]);
+  }, [radioValue]);
 
   useEffect(() => {
     setRadioValue(classification ? radios.filter((item) => item.name === classification.category)[0].value : '');
     setTextValue(isCoref ? classification?.label || utterance.text_coref : classification?.label || utterance.text);
-  }, [utterance, classification]);
+  }, [classification]);
 
   return (
     <Card className='mt-3 mb-3'>
@@ -82,9 +90,9 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
           <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
             {isCoref ? (
               <>
-              <StringDiff stringA={utterance.text} stringB={utterance.text_coref} method='diffWordsWithSpace' />
-              ...
-              <p>{utterance.text_coref}</p>
+                <StringDiff stringA={utterance.text} stringB={utterance.text_coref} method='diffWordsWithSpace' />
+                ...
+                <p>{utterance.text_coref}</p>
               </>
             ) :
 

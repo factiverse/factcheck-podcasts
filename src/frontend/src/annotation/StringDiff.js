@@ -7,11 +7,11 @@ const findOverlappingWords = (stringA, stringB) => {
     //split on whitespace 
     const wordsText = stringA.split(/\s+/);
     const wordsCoref = stringB.split(/\s+/);
-    console.log(wordsText, wordsCoref)
     const differences = [];
     let i = 0;
     let j = 0;
 
+    let nextAnchor = wordsText[i + 1];
     while (i < wordsText.length && j < wordsCoref.length) {
         if (wordsText[i] === wordsCoref[j]) {
             differences.push({
@@ -20,22 +20,27 @@ const findOverlappingWords = (stringA, stringB) => {
             });
             i++;
             j++;
+            nextAnchor = wordsText[i + 1];
         } else {
-            let nextAnchor = wordsText[i + 1];
             let textWords = [wordsText[i]];
             let corefWords = [];
             while (wordsCoref[j] !== nextAnchor && j < wordsCoref.length) {
                 corefWords.push(wordsCoref[j]);
                 j++;
-                if (j >= wordsCoref.length && i < wordsText.length - 2) {
-                    textWords.push(wordsText[i + 2]);
-                    nextAnchor = textWords.join(' ');
-                    j = i;
-                    i++;
-                    console.log("spin out")
+                if (j === wordsCoref.length) {
+                    textWords.push(wordsText[i + 1]);
+                    nextAnchor = wordsText[i + 2];
+                    if (wordsCoref[j] === nextAnchor) {
+                        break;
+                    } else {
+
+                        j = i;
+                        i++;
+                        corefWords = [wordsCoref[j - 1]];
+                    }
                 }
             }
-            if (corefWords.length > 0) {
+            if (corefWords.length > 0 || textWords.length > 0) {
                 differences.push({
                     type: 'removed',
                     value: textWords.join(' '),
@@ -51,10 +56,8 @@ const findOverlappingWords = (stringA, stringB) => {
                 //});
             }
             i++;
-            console.log(i, j)
         }
     }
-    console.log(differences)
     return differences;
 };
 

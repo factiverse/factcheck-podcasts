@@ -28,17 +28,16 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
         newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
         setFactChecks(newFactChecks);
         setIsValid(valid);
-        return valid;
+        return newDocument;
     }
 
     useEffect(() => {
         setIsValid(document.valid);
-    }, [document]);
+    }, [document.valid]);
 
     useEffect(() => {
         setRadioValue(document.supports);
     }, [document.supports])
-
 
     return (
         <Form.Group className="mb-3">
@@ -90,17 +89,23 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={
                                 (e) => {
-                                    const newDocument = { ...document, supports: e.target.value };
-                                    validateInsertDoc(newDocument);
-                                    postToAPI(utterance, factChecks, agent);
+                                    let newDocument = { ...document, supports: e.target.value };
+                                    newDocument = validateInsertDoc(newDocument);
+                                    let newFactChecks = [...factChecks];
+                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
+                                    setFactChecks(newFactChecks);
+                                    postToAPI(utterance, newFactChecks, agent);
                                 }
                             }
                             onClick={(e) => {
                                 // if the radio button is already selected, then unselect it
                                 if (radio.value == radioValue) {
-                                    const newDocument = { ...document, supports: null };
-                                    validateInsertDoc(newDocument);
-                                    postToAPI(utterance, factChecks, agent);
+                                    let newDocument = { ...document, supports: null };
+                                    newDocument = validateInsertDoc(newDocument);
+                                    let newFactChecks = [...factChecks];
+                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
+                                    setFactChecks(newFactChecks);
+                                    postToAPI(utterance, newFactChecks, agent);
                                 }
                             }}
                         >
@@ -155,7 +160,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     value={document.comment ? document.comment : ""}
                     onChange={
                         (e) => {
-                            const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null, valid: document.document && document.document.trim().length > 0 && document.supports && document.supports !== 0 };
+                            const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null };
                             validateInsertDoc(newDocument);
                         }}
                     onBlur={

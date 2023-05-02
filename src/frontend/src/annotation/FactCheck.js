@@ -6,31 +6,6 @@ import HelpPopUp from './HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
 import { FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
 
-const postToAPI = (utterance, factChecks, agent) => {
-    // filter the factChecks to remove any where the query is empty
-    // and do the same for the document_set where the document is empty
-    const newfactChecks = factChecks.filter((fc) => {
-        if (fc.query.length > 0) {
-            fc.document_set = fc.document_set.filter((doc) => {
-                return doc.document.length > 0;
-            });
-            return true;
-        }
-        return false;
-    });
-    const data = { agent: agent, queries: newfactChecks }
-    axios.post('/api/factchecks/' + utterance.uuid + "/", data)
-        .then((response) => {
-            // do nothing, even though I maybe should update the state with this?
-        })
-        .catch((error) => {
-            if (error.response) {
-                console.log(error.response);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
-};
 
 const createEmptyFactCheck = (agent) => {
     return {
@@ -56,15 +31,52 @@ const allValid = (fc) => {
     });
 };
 
-export default function FactCheck({ utterance, agent, setAnnotationComplete, annotationComplete }) {
+export default function FactCheck({ utterance, setUtterance, agent, setAnnotationComplete }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
     // Fact check shows complete (allows progress to next card) if any of the fact checks are valid
-    const [isValid, setIsValid] = useState(factChecks.some((fc) => allValid(fc)));
+    const [isValid, setIsValid] = useState(factChecks.every((fc) => allValid(fc)));
+
+    const postToAPI = (utterance, factChecks, agent) => {
+        // filter the factChecks to remove any where the query is empty
+        // and do the same for the document_set where the document is empty
+        const newfactChecks = factChecks.filter((fc) => {
+            if (fc.query.length > 0) {
+                fc.document_set = fc.document_set.filter((doc) => {
+                    return doc.document.length > 0;
+                });
+                return true;
+            }
+            return false;
+        });
+        const data = { agent: agent, queries: newfactChecks }
+        axios.post('/api/factchecks/' + utterance.uuid + "/", data)
+            .then((response) => {
+                setUtterance({ ...utterance, query_set: response.data });
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                }
+            });
+    };
+    
+
+    // sync the factChecks state with the utterance.query_set state from props
+    useEffect(() => {
+        if (utterance.query_set.length > 0) {
+            setFactChecks(utterance.query_set);
+        } else {
+            setFactChecks([createEmptyFactCheck(agent)]);
+        }
+    }, [utterance, utterance.query_set]);
+
     // update the isValid state whenever the factChecks state changes
     useEffect(() => {
-        setIsValid(factChecks.some((fc) => allValid(fc)));
-    }, [factChecks]);
+        setIsValid(factChecks.every((fc) => allValid(fc)));
+    }, [utterance, utterance.query_set, factChecks]);
 
     // check if this task card is completed, and set its entry in the annotationComplete object
     useEffect(() => {
@@ -74,8 +86,8 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
         }));
     }, [isValid]);
 
-
-    useEffect(() => {
+    // get factchecks from API
+    /*useEffect(() => {
         axios({
             method: "GET",
             url: `/api/factchecks/${utterance.uuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
@@ -104,6 +116,7 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
             }
         });
     }, [utterance, agent]);
+    */
 
     return (
         <Card key={`factcheck-utt-${utterance.uuid}`}>
@@ -149,7 +162,7 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
                                                         <FaTimes />
                                                     </span>
                                                 )}
-                                                </div>
+                                            </div>
                                             <div>
                                                 {/* Delete factcheck button */}
                                                 {i != 0 && <Badge
@@ -162,7 +175,7 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
                                                         const newFactChecks = factChecks.filter((_, index) => index !== i);
                                                         setFactChecks(newFactChecks);
                                                         setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
-                                                        postToAPI(utterance, newFactChecks, agent);
+                                                        postToAPI(utterance, newFactChecks, agent, setUtterance);
                                                     }}
                                                 >
                                                     <span style={{ color: 'white' }}>
@@ -195,15 +208,18 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
                         <Tab.Content>
                             {factChecks.map((fc, i) => (
                                 <Tab.Pane key={`fc-${i}-pane`} eventKey={`fc-${i}-pane`} title={i}>
+
+                                    {/* FACT CHECK QUERY */}
                                     <FactCheckQuery
                                         fc_idx={i}
                                         factChecks={factChecks}
                                         setFactChecks={setFactChecks}
                                         postToAPI={postToAPI}
                                         utterance={utterance}
-                                        agent={agent} />
+                                        agent={agent}
+                                    />
 
-                                    {/* Check if fc.document_set is empty and render a default FactCheckDocument */}
+                                    {/* FACT CHECK*/}
                                     {(fc.document_set.length === 0 ? [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
                                         <FactCheckDocument
                                             document={doc}
@@ -214,7 +230,8 @@ export default function FactCheck({ utterance, agent, setAnnotationComplete, ann
                                             key={`fc-${i}-${j}`}
                                             postToAPI={postToAPI}
                                             agent={agent}
-                                            utterance={utterance} />
+                                            utterance={utterance}
+                                        />
                                     ))}
                                 </Tab.Pane>
                             ))}

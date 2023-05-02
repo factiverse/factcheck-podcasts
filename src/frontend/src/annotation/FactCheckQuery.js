@@ -8,6 +8,32 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
     const [platformDropdown, setPlatformDropdown] = useState('Platform');
     const [inputValue, setInputValue] = useState(factCheck.query || '');
 
+    function isValidURL(str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function matchURLWithPlatform(url) {
+        const domain = new URL(url).hostname;
+        const matchedPlatform = searchPlatforms.find((platform) =>
+            domain.includes(platform.key)
+        );
+        return matchedPlatform ? matchedPlatform.name : null;
+    }
+
+    function getQueryStringFromURL(url) {
+        try {
+            const parsedURL = new URL(url);
+            let queryString = parsedURL.searchParams.get('q') || parsedURL.searchParams.get('p');
+            return queryString ? queryString.replace(/\+/g, ' ') : null;
+        } catch (e) {
+            return null;
+        }
+    }
     useEffect(() => {
         setFactCheck(factChecks[fc_idx]);
     }, [factChecks, fc_idx]);
@@ -30,9 +56,11 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
 
     function handlePlatformDropdownClick(platform) {
         setPlatformDropdown(platform);
-        const newFactCheck = { ...factCheck, platform: platform };
-        validateInsertQuery(newFactCheck);
-        postToAPI(utterance, factChecks, agent);
+        let newFactCheck = { ...factCheck, platform: platform };
+        newFactCheck.valid = validateInsertQuery(newFactCheck);
+        let newFactChecks = [...factChecks];
+        newFactChecks[fc_idx] = newFactCheck;
+        postToAPI(utterance, newFactChecks, agent);
     }
 
     return (
@@ -52,6 +80,22 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                     key={`fc-${fc_idx}-query-input`}
                     onChange={
                         (e) => {
+                            // Add this block to handle URL input
+                            if (isValidURL(e.target.value)) {
+                                const matchedPlatform = matchURLWithPlatform(e.target.value);
+                                if (matchedPlatform) {
+                                    setPlatformDropdown(matchedPlatform);
+                                    const queryString = getQueryStringFromURL(e.target.value);
+                                    let qs = queryString ? queryString : e.target.value;
+                                    setInputValue(qs);
+                                    let newFactCheck = { ...factCheck, query: qs, platform: matchedPlatform };
+                                    newFactCheck.valid = validateInsertQuery(newFactCheck);
+                                    let newFactChecks = [...factChecks];
+                                    newFactChecks[fc_idx] = newFactCheck;
+                                    postToAPI(utterance, newFactChecks, agent);
+                                    return;
+                                }
+                            }
                             setInputValue(e.target.value);
                             const newFactCheck = { ...factCheck, query: e.target.value };
                             validateInsertQuery(newFactCheck);

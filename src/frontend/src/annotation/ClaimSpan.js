@@ -11,17 +11,17 @@ export default function ClaimSpan({ utterance }) {
     }]);
     const [tag, setTag] = React.useState("ClaimSpan");
 
-    useEffect(() => {
-        setValue([
-          {
-            start: 0,
-            end: utterance.length,
-            text: utterance["text"],
-            tag: "ClaimSpan",
-            color: "rgb(179, 245, 66)"
-          },
-        ]);
-      }, [utterance]);
+    //useEffect(() => {
+    //    setValue([
+    //      {
+    //        start: 0,
+    //        end: utterance.length,
+    //        text: utterance["text"],
+    //        tag: "ClaimSpan",
+    //        color: "rgb(179, 245, 66)"
+    //      },
+    //    ]);
+    //  }, [utterance]);
 
     const handleChange = (value) => {
         setValue(value);

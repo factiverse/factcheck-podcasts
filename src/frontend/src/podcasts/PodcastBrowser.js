@@ -46,8 +46,6 @@ export default function PodcastBrowser({ }) {
     });
   }, []);
 
-  console.log(searchParams.get("p_id"), searchParams.get("pid"));
-
   return (
     <Row className="h-100">
       <Col className="bg-light h-100" sm={4} >

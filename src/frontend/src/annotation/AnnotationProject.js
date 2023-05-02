@@ -35,25 +35,42 @@ export default function AnnotationProject() {
   const [annotationComplete, setAnnotationComplete] = useState({});
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const minFactChecks = 30;
-  const minDocs = 50;
+  const [factCheckCount, setFactCheckCount] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0);
 
-  // function to get the classification set for the current utterance from the api
-  const getClassifications = () => {
-    axios({
-      method: "GET",
-      url: `/api/classifications/${utterance.uuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
-    }).then((response) => {
-      const data = response.data;
-      setClassifications(data);
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    });
-  };
+  // when the annotationComplete for the current utterance changes, add or update the annotationComplete attribute on the utterance
+  useEffect(() => {
+    if (utterance) {
+      setUtterance({ ...utterance, annotationComplete: annotationComplete });
+    }
+  }, [annotationComplete]);
+
+  // set the intial value of factCheckCount and documentCount by looping through
+  // every utterance in the segmentation and counting the number of queries in utterance.query_set that are valid
+  // and then for documents, count the number of valid documents in the document_set of each valid query
+  useEffect(() => {
+    if (segmentation) {
+      let factCheckCount = 0;
+      let documentCount = 0;
+      segmentation.utterance_set.forEach((utt) => {
+        utt.query_set.forEach((query) => {
+          if (query.valid) {
+            factCheckCount += 1;
+            if (query.document_set) {
+              query.document_set.forEach((doc) => {
+                if (doc.valid) {
+                  documentCount += 1;
+                }
+              });
+            }
+          }
+        });
+      });
+      setFactCheckCount(factCheckCount);
+      setDocumentCount(documentCount);
+    }
+  }, [segmentation]);
+
 
   const swipeConfig = { delta: 100 };
   const handlers = useSwipeable({
@@ -88,6 +105,7 @@ export default function AnnotationProject() {
         filteredData.utterance_set = filteredData.utterance_set.filter((utterance) => utterance.hidden === false);
         setSegmentation(filteredData);
         setUtterance(filteredData.utterance_set[index]);
+        setClassifications(filteredData.utterance_set[index].classification_set);
       }).catch((error) => {
         if (error.response) {
           console.log(error.response);
@@ -112,23 +130,22 @@ export default function AnnotationProject() {
     };
     const checkworthyExists = checkForCheckworthyClassification();
     setIsCheckworthyUtt(checkworthyExists);
-  }, [JSON.stringify(classifications)]);
+  }, [classifications]);
 
-  // get the classification for the current utterance
-  useEffect(() => {
-    if (utterance && agent) {
-      getClassifications();
-    }
-  }, [utterance, agent]);
 
   // find and set the indexUnfiltered in segmentationUnfiltered based on the uuid of the utterance
+  // and set the classifications set for this utterance
   useEffect(() => {
     if (utterance) {
       const idx = segmentationUnfiltered.utterance_set.findIndex((u) => u.uuid === utterance.uuid);
       setIndexUnfiltered(idx);
+
+      // set classifications for the utterance
+      setClassifications(utterance.classification_set);
     }
   }, [utterance]);
 
+  // collect query params from url and set agent state
   useEffect(() => {
     if (agent) {
       setSearchParams(agent)
@@ -150,9 +167,30 @@ export default function AnnotationProject() {
     }
   }, [agent]);
 
+  // when the utterance changes, but it's because it's been updated and not going to the next utterance(index doesn't change),
+  // insert the updated utterance into the segmentation's utterance_set
+  useEffect(() => {
+    if (utterance && segmentation) {
+      const storedUtterance = segmentation.utterance_set[index];
+      // check that the object in storedUtterance has the same attributes and values and the object in utterance
+      if (JSON.stringify(storedUtterance) !== JSON.stringify(utterance)) {
+        const newUtteranceSet = segmentation.utterance_set.map((u) => {
+          if (u.uuid === utterance.uuid) {
+            return utterance;
+          } else {
+            return u;
+          }
+        });
+        const newSegmentation = { ...segmentation };
+        newSegmentation.utterance_set = newUtteranceSet;
+        setSegmentation(newSegmentation);
+      }
+    }
+  }, [utterance]);
+
+  // main microtask components
   const renderItems = () => {
     if (!classifications) return null;
-
     return [
       <div key="checkworthiness">
         <ExclusiveSelector
@@ -161,8 +199,8 @@ export default function AnnotationProject() {
           labels={checkworthyLabels}
           splitField="category"
           utterance={utterance}
+          setUtterance={setUtterance}
           classification={classifications.filter((c) => c.qualifier === "Checkworthiness")[0]}
-          updateFunction={getClassifications}
           annotationComplete={annotationComplete}
           setAnnotationComplete={setAnnotationComplete}
         />
@@ -171,7 +209,7 @@ export default function AnnotationProject() {
         <FactCheck
           agent={agent}
           utterance={utterance}
-          annotationComplete={annotationComplete}
+          setUtterance={setUtterance}
           setAnnotationComplete={setAnnotationComplete}
         />
       </div>,
@@ -182,8 +220,8 @@ export default function AnnotationProject() {
           labels={motivationLabels}
           splitField="category"
           utterance={utterance}
+          setUtterance={setUtterance}
           classification={classifications.filter((c) => c.qualifier === "Motivations")[0]}
-          updateFunction={getClassifications}
           annotationComplete={annotationComplete}
           setAnnotationComplete={setAnnotationComplete}
         />
@@ -195,15 +233,14 @@ export default function AnnotationProject() {
           labels={advertisingLabels}
           splitField="category"
           utterance={utterance}
+          setUtterance={setUtterance}
           classification={classifications.filter((c) => c.qualifier === "Advertising")[0]}
-          updateFunction={getClassifications}
           annotationComplete={annotationComplete}
           setAnnotationComplete={setAnnotationComplete}
         />
       </div>,
     ];
   };
-
 
   return (
     <div {...handlers}>
@@ -225,6 +262,8 @@ export default function AnnotationProject() {
           setIndex={setIndex}
           setUtterance={setUtterance}
           annotationComplete={annotationComplete}
+          factCheckCount={factCheckCount}
+          documentCount={documentCount}
         />
 
         {utterance && agent && classifications && (
@@ -234,13 +273,9 @@ export default function AnnotationProject() {
                 key={segmentation.uuid + "-utterance"}
                 utterance={utterance}
                 utteranceContext={segmentationUnfiltered.utterance_set
-                  .slice(
-                    indexUnfiltered - numContextUtterances > 0
-                      ? indexUnfiltered - numContextUtterances
-                      : 0,
-                    indexUnfiltered
-                  )
-                  .reverse()}
+                  .slice(indexUnfiltered - numContextUtterances > 0 ? indexUnfiltered - numContextUtterances : 0, indexUnfiltered)
+                  .reverse()
+                }
                 url={segmentation.audio_file_link}
                 setAudioPlaying={setAudioPlaying}
                 audioPlaying={audioPlaying}
@@ -251,6 +286,7 @@ export default function AnnotationProject() {
                 qualifier={"Transcription"}
                 classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
                 utterance={utterance}
+                setUtterance={setUtterance}
                 annotationComplete={annotationComplete}
                 setAnnotationComplete={setAnnotationComplete}
               />
@@ -260,6 +296,7 @@ export default function AnnotationProject() {
                 qualifier={"Coreference"}
                 classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
                 utterance={utterance}
+                setUtterance={setUtterance}
                 annotationComplete={annotationComplete}
                 setAnnotationComplete={setAnnotationComplete}
               />}

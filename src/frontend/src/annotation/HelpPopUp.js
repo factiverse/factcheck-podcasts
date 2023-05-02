@@ -1,7 +1,7 @@
 import React, { } from 'react';
 import { Badge, OverlayTrigger, Popover } from 'react-bootstrap';
 
-export default function HelpPopUp({ header, text, qualifier }) {
+export default function HelpPopUp({ header, text, qualifier, badgeClass}) {
 
     const renderPopover = () => (
         <Popover id={`popover-positioned-${qualifier}`}>
@@ -23,7 +23,7 @@ export default function HelpPopUp({ header, text, qualifier }) {
                 renderPopover()
             }
         >
-            <Badge variant="primary">?</Badge>
+            <Badge variant="primary" className={badgeClass}>?</Badge>
         </OverlayTrigger>
     );
 }

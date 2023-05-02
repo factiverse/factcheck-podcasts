@@ -6,44 +6,61 @@ import HelpTooltipButton from './HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
-const postToAPI = (utterance, qualifier, category, label, agent) => {
-    axios.post('/api/classifications/' + utterance + "/", {
-        utterance,
-        qualifier,
-        category,
-        label,
-        agent,
-    })
-        .then((response) => {
-            // do nothing
-        })
-        .catch((error) => {
-            if (error.response) {
-                console.log(error.response);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
-};
 
-export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, updateFunction, annotationComplete, setAnnotationComplete }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, setUtterance, annotationComplete, setAnnotationComplete }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
 
+    const postToAPI = (utt_uuid, qualifier, category, label, agent) => {
+        axios.post('/api/classifications/' + utt_uuid + "/", {
+            utterance: utt_uuid,
+            qualifier,
+            category,
+            label,
+            agent,
+        })
+            .then((response) => {
+                // update the classifications list in the utterance with the new classification received back from the API
+                var newClassificationSet = [...utterance.classification_set];
+                const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
+                if (classificationIndex !== -1) {
+                    newClassificationSet[classificationIndex] = response.data;
+                } else {
+                    newClassificationSet.push(response.data);
+                }
+                setUtterance({ ...utterance, classification_set: newClassificationSet });
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                }
+            });
+    };
+
+
     // check if this task card is completed, and set its entry in the annotationComplete object
     useEffect(() => {
-        setAnnotationComplete((prevAnnotationComplete) => ({
-            ...prevAnnotationComplete,
-            [qualifier]: radioValue !== ''
-        }));
-    }, [radioValue, utterance]);
+        let newAnnotationComplete = { ...annotationComplete };
+        newAnnotationComplete[qualifier] = radioValue !== '';
+        setAnnotationComplete(newAnnotationComplete);
+        
+        // check if qualifier is "Checkworthy" and if it and the classification is "Not Checkworthy", then remove the "factcheck" entry from the annotationComplete object
+        if (qualifier === 'Checkworthiness' && category === 'Not Checkworthy') {
+            setAnnotationComplete((prevAnnotationComplete) => {
+                const { factcheck, ...rest } = prevAnnotationComplete;
+                return rest;
+            });
+        }
+    }, [radioValue]);
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
     useEffect(() => {
         setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0].label : '');
         setCategory(classification ? labels.labels.filter((item) => item.category == classification.category)[0].category : '');
-    }, [utterance, classification]);
+    }, [classification]);
 
     return (
         <Card>
@@ -102,17 +119,14 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                     onClick={(e) => {
                                                         const selectedLabel = labels.labels.filter((item) => item.label === label.label).shift();
                                                         const cat = selectedLabel ? selectedLabel.category : '';
-
                                                         if (radioValue === label.label) {
                                                             setRadioValue('');
                                                             setCategory('');
                                                             postToAPI(utterance.uuid, qualifier, '', '', agent);
-                                                            updateFunction();
                                                         } else {
                                                             setRadioValue(label.label);
                                                             setCategory(cat);
                                                             postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
-                                                            updateFunction();
                                                         }
                                                     }}
                                                     role="radio"

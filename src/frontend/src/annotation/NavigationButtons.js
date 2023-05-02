@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-
+import { Button, ProgressBar, Row, Col, InputGroup } from 'react-bootstrap';
+import HelpPopUp from './HelpPopUp';
 
 function NavButton({ disabled, text, onClick, keyStroke }) {
     return (
@@ -11,7 +12,56 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, annotationComplete }) {
+
+export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, annotationComplete, factCheckCount, documentCount }) {
+    const minFactChecks = segmentation.utterance_set.length;
+    const minDocs = segmentation.utterance_set.length * 2;
+    const [canSubmit, setCanSubmit] = useState(false);
+    // check the annotationComplete dictionary has all true values for any utterance in the segmentation.utterance_set with hidden = false
+    // and also confirm that the utterances contain at least minFactChecks fact checks, and the fact checks contain at least minDocs documents
+    useEffect(() => {
+        if (segmentation.utterance_set) {
+
+            let complete = true;
+            for (let i = 0; i < segmentation.utterance_set.length; i++) {
+
+                if (!segmentation.utterance_set[i].hidden && segmentation.utterance_set[i].query_set.length > 0) {
+                    for (let j = 0; j < segmentation.utterance_set[i].query_set.length; j++) {
+                        if (!segmentation.utterance_set[i].query_set[j].valid) {
+                            complete = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            //console.log("first complete", complete)
+            if (complete) {
+                var fcCount = 0;
+                var docCount = 0;
+                for (let i = 0; i < segmentation.utterance_set.length; i++) {
+                    if (!segmentation.utterance_set[i].hidden && segmentation.utterance_set[i].query_set.length > 0) {
+                        for (let j = 0; j < segmentation.utterance_set[i].query_set.length; j++) {
+                            if (segmentation.utterance_set[i].query_set[j].valid) {
+                                fcCount++;
+                                if (segmentation.utterance_set[i].query_set[j].document_set.length > 0) {
+                                    for (let k = 0; k < segmentation.utterance_set[i].query_set[j].document_set.length; k++) {
+                                        if (segmentation.utterance_set[i].query_set[j].document_set[k].valid) {
+                                            docCount++;
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+                setCanSubmit(complete);
+                //console.log(complete, "COMPLETE")
+            }
+        }
+    }, [segmentation]);
+
+
     let isFirst = false;
     let isLast = false;
 
@@ -76,41 +126,92 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
     }
 
     const progressPercentage = (index + 1) * 100 / segmentation.utterance_set.length;
-    
+
     return (
-        <div className='mt-0'>
-            <ButtonGroup>
-                <NavButton disabled={isFirst} text="First" keyStroke="↑" onClick={handleFirstClick} />
-                <NavButton disabled={isFirst} text="" keyStroke="←" onClick={handlePrevClick} />
-                <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
-                <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
-            </ButtonGroup>
-            {Object.values(annotationComplete).some(value => value === false) ? (
+        <div>
+            <Row>
+                <Col>
+                    <ProgressBar
+                        variant="info"
+                        now={100 * factCheckCount / minFactChecks}
+                    />
+                    <div
+                        style={{
+                            position: 'relative',
+                            top: -20,
+                            color: (100 * factCheckCount / minFactChecks < 50) ? 'black' : 'white',
+                            marginBottom: -20,
+                        }}
+                    >
+                        {`Fact Check QUERY: ${factCheckCount}/${minFactChecks}`}
+                    </div>
+                    <ProgressBar
+                        variant="info"
+                        now={100 * documentCount / minDocs}
+                    />
+                    <div
+                        style={{
+                            position: 'relative',
+                            top: -20,
+                            color: 100 * documentCount / minDocs < 50 ? 'black' : 'white',
+                            marginBottom: -20,
+                        }}
+                    >
+                        {`Fact Check EVIDENCE: ${documentCount}/${minDocs}`}
+                    </div>
+                </Col>
+                <Col>
+                    <ButtonGroup>
+                        <NavButton disabled={isFirst} text="First" keyStroke="↑" onClick={handleFirstClick} />
+                        <NavButton disabled={isFirst} text="" keyStroke="←" onClick={handlePrevClick} />
+                        <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
+                        <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
+                        <Button className='ps-1' style={{ backgroundColor: "transparent" }} disabled={true} variant='secondary'>
+                            {Object.values(annotationComplete).some(value => value === false) ? (
+                                <span style={{ color: 'red', marginLeft: '5px' }}>
+                                    <FaTimes />
+                                </span>
+                            ) : (
+                                <span style={{ color: 'green', marginLeft: '5px' }}>
+                                    <FaCheck />
+                                </span>
+                            )}
+                        </Button>
+                    </ButtonGroup>
+                </Col>
+                <Col>
+                    <div className='float-end'>
+                        <HelpPopUp
+                            header={"Final submission after completion of all tasks."}
+                            text={"Complete each individual task card for the podcast statement to receive a green checkmark and advance to the next statement. After all statements have a green check mark, and the minimum number of fact checks queries and evidence are submitted, this button will be activated to finalize and return to Prolific."}
+                            qualifier={"final-submission"}
+                            badgeClass={"me-1"}
+                            className={"me-1"}
+                        />
+                        <Button variant="outline-primary" disabled>Final Submission</Button>
+                    </div>
 
-                <span style={{ color: 'red', marginLeft: '5px' }}>
-                    <FaTimes />
-                </span>
-            ) : (
-
-                <span style={{ color: 'green', marginLeft: '5px' }}>
-                    <FaCheck />
-                </span>
-            )}
-
-            <div className="progress mt-1 mb-2" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                <div className="progress-bar" style={{ width: progressPercentage + '%' }}>
-                    <span style={{
-                        color: progressPercentage < 50 ? 'black' : 'white',
-                        position: 'absolute',
-                        left: '50%',
-                        transform: 'translateX(-50%)'
-                    }}>
-                        ({index + 1} of {segmentation.utterance_set.length})
-                    </span>
-                </div>
-            </div>
+                </Col>
+                <Col xxl={12}>
 
 
+                    <ProgressBar
+                        variant="success"
+                        now={progressPercentage}
+                    />
+                    <div
+                        style={{
+                            position: 'relative',
+                            top: -20,
+                            color: progressPercentage < 50 ? 'black' : 'white',
+                            marginBottom: -15
+                        }}
+                    >
+                        {`STATEMENT: ${index + 1} of ${segmentation.utterance_set.length}`}
+                    </div>
+                </Col>
+
+            </Row>
         </div>
     );
 }

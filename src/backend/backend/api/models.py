@@ -130,7 +130,7 @@ class Query(models.Model):
     """
     uuid = UUIDField("uuid", unique=True)
     utterance = models.ForeignKey(Utterance, on_delete=models.CASCADE)
-    query = models.CharField("query", max_length=500)
+    query = models.CharField("query", max_length=1000)
     platform = models.CharField("platform", max_length=100, null=True)
     agent = models.CharField("agent", max_length=100)
     valid = models.BooleanField("valid", default=False)
@@ -143,8 +143,8 @@ class Document(models.Model):
     """
     uuid = UUIDField("uuid", unique=True)
     query = models.ForeignKey(Query, on_delete=models.CASCADE)
-    document = models.CharField("document", max_length=500)
+    document = models.CharField("document", max_length=1000)
     supports = models.PositiveSmallIntegerField("supports", choices=SUPPORTS_CHOICES, null=True)
-    comment = models.CharField("comment", max_length=500, null=True)
+    comment = models.CharField("comment", max_length=1000, null=True)
     agent = models.CharField("agent", max_length=100)
     valid = models.BooleanField("valid", default=False)
