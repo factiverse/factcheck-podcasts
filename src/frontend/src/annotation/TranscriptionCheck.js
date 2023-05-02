@@ -59,7 +59,7 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
   useEffect(() => {
     setRadioValue(classification ? radios.filter((item) => item.name === classification.category)[0].value : '');
     setTextValue(isCoref ? classification?.label || utterance.text_coref : classification?.label || utterance.text);
-  }, [classification]);
+  }, [classification, utterance]);
 
   return (
     <Card className='mt-3 mb-3'>
