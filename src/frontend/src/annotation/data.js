@@ -5,7 +5,7 @@ export const checkworthyLabels = {
   instruction2: "The checkworthy labels are used to describe statements that could feasibly be checked. Non-checkworthy labels are labels that are used to describe claims that cannot be checked.",
   helpHeader: "Checkworthy Labels",
   helpText: "You can't really fact check what a random person had for lunch, but you could certainly fact check what the King or President had for lunch with a foreign dignitary. Limited resources for fact checking make this an important distinction, information about the average person's breakfast is neither of interest to the public nor available to them, so trying to carry out a fact check would be senseless. To mark a statement as checkworthy it must be something the public would be interested in and that could be checked with commonly available resources.",
-  key: "checkworthy", // string that can be used in HTML id attributes
+  key: "Checkworthy", // string that can be used in HTML id attributes
   labels: [
     // CHECKWORTHY
     {
@@ -109,7 +109,7 @@ export const advertisingLabels = {
   instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement.",
   helpHeader: "Advertising Labels",
   helpText: "Advertising is a common way for podcast creators to support themselves. In contrast to traditional radio or television broadcasts, podcasters have a wider range of options from the familiar splicing in of externally produced ads, to explicitly reading ads as part of podcast content, or as.",
-  key: "advertising",
+  key: "Advertising",
   labels: [
     {
       keyStroke: "1",
@@ -155,7 +155,7 @@ export const motivationLabels = {
   instruction2: "Many statements could be placed in more than one category but pick the one that you think fits best.",
   helpHeader: "Motivation Labels",
   helpText: "People usually speak for a reason, whether their goal is to inform, persuade, instruct, sympathize, comfort, or come across as pleasant.",
-  key: "motivation",
+  key: "Motivation",
   labels: [
     {
       keyStroke: "1",

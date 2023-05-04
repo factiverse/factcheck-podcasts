@@ -37,8 +37,8 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
 
     useEffect(() => {
         setRadioValue(document.supports);
-    }, [document.supports])
-
+    }, [document.supports]);
+    
     return (
         <Form.Group className="mb-3">
             <Form.Label className='d-flex mt-2'>
@@ -50,12 +50,11 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                 {/* EVIDENCE URL: */}
                 <Form.Control
                     type="text"
-                    readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
                     placeholder="paste URL here"
                     autoComplete="off"
                     ref={inputRef}
                     value={document.document ? document.document : ''}
-                    disabled={factChecks[fc_idx].query.length === 0}
+                    disabled={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0 || !factChecks[fc_idx].platform}
                     onChange={
                         (e) => {
                             const newDocument = { ...document, document: e.target.value };
@@ -153,7 +152,6 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                 <Form.Control
 
                     type="text"
-                    readOnly={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0}
                     placeholder="Relevant Snippet or Comment"
                     autoComplete="off"
                     disabled={!document.document}

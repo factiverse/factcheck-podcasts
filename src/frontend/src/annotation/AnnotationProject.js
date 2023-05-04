@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Utterance from './Utterance';
+import Utterance from './utterance/Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
 import { checkworthyLabels, advertisingLabels, motivationLabels } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
-import FactCheck from './FactCheck';
-import TranscriptionCheck from './TranscriptionCheck';
-import UserModal from './UserModal';
+import FactCheck from './factcheck/FactCheck';
+import TranscriptionCheck from './utterance/TranscriptionCheck';
+import UserModal from './modal/UserModal';
 import { useSwipeable } from 'react-swipeable';
 import { Row, Col, Alert, Container } from "react-bootstrap";
 import Masonry from 'react-masonry-css';
@@ -36,7 +36,8 @@ export default function AnnotationProject() {
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
-  const [documentCount, setDocumentCount] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0);    
+
 
   // when the annotationComplete for the current utterance changes, add or update the annotationComplete attribute on the utterance
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function AnnotationProject() {
         const data = response.data;
         setSegmentationUnfiltered(data);
         let filteredData = { ...data };
-        filteredData.utterance_set = filteredData.utterance_set.filter((utterance) => utterance.hidden === false);
+        filteredData.utterance_set = filteredData.utterance_set.filter((utterance) => utterance.visibility != 0);
         setSegmentation(filteredData);
         setUtterance(filteredData.utterance_set[index]);
         setClassifications(filteredData.utterance_set[index].classification_set);
@@ -188,74 +189,88 @@ export default function AnnotationProject() {
     }
   }, [utterance]);
 
-  // main microtask components
+  const qual_cw = "Checkworthiness";
+  const qual_ad = "Advertising";
+  const qual_fc = "Factcheck";
+  const qual_mot = "Motivation";
+  const qual_trans = "Transcription";
+  const qual_coref = "Coreference";
+
   const renderItems = () => {
-    if (!classifications) return null;
+    if (!classifications || !utterance?.visibility) return null;
     return [
-      <div key="checkworthiness">
-        <ExclusiveSelector
-          qualifier="Checkworthiness"
-          agent={agent}
-          labels={checkworthyLabels}
-          splitField="category"
-          utterance={utterance}
-          setUtterance={setUtterance}
-          classification={classifications.filter((c) => c.qualifier === "Checkworthiness")[0]}
-          annotationComplete={annotationComplete}
-          setAnnotationComplete={setAnnotationComplete}
-        />
-      </div>,
-      isCheckworthyUtt && <div key="fact-check">
-        <FactCheck
-          agent={agent}
-          utterance={utterance}
-          setUtterance={setUtterance}
-          setAnnotationComplete={setAnnotationComplete}
-        />
-      </div>,
-      <div key="motivation">
-        <ExclusiveSelector
-          qualifier="Motivations"
-          agent={agent}
-          labels={motivationLabels}
-          splitField="category"
-          utterance={utterance}
-          setUtterance={setUtterance}
-          classification={classifications.filter((c) => c.qualifier === "Motivations")[0]}
-          annotationComplete={annotationComplete}
-          setAnnotationComplete={setAnnotationComplete}
-        />
-      </div>,
-      <div key="advertising">
-        <ExclusiveSelector
-          qualifier="Advertising"
-          agent={agent}
-          labels={advertisingLabels}
-          splitField="category"
-          utterance={utterance}
-          setUtterance={setUtterance}
-          classification={classifications.filter((c) => c.qualifier === "Advertising")[0]}
-          annotationComplete={annotationComplete}
-          setAnnotationComplete={setAnnotationComplete}
-        />
-      </div>,
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_cw)) && (
+        <div key={qual_cw}>
+          <ExclusiveSelector
+            qualifier={qual_cw}
+            agent={agent}
+            labels={checkworthyLabels}
+            splitField="category"
+            utterance={utterance}
+            setUtterance={setUtterance}
+            classification={
+              classifications.filter((c) => c.qualifier === qual_cw)[0]
+            }
+            annotationComplete={annotationComplete}
+            setAnnotationComplete={setAnnotationComplete}
+          />
+        </div>
+      ),
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_cw)) && isCheckworthyUtt && (
+        <div key={qual_fc}>
+          <FactCheck
+            agent={agent}
+            utterance={utterance}
+            setUtterance={setUtterance}
+            annotationComplete={annotationComplete}
+            setAnnotationComplete={setAnnotationComplete}
+          />
+        </div>
+      ),
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_mot)) && (
+        <div key={qual_mot}>
+          <ExclusiveSelector
+            qualifier={qual_mot}
+            agent={agent}
+            labels={motivationLabels}
+            splitField="category"
+            utterance={utterance}
+            setUtterance={setUtterance}
+            classification={
+              classifications.filter((c) => c.qualifier === qual_mot)[0]
+            }
+            annotationComplete={annotationComplete}
+            setAnnotationComplete={setAnnotationComplete}
+          />
+        </div>
+      ),
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_ad)) && (
+        <div key={qual_ad}>
+          <ExclusiveSelector
+            qualifier={qual_ad}
+            agent={agent}
+            labels={advertisingLabels}
+            splitField="category"
+            utterance={utterance}
+            setUtterance={setUtterance}
+            classification={
+              classifications.filter((c) => c.qualifier === qual_ad)[0]
+            }
+            annotationComplete={annotationComplete}
+            setAnnotationComplete={setAnnotationComplete}
+          />
+        </div>
+      ),
     ];
   };
-
+  
   return (
     <div {...handlers}>
 
       {!agent && <UserModal setAgent={setAgent} />}
 
       <Container fluid className="text-center">
-        {segmentation.item && segmentation.channel &&
-          <Alert variant="secondary" className='p-0 mt-2 mb-2'>
-            <div className="d-flex justify-content-between align-items-center">
-              <div className='p-2 pb-0 overflow-hidden w-50'><p className='h3 text-truncate text-uppercase'>{segmentation.channel.title}</p></div>
-              <div className="p-2 pb-0 overflow-hidden"><p className='h4 text-truncate text-muted'>{segmentation.item.title}</p></div>
-            </div>
-          </Alert>
-        }
+
         <NavigationButtons
           index={index}
           segmentation={segmentation}
@@ -279,7 +294,9 @@ export default function AnnotationProject() {
                 url={segmentation.audio_file_link}
                 setAudioPlaying={setAudioPlaying}
                 audioPlaying={audioPlaying}
+                isCheckworthy={isCheckworthyUtt}
               />
+              {(utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) && 
               <TranscriptionCheck
                 agent={agent}
                 key={segmentation.uuid + "-transcheck"}
@@ -289,8 +306,9 @@ export default function AnnotationProject() {
                 setUtterance={setUtterance}
                 annotationComplete={annotationComplete}
                 setAnnotationComplete={setAnnotationComplete}
-              />
-              {utterance.text_coref && <TranscriptionCheck
+              />}
+              {false && utterance.text_coref && (utterance.visibility === 1 || utterance.visibility.includes(qual_coref)) && 
+              <TranscriptionCheck
                 agent={agent}
                 key={segmentation.uuid + "-coreference"}
                 qualifier={"Coreference"}

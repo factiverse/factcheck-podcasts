@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown, DropdownButton, Form, InputGroup } from 'react-bootstrap';
-import { searchPlatforms } from './data.js';
+import { searchPlatforms } from '../data.js';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
@@ -102,7 +102,9 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                         }}
                     onBlur={
                         (e) => {
-                            postToAPI(utterance, factChecks, agent);
+                            if (e.target.value.trim().length > 0) {
+                                postToAPI(utterance, factChecks, agent);
+                            }
                         }}
                 />
 

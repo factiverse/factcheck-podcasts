@@ -55,6 +55,7 @@ class ClassificationSerializer(serializers.ModelSerializer):
             'agent',
             'prolific_session',
             'prolific_study',
+            'uuid',
         ]
 
     def create(self, validated_data):
@@ -69,7 +70,7 @@ class UtteranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Utterance
         fields = [
-            'hidden',
+            'visibility',
             'start',
             'end',
             'speaker',
@@ -87,7 +88,7 @@ class UtteranceSerializerSimple(serializers.ModelSerializer):
     class Meta:
         model = Utterance
         fields = [
-            'hidden',
+            'visibility',
             'start',
             'end',
             'speaker',

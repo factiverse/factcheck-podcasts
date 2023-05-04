@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Row, Col, Card, Alert, ToggleButton, ButtonGroup } from 'react-bootstrap';
-import HelpPopUp from './HelpPopUp';
-import HelpTooltipButton from './HelpTooltipButton';
+import HelpPopUp from './help/HelpPopUp';
+import HelpTooltipButton from './help/HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
@@ -45,7 +45,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
         let newAnnotationComplete = { ...annotationComplete };
         newAnnotationComplete[qualifier] = radioValue !== '';
         setAnnotationComplete(newAnnotationComplete);
-        
+
         // check if qualifier is "Checkworthy" and if it and the classification is "Not Checkworthy", then remove the "factcheck" entry from the annotationComplete object
         if (qualifier === 'Checkworthiness' && category === 'Not Checkworthy') {
             setAnnotationComplete((prevAnnotationComplete) => {

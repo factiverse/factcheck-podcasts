@@ -4,7 +4,6 @@ import axios from "axios";
 import HelpPopUp from './HelpPopUp';
 import HelpTooltipButton from './HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-//import { StringDiff } from 'react-string-diff';
 import StringDiff from './StringDiff';
 
 const radios = [
@@ -14,14 +13,15 @@ const radios = [
   { name: 'Reset', value: 4, help: "Delete your edits and restore original." },
 ];
 
-export default function TranscriptionCheck({ qualifier, classification, agent, utterance, setUtterance, setAnnotationComplete }) {
+export default function TranscriptionCheck({ qualifier, agent, utterance, setUtterance, setAnnotationComplete }) {
+  const [classification, setClassification] = useState({});
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
   const isCoref = qualifier === 'Coreference';
 
   const postToAPI = (utt_uuid, qualifier, category, label, agent) => {
-    axios.post('/api/classifications/' + utterance + "/", {
+    axios.post('/api/classifications/' + utt_uuid + "/", {
       utterance: utt_uuid,
       qualifier,
       category,
@@ -30,14 +30,7 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
     })
       .then((response) => {
         // update the classifications list in the utterance with the new classification received back from the API
-        var newClassificationSet = [...utterance.classification_set];
-        const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
-        if (classificationIndex !== -1) {
-          newClassificationSet[classificationIndex] = response.data;
-        } else {
-          newClassificationSet.push(response.data);
-        }
-        setUtterance({ ...utterance, classification_set: newClassificationSet });
+        setClassification(response.data);
       })
       .catch((error) => {
         if (error.response) {
@@ -57,10 +50,35 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
   }, [radioValue]);
 
   useEffect(() => {
-    setRadioValue(classification ? radios.filter((item) => item.name === classification.category)[0].value : '');
-    setTextValue(isCoref ? classification?.label || utterance.text_coref : classification?.label || utterance.text);
-  }, [classification, utterance]);
+    // update utterance
+    var newClassificationSet = [...utterance.classification_set];
+    const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
+    if (classificationIndex !== -1) {
+      newClassificationSet[classificationIndex] = classification;
+    } else {
+      newClassificationSet.push(classification);
+    }
+    setUtterance({ ...utterance, classification_set: newClassificationSet });
+    const radVal = radios.filter((item) => item.name === classification.category)[0]?.value;
+    setRadioValue(radVal ? radVal : '');
+    setTextValue(classification.label);
+  }, [classification]);
 
+  useEffect(() => {
+    // set the classification state
+    const uttClass = utterance.classification_set.filter((item) => item.qualifier === qualifier)[0];
+    if (uttClass) {
+      if (!uttClass.category) {
+        uttClass.category = '';
+      }
+      if (!uttClass.label) {
+        uttClass.label = '';
+      }
+      setClassification(uttClass);
+    }
+  }, [utterance]);
+
+  console.log("classification", classification)
   return (
     <Card className='mt-3 mb-3'>
       <Card.Header className='pb-0'>
@@ -130,19 +148,22 @@ export default function TranscriptionCheck({ qualifier, classification, agent, u
                       checked={radioValue == radio.value}
                       onChange={
                         (e) => {
-                          var val = e.currentTarget.value;
+                          const val = e.currentTarget.value;
+                          console.log(val)
                           if (val == 1) { // approve original
-                            setTextValue(utterance.text);
-                            setRadioValue(val);
+                            console.log(val)
+                            //setClassification({ ...classification, category: radio.name });
                             postToAPI(utterance.uuid, qualifier, radio.name, '', agent);
-                          } else if (val == 2 || val == 3) { // edit
-                            setRadioValue(val);
+                          } else if (val == 2) { // edit
+                            setClassification({ ...classification, category: radio.name });
+                          } else if (val == 3) { // approve edit
                             if (inputRef.current.value != utterance.text) {
                               postToAPI(utterance.uuid, qualifier, radio.name, inputRef.current.value, agent);
+                            } else {
+                              setClassification({ ...classification, category: radio.name, label: inputRef.current.value });
                             }
                           } else if (val == 4) { // reset
-                            setTextValue(utterance.text);
-                            setRadioValue('');
+                            //setClassification({ ...classification, category: radio.name, label: '' });
                             postToAPI(utterance.uuid, qualifier, '', '', agent);
                           }
                         }

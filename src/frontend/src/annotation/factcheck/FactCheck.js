@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import FactCheckDocument from './FactCheckDocument';
 import { Badge, Nav, Tab, Form, Card } from 'react-bootstrap';
-import HelpPopUp from './HelpPopUp';
+import HelpPopUp from '../help/HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
 import { FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
 
@@ -31,7 +31,7 @@ const allValid = (fc) => {
     });
 };
 
-export default function FactCheck({ utterance, setUtterance, agent, setAnnotationComplete }) {
+export default function FactCheck({ utterance, setUtterance, agent, annotationComplete, setAnnotationComplete }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
     // Fact check shows complete (allows progress to next card) if any of the fact checks are valid
@@ -68,6 +68,7 @@ export default function FactCheck({ utterance, setUtterance, agent, setAnnotatio
     useEffect(() => {
         if (utterance.query_set.length > 0) {
             setFactChecks(utterance.query_set);
+            setActiveFactCheck(`fc-${utterance.query_set.length - 1}-pane`);
         } else {
             setFactChecks([createEmptyFactCheck(agent)]);
         }
@@ -82,41 +83,29 @@ export default function FactCheck({ utterance, setUtterance, agent, setAnnotatio
     useEffect(() => {
         setAnnotationComplete((prevAnnotationComplete) => ({
             ...prevAnnotationComplete,
-            'factcheck': isValid
+            'Factcheck': isValid
         }));
     }, [isValid]);
 
-    // get factchecks from API
-    /*useEffect(() => {
-        axios({
-            method: "GET",
-            url: `/api/factchecks/${utterance.uuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
-        }).then((response) => {
-            const data = response.data;
-            if (data.length > 0) {
-                // if any of the fact checks have an empty document set,
-                // add the document set from createEmptyFactCheck() to it so it shows up in the UI
-                data.forEach((fc) => {
-                    if (fc.document_set.length === 0) {
-                        fc.document_set = createEmptyFactCheck(agent).document_set;
-                    }
-                });
+    // check if the utterance has a checkworthy classification, and if not, set the factChecks to empty
+    useEffect(() => {
+        const checkworthyClassification = utterance.classification_set.find(
+            (classification) => (
+                classification.qualifier === 'Checkworthiness' &&
+                classification.category === 'Checkworthy'
+            )
+        );
 
-                setFactChecks(data);
-            } else {
-                setFactChecks([createEmptyFactCheck(agent)]);
-            }
-            setActiveFactCheck(`fc-0-pane`);
-
-        }).catch((error) => {
-            if (error.response) {
-                console.log(error.response);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            }
-        });
-    }, [utterance, agent]);
-    */
+        if (!checkworthyClassification) {
+            setFactChecks([]);
+            postToAPI(utterance, [], agent);
+            // set annotationComplete to a new value with the "Factcheck" key completely removed
+            setAnnotationComplete((prevAnnotationComplete) => {
+                const { Factcheck, ...rest } = prevAnnotationComplete;
+                return rest;
+            });
+        }
+    }, [utterance.classification_set]);
 
     return (
         <Card key={`factcheck-utt-${utterance.uuid}`}>
@@ -194,11 +183,13 @@ export default function FactCheck({ utterance, setUtterance, agent, setAnnotatio
                                     variant="success"
                                     className='p-1'
                                     onClick={(e) => {
+                                        e.stopPropagation();
                                         e.preventDefault();
                                         const newFactChecks = [...factChecks];
                                         newFactChecks.push(createEmptyFactCheck(agent));
                                         setFactChecks(newFactChecks);
                                         setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
+                                        setUtterance({ ...utterance, query_set: newFactChecks });
                                     }}
                                 >
                                     <FaPlus />
