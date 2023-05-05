@@ -5,8 +5,7 @@ import { Button, ProgressBar, Row, Col, Alert } from 'react-bootstrap';
 import HelpPopUp from './help/HelpPopUp';
 import FinalizeModal from './modal/FinalizeModal';
 import WelcomeModal from './modal/WelcomeModal';
-//qualifiers posted to classification table, 'Factcheck' is not required unless the Checkworthiness classification is 'Checkworthy'
-const allQualifiers = ['Checkworthiness', 'Advertising', 'Motivation', 'Transcription', 'Factcheck',] // 'Coreference'];
+import { validateAnnotations } from '../util/validate';
 
 function NavButton({ disabled, text, onClick, keyStroke }) {
     return (
@@ -17,7 +16,7 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
 }
 
 
-export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, annotationComplete, factCheckCount, documentCount }) {
+export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, factCheckCount, documentCount }) {
     const utterance = segmentation.utterance_set[index];
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
@@ -33,84 +32,12 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
     const handleFinalizeModalShow = () => setShowFinalizeModal(true);
 
     useEffect(() => {
-        const isClassificationMissing = (qual, classification_set) =>
-            classification_set.filter((item) => item.qualifier === qual).length === 0
-
-        const checkForMissingDocuments = (query) => {
-            if (query.document_set.length < 1) {
-                return false;
-            }
-            let docCount = 0;
-            for (let l = 0; l < query.document_set.length; l++) {
-                const doc = query.document_set[l];
-                if (doc.valid) {
-                    docCount++;
-                }
-            }
-            return docCount;
-        };
-
-        let queryCount = 0;
-        let docCount = 0;
-        let complete = true;
-        let errorTxt = "";
-        // if there are any values of annotationComplete that are false, then the task is not complete
-        for (const [key, value] of Object.entries(annotationComplete)) {
-            if (!value) {
-                complete = false;
-            }
+        if (segmentation) {
+            const validation = validateAnnotations(segmentation, minFactChecks, minDocs)
+            setCanSubmit(validation.complete);
+            setErrorMessage(validation.errorTxt);
         }
-
-        if (segmentation.utterance_set) {
-            let i = 0;
-            for (const utterance of segmentation.utterance_set) {
-                i++;
-                const qualifiers = utterance.visibility === 1 ? allQualifiers : utterance.visibility;
-
-                for (const qual of qualifiers) {
-                    if (qual !== "Factcheck" && isClassificationMissing(qual, utterance.classification_set)) {
-                        errorTxt += `MISSING: ${qual}, on STATEMENT: ${i}\n`;
-                        complete = false;
-                    } else if (
-                        qual === "Factcheck" &&
-                        !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))
-                    ) {
-                        if (utterance.query_set.length < 1) {
-                            errorTxt += `MISSING: Factcheck, on STATEMENT: ${i}\n`;
-                            complete = false;
-                        } else {
-                            for (const query of utterance.query_set) {
-                                if (query.valid) {
-                                    queryCount++;
-                                } else {
-                                    errorTxt += `MISSING: Factcheck QUERY, on STATEMENT: ${i}\n`;
-                                    complete = false;
-                                }
-                                const queryDocCount = checkForMissingDocuments(query);
-                                if (!queryDocCount) {
-                                    errorTxt += `MISSING: Factcheck EVIDENCE, on STATEMENT: ${i}\n`;
-                                    complete = false;
-                                } else {
-                                    docCount += queryDocCount;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (queryCount < minFactChecks) {
-                complete = false;
-                errorTxt += `MISSING: Factcheck QUERY, ${queryCount}/${minFactChecks} across ALL STATEMENTS\n`;
-            }
-            if (docCount < minDocs) {
-                complete = false;
-                errorTxt += `MISSING: Factcheck EVIDENCE, ${docCount}/${minDocs} across ALL STATEMENTS\n`;
-            }
-            setCanSubmit(complete);
-            setErrorMessage(errorTxt);
-        }
-    }, [utterance, annotationComplete, factCheckCount, documentCount]);
+    }, [utterance, factCheckCount, documentCount]);
 
     // keep track of where the counter is in the utterance set to enable/disable buttons
     let isFirst = false;
@@ -240,13 +167,14 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                         <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
                         <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
                         <Button className='ps-1' style={{ backgroundColor: "transparent" }} disabled={true} variant='secondary'>
-                            {Object.values(annotationComplete).some(value => value === false) ? (
-                                <span style={{ color: 'red', marginLeft: '5px' }}>
-                                    <FaTimes />
-                                </span>
-                            ) : (
+                            { utterance && validateAnnotations({utterance_set: [utterance]}, minFactChecks, minDocs, true).complete ? (
                                 <span style={{ color: 'green', marginLeft: '5px' }}>
                                     <FaCheck />
+                                </span>
+                            
+                            ) : (
+                                <span style={{ color: 'red', marginLeft: '5px' }}>
+                                    <FaTimes />
                                 </span>
                             )}
                         </Button>

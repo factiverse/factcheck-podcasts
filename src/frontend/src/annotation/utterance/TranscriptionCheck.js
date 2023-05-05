@@ -19,7 +19,7 @@ const radioDict = radios.reduce((acc, cur) => {
 }, {});
 
 
-export default function TranscriptionCheck({ qualifier, agent, classification, utterance, setUtterance, setAnnotationComplete }) {
+export default function TranscriptionCheck({ qualifier, agent, classification, utterance, setUtterance }) {
   const [radioValue, setRadioValue] = useState(classification?.category && classification.category.length > 0 ? radioDict[classification.category] : '');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
@@ -57,13 +57,6 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
     setTextValue(classification?.label ? classification.label : utterance.text);
   }, [utterance, classification]);
 
-  // check if this task card is completed, and set its entry in the annotationComplete object
-  useEffect(() => {
-    setAnnotationComplete((prevAnnotationComplete) => ({
-      ...prevAnnotationComplete,
-      [qualifier]: radioValue === 1 || radioValue === 3,
-    }));
-  }, [radioValue]);
 
   return (
     <Card className='mt-3 mb-3'>

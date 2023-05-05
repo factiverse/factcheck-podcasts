@@ -7,7 +7,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
 
-export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, setUtterance, annotationComplete, setAnnotationComplete }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, setUtterance }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
 
@@ -38,22 +38,6 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                 }
             });
     };
-
-
-    // check if this task card is completed, and set its entry in the annotationComplete object
-    useEffect(() => {
-        let newAnnotationComplete = { ...annotationComplete };
-        newAnnotationComplete[qualifier] = radioValue !== '';
-        setAnnotationComplete(newAnnotationComplete);
-
-        // check if qualifier is "Checkworthy" and if it and the classification is "Not Checkworthy", then remove the "factcheck" entry from the annotationComplete object
-        if (qualifier === 'Checkworthiness' && category === 'Not Checkworthy') {
-            setAnnotationComplete((prevAnnotationComplete) => {
-                const { factcheck, ...rest } = prevAnnotationComplete;
-                return rest;
-            });
-        }
-    }, [radioValue]);
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
@@ -110,6 +94,8 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                             button={
                                                 <ToggleButton
                                                     key={`radio-${labels.key}-${label.keyStroke}`}
+                                                    className='p-1'
+                                                    size='md'
                                                     id={`radio-${labels.key}-${label.keyStroke}`}
                                                     type="radio"
                                                     variant='outline-secondary'

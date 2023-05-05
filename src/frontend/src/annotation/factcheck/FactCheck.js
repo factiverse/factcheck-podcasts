@@ -31,7 +31,7 @@ const allValid = (fc) => {
     });
 };
 
-export default function FactCheck({ utterance, setUtterance, agent, annotationComplete, setAnnotationComplete }) {
+export default function FactCheck({ utterance, setUtterance, agent }) {
     const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
     const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
     // Fact check shows complete (allows progress to next card) if any of the fact checks are valid
@@ -79,13 +79,6 @@ export default function FactCheck({ utterance, setUtterance, agent, annotationCo
         setIsValid(factChecks.every((fc) => allValid(fc)));
     }, [utterance, utterance.query_set, factChecks]);
 
-    // check if this task card is completed, and set its entry in the annotationComplete object
-    useEffect(() => {
-        setAnnotationComplete((prevAnnotationComplete) => ({
-            ...prevAnnotationComplete,
-            'Factcheck': isValid
-        }));
-    }, [isValid]);
 
     // check if the utterance has a checkworthy classification, and if not, set the factChecks to empty
     useEffect(() => {
@@ -95,16 +88,13 @@ export default function FactCheck({ utterance, setUtterance, agent, annotationCo
                 classification.category === 'Checkworthy'
             )
         );
+        console.log(checkworthyClassification)
 
         if (!checkworthyClassification) {
             setFactChecks([]);
+            setUtterance({ ...utterance, query_set: [] });
             postToAPI(utterance, [], agent);
-            // set annotationComplete to a new value with the "Factcheck" key completely removed
-            setAnnotationComplete((prevAnnotationComplete) => {
-                const { Factcheck, ...rest } = prevAnnotationComplete;
-                return rest;
-            });
-        }
+        } 
     }, [utterance.classification_set]);
 
     return (

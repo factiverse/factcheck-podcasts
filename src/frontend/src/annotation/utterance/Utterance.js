@@ -4,16 +4,28 @@ import ReactPlayer from 'react-player/file';
 import axios from 'axios';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 import Badge from 'react-bootstrap/Badge';
 import ClaimSpan from './ClaimSpan';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaPlayCircle, FaPlus, FaMinus } from 'react-icons/fa';
 import HelpPopUp from '../help/HelpPopUp';
 
 
-export default function Utterance({ url, utterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy }) {
+export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
   const playerRef = useRef(null);
   const [showContext, toggleContext] = useState(true);
   const [playerTime, setPlayerTime] = useState(0);
+  const scrollRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [utteranceContext]);
 
   const handleKeyDown = (event) => {
     if (event.code === 'Space' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'BUTTON') {
@@ -41,38 +53,15 @@ export default function Utterance({ url, utterance, utteranceContext, audioPlayi
     };
   }, [audioPlaying]);
 
-  var i = 0;
-  const renderRow = (rowUtterance, isHighlighted = false) => (
-    <React.Fragment key={rowUtterance.uuid}>
-      <tr className="info-row" id={`${rowUtterance.uuid}-${i}-text`}>
-        <td colSpan="5" style={{ textAlign: 'left', fontSize: isHighlighted ? "1.5em" : "1em" }}>
-          {isHighlighted ? <ClaimSpan utterance={rowUtterance} /> : rowUtterance.text}
-        </td>
-      </tr>
-      <tr id={`${rowUtterance.uuid}-${i++}-extra`} className={`p-0 m-0 border-bottom ${isHighlighted ? '' : 'text-muted'}`}>
-        <td>
-          <Badge pill onClick={() => { setPlayerTime(parseFloat(rowUtterance.start)); setAudioPlaying(true); }} bg="success">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play p-0 m-0" viewBox="0 0 16 16">
-              <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
-            </svg>
-          </Badge>
-        </td>
-        <td>{secondsToHms(rowUtterance.start)}</td>
-        <td>{secondsToHms(rowUtterance.end)}</td>
-        <td>{rowUtterance.speaker}</td>
-      </tr>
-    </React.Fragment>
-  );
-
   return (
-    <Card style={{ minHeight: '25rem', backgroundColor: "#f8f9fa" }} className='mb-2'>
+    <Card className='mb-2'>
       <Card.Header className='pb-0'>
         <div className='d-flex justify-content-between align-items-center'>
           <Card.Title>{isCheckworthy ? "Statement - Highlight Claim Span" : "Statement"}</Card.Title>
 
           {isCheckworthy &&
             <div className='pb-2'>
-              {false ? (
+              {classification?.label.length > 0 ? (
                 <span style={{ color: 'green', marginRight: '5px' }}>
                   <FaCheck />
                 </span>
@@ -99,50 +88,72 @@ export default function Utterance({ url, utterance, utteranceContext, audioPlayi
         />
       </Card.Header>
 
-      {/* }
-      <Card.Header className="text-muted d-flex pt-0">
-      <div className="float-right" style={{ width: "5%" }}>
-          <button
-            className="btn"
-            style={{
-              fontSize: "2em",
-              cursor: "pointer",
-              color: "black",
-            }}
-            onClick={() => toggleContext(!showContext)}
-          >
-            {showContext ? "-" : "+"}
-          </button>
-        </div>
-        <div style={{ width: "95%" }}>
-          <ReactPlayer
-            ref={playerRef}
-            url={axios.defaults.baseURL + url}
-            controls={true}
-            playing={audioPlaying}
-            width="100%"
-            height="50%"
-          />
-        </div>
-
-      </Card.Header>
-          {*/}
-
-      <Card.Body>
-
-        {utterance && utterance.claimspan && <ClaimSpan utterance={utterance}></ClaimSpan>}
-        <Table size='sm' className='table-borderless'>
-          <tbody>
-            {renderRow(utterance, true)}
-            {showContext && utteranceContext.map((contextUtterance) => renderRow(contextUtterance))}
-          </tbody>
-        </Table>
-
+      <Card.Body style={{ minHeight: "8rem" }}>
+        {utterance &&
+          <ClaimSpan
+            utterance={utterance}
+            setUtterance={setUtterance}
+            agent={agent}
+            isCheckworthy={isCheckworthy}
+            classification={classification}>
+          </ClaimSpan>}
       </Card.Body>
-      <Card.Footer>
-        {utterance && <ClaimSpan utterance={utterance}></ClaimSpan>}
-      </Card.Footer>
 
+
+      {isCheckworthy && <Card.Body>
+        <Card.Title>{"Highlight the part of the podcast statement above which you will be fact checking."}</Card.Title>
+        <Card.Text>
+          {"Sometimes a statement will contain more than one individual claim or will contain other filler words at the beginning or end of the statement. In these cases, you should only highlight the part of the statement that you will be fact checking, otherwise highlight all words of the statement if the entire statement is relevant for your fact check."}
+        </Card.Text>
+      </Card.Body>}
+
+      <Card.Header className='pb-0'>
+        <div className='d-flex justify-content-between align-items-center'>
+          <div>
+            <Card.Title className='text-muted m-0'>STATEMENT CONTEXT</Card.Title>
+          </div>
+          <div className='pb-2'>
+            {showContext ? (
+              <FaMinus onClick={() => toggleContext(!showContext)} />
+            ) : (
+              <FaPlus onClick={() => toggleContext(!showContext)} />
+            )}
+
+          </div>
+        </div>
+      </Card.Header>
+
+      {showContext &&
+        <Card.Body ref={scrollRef} className="overflow-scroll p-0" style={{ maxHeight: '20em', overflowX: 'hidden' }}>
+          <div>
+            <Table className="table-striped">
+              <tbody>
+                {utteranceContext.map((contextUtterance) => {
+                  return (
+                    <tr key={contextUtterance.uuid + "test"}>
+                      <td className="p-0 px-2">
+                        <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(contextUtterance.start)); }} />
+                      </td>
+                      <td className="p-0 pe-2">{secondsToHms(contextUtterance.start)}</td>
+                      <td className="p-0 pe-2">{secondsToHms(contextUtterance.end)}</td>
+                      <td className="p-0 pe-2">{contextUtterance.speaker}</td>
+                      <td className="p-0 pe-2 text-start">{contextUtterance.text}</td>
+                    </tr>
+                  );
+                })}
+                <tr className="table-primary">
+                  <td className="p-0 px-2">
+                    <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} />
+                  </td>
+                  <td className="p-0 pe-2">{secondsToHms(utterance.start)}</td>
+                  <td className="p-0 pe-2">{secondsToHms(utterance.end)}</td>
+                  <td className="p-0 pe-2">{utterance.speaker}</td>
+                  <td className="p-0 pe-2 text-start">{utterance.text}</td>
+                </tr>
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>}
     </Card>
   );
 }

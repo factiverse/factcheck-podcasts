@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Utterance from './utterance/Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
-import { checkworthyLabels, advertisingLabels, motivationLabels } from './data.js';
+import { checkworthyLabels, advertisingLabels, motivationLabels, allQualifiers } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './factcheck/FactCheck';
@@ -12,7 +12,7 @@ import { useSwipeable } from 'react-swipeable';
 import { Row, Col, Alert, Container } from "react-bootstrap";
 import Masonry from 'react-masonry-css';
 import './annotation.css';
-const numContextUtterances = 4;
+const numContextUtterances = 20;
 
 const breakpointCols = {
   default: 4, // The default number of columns.
@@ -32,19 +32,10 @@ export default function AnnotationProject() {
   const [agent, setAgent] = useState(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false);
-  const [annotationComplete, setAnnotationComplete] = useState({});
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
   const [documentCount, setDocumentCount] = useState(0);    
-
-
-  // when the annotationComplete for the current utterance changes, add or update the annotationComplete attribute on the utterance
-  useEffect(() => {
-    if (utterance) {
-      setUtterance({ ...utterance, annotationComplete: annotationComplete });
-    }
-  }, [annotationComplete]);
 
   // set the intial value of factCheckCount and documentCount by looping through
   // every utterance in the segmentation and counting the number of queries in utterance.query_set that are valid
@@ -211,8 +202,6 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_cw)[0]
             }
-            annotationComplete={annotationComplete}
-            setAnnotationComplete={setAnnotationComplete}
           />
         </div>
       ),
@@ -222,8 +211,6 @@ export default function AnnotationProject() {
             agent={agent}
             utterance={utterance}
             setUtterance={setUtterance}
-            annotationComplete={annotationComplete}
-            setAnnotationComplete={setAnnotationComplete}
           />
         </div>
       ),
@@ -239,8 +226,6 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_mot)[0]
             }
-            annotationComplete={annotationComplete}
-            setAnnotationComplete={setAnnotationComplete}
           />
         </div>
       ),
@@ -256,14 +241,12 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_ad)[0]
             }
-            annotationComplete={annotationComplete}
-            setAnnotationComplete={setAnnotationComplete}
           />
         </div>
       ),
     ];
   };
-  
+
   return (
     <div {...handlers}>
 
@@ -276,7 +259,6 @@ export default function AnnotationProject() {
           segmentation={segmentation}
           setIndex={setIndex}
           setUtterance={setUtterance}
-          annotationComplete={annotationComplete}
           factCheckCount={factCheckCount}
           documentCount={documentCount}
         />
@@ -287,14 +269,16 @@ export default function AnnotationProject() {
               <Utterance
                 key={segmentation.uuid + "-utterance"}
                 utterance={utterance}
+                setUtterance={setUtterance}
                 utteranceContext={segmentationUnfiltered.utterance_set
                   .slice(indexUnfiltered - numContextUtterances > 0 ? indexUnfiltered - numContextUtterances : 0, indexUnfiltered)
-                  .reverse()
                 }
                 url={segmentation.audio_file_link}
                 setAudioPlaying={setAudioPlaying}
                 audioPlaying={audioPlaying}
                 isCheckworthy={isCheckworthyUtt}
+                agent={agent}
+                classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
               />
               {(utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) && 
               <TranscriptionCheck
@@ -304,8 +288,6 @@ export default function AnnotationProject() {
                 classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
                 utterance={utterance}
                 setUtterance={setUtterance}
-                annotationComplete={annotationComplete}
-                setAnnotationComplete={setAnnotationComplete}
               />}
               {false && utterance.text_coref && (utterance.visibility === 1 || utterance.visibility.includes(qual_coref)) && 
               <TranscriptionCheck
@@ -315,8 +297,6 @@ export default function AnnotationProject() {
                 classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
                 utterance={utterance}
                 setUtterance={setUtterance}
-                annotationComplete={annotationComplete}
-                setAnnotationComplete={setAnnotationComplete}
               />}
             </Col>
             <Col>

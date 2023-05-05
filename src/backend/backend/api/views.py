@@ -153,7 +153,7 @@ class ClassificationApiView(APIView):
             # delete old entry for user
             Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID")).delete()
             # return after having deleted the old entry if no new classification
-            if len(request.data['category']) == 0:
+            if len(request.data['category']) == 0 and len(request.data['label']) == 0:
                 return Response(status=status.HTTP_200_OK)
             
             serializer = ClassificationSerializer(data={
