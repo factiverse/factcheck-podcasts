@@ -27,7 +27,7 @@ export default function FactCheckDocument({ fc_idx, doc_idx, factChecks, setFact
     const [radioValue, setRadioValue] = useState('');
 
     function validateDoc(newDoc) {
-        const hasDocument = newDoc.document ? isValidURL(newDoc) && newDoc.document && newDoc.document.trim().length > 0 : false;
+        const hasDocument = newDoc.document ? isValidURL(newDoc.document) && newDoc.document && newDoc.document.trim().length > 0 : false;
         const hasSupports = newDoc?.supports && newDoc.supports !== '';
         const hasComment = newDoc?.comment && newDoc.comment.trim().length > 0;
         const valid = hasDocument && hasSupports && hasComment;

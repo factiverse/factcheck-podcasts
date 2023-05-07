@@ -6,6 +6,7 @@ import HelpPopUp from '../help/HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
 import { FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
 import { helpPopUpData } from '../help/help';
+import { validateAnnotations } from '../../util/validate';
 
 const qualifier = 'Factcheck';
 const createEmptyFactCheck = (agent) => {
@@ -73,7 +74,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
             setFactChecks([createEmptyFactCheck(agent)]);
             setActiveFactCheck(`fc-0-pane`);
         }
-    }, []);
+    }, [utterance]);
 
 
     // update the isValid state whenever the factChecks state changes
@@ -104,7 +105,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                 <div className="d-flex justify-content-between">
                     <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
                     <div>
-                        {isValid ? (
+                        {validateAnnotations({utterance_set: [utterance]}, 0, 0, true).complete ? (
                             <span style={{ color: 'green', marginRight: '5px' }}>
                                 <FaCheck />
                             </span>

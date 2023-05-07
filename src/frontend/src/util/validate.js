@@ -89,6 +89,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                             }
                         }
                     }
+                    break;
                 }
             }
         }
