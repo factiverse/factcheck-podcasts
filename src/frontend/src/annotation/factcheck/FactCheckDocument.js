@@ -12,33 +12,38 @@ const radios = [
     { name: 'Supports', value: 3 },
 ];
 
+function isValidURL(str) {
+    try {
+        new URL(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
 
-export default function FactCheckDocument({ document, fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
+export default function FactCheckDocument({ fc_idx, doc_idx, factChecks, setFactChecks, postToAPI, utterance, agent }) {
     const inputRef = useRef(null);
-    const [radioValue, setRadioValue] = useState(document.supports);
-    const [isValid, setIsValid] = useState(document.valid);
+    const [document, setDocument] = useState(factChecks[fc_idx].document_set[doc_idx]);
+    const [radioValue, setRadioValue] = useState('');
 
-    function validateInsertDoc(newDoc) {
-        const hasDocument = newDoc.document ? newDoc.document && newDoc.document.trim().length > 0 : false;
-        const hasSupports = newDoc.supports ? newDoc.supports && newDoc.supports !== 0 : false;
-        const hasComment = newDoc.comment ? newDoc.comment && newDoc.comment.trim().length > 0 : false;
+    function validateDoc(newDoc) {
+        const hasDocument = newDoc.document ? isValidURL(newDoc) && newDoc.document && newDoc.document.trim().length > 0 : false;
+        const hasSupports = newDoc?.supports && newDoc.supports !== '';
+        const hasComment = newDoc?.comment && newDoc.comment.trim().length > 0;
         const valid = hasDocument && hasSupports && hasComment;
-        const newDocument = { ...newDoc, valid: valid };
-        const newFactChecks = [...factChecks];
-        newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-        setFactChecks(newFactChecks);
-        setIsValid(valid);
+        const newDocument = { ...newDoc, valid: valid ?? false };
         return newDocument;
     }
 
     useEffect(() => {
-        setIsValid(document.valid);
-    }, [document.valid]);
+        setDocument(factChecks[fc_idx].document_set[doc_idx]);
+    }, [factChecks, fc_idx, doc_idx]);
+
 
     useEffect(() => {
-        setRadioValue(document.supports);
-    }, [document.supports]);
-    
+        setRadioValue(document?.supports ?? '');
+    }, [document]);
+
     return (
         <Form.Group className="mb-3">
             <Form.Label className='d-flex mt-2'>
@@ -53,17 +58,22 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     placeholder="paste URL here"
                     autoComplete="off"
                     ref={inputRef}
-                    value={document.document ? document.document : ''}
+                    value={document?.document ?? ''}
                     disabled={!factChecks[fc_idx].query || factChecks[fc_idx].query.length === 0 || !factChecks[fc_idx].platform}
                     onChange={
                         (e) => {
-                            const newDocument = { ...document, document: e.target.value };
+                            let newDocument = { ...document, document: e.target.value };
                             if (newDocument.document.length === 0) {
+                                newDocument.document = null;
                                 newDocument.supports = null;
                                 newDocument.comment = null;
                                 newDocument.valid = false;
                             }
-                            validateInsertDoc(newDocument);
+                            const validatedDoc = validateDoc(newDocument);
+                            setDocument(validatedDoc);
+                            let newFactChecks = [...factChecks];
+                            newFactChecks[fc_idx].document_set[doc_idx] = validatedDoc;
+                            setFactChecks(newFactChecks);
                         }}
                     onBlur={
                         (e) => {
@@ -84,29 +94,19 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                             name={`radio-doc-${fc_idx}-${doc_idx}`}
                             value={radio.value}
                             checked={radioValue == radio.value}
-                            disabled={!document.document}
+                            disabled={!document?.document}
                             //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={
                                 (e) => {
                                     let newDocument = { ...document, supports: e.target.value };
-                                    newDocument = validateInsertDoc(newDocument);
+                                    newDocument = validateDoc(newDocument);
+                                    setDocument(newDocument);
                                     let newFactChecks = [...factChecks];
                                     newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
                                     setFactChecks(newFactChecks);
                                     postToAPI(utterance, newFactChecks, agent);
                                 }
                             }
-                            onClick={(e) => {
-                                // if the radio button is already selected, then unselect it
-                                if (radio.value == radioValue) {
-                                    let newDocument = { ...document, supports: null };
-                                    newDocument = validateInsertDoc(newDocument);
-                                    let newFactChecks = [...factChecks];
-                                    newFactChecks[fc_idx].document_set[doc_idx] = newDocument;
-                                    setFactChecks(newFactChecks);
-                                    postToAPI(utterance, newFactChecks, agent);
-                                }
-                            }}
                         >
                             {radio.name}
                         </ToggleButton>
@@ -129,18 +129,21 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     {doc_idx >= factChecks[fc_idx].document_set.length - 1 &&
                         <Button
                             key={`add-doc-${fc_idx}-${doc_idx}`}
-                            disabled={!document.document}
+                            disabled={!document?.document}
                             size='sm'
                             onClick={
                                 (e) => {
                                     const newFactChecks = [...factChecks];
-                                    newFactChecks[fc_idx].document_set.push({
-                                        document: "",
-                                        support: "",
+                                    const newDoc = {
+                                        document: null,
+                                        support: null,
                                         comment: null,
                                         valid: false
-                                    });
+                                    }
+                                    newFactChecks[fc_idx].document_set.push(newDoc);
+                                    setDocument(newDoc);
                                     setFactChecks(newFactChecks);
+
                                 }
                             }
                         >+</Button>}
@@ -154,12 +157,16 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
                     type="text"
                     placeholder="Relevant Snippet or Comment"
                     autoComplete="off"
-                    disabled={!document.document}
-                    value={document.comment ? document.comment : ""}
+                    disabled={!document?.document}
+                    value={document?.comment ?? ""}
                     onChange={
                         (e) => {
                             const newDocument = { ...document, comment: e.target.value.length > 0 ? e.target.value : null };
-                            validateInsertDoc(newDocument);
+                            const validatedDoc = validateDoc(newDocument);
+                            setDocument(validatedDoc);
+                            let newFactChecks = [...factChecks];
+                            newFactChecks[fc_idx].document_set[doc_idx] = validatedDoc;
+                            setFactChecks(newFactChecks);
                         }}
                     onBlur={
                         (e) => {
@@ -168,7 +175,7 @@ export default function FactCheckDocument({ document, fc_idx, doc_idx, factCheck
 
                     } />
                 <InputGroup.Text className='ps-1' style={{ backgroundColor: "transparent" }}>
-                    {isValid ? (
+                    {document?.valid ? (
                         <span style={{ color: 'green', marginLeft: '5px' }}>
                             <FaCheck />
                         </span>

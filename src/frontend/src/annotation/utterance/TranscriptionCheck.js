@@ -4,6 +4,7 @@ import axios from "axios";
 import HelpPopUp from '../help/HelpPopUp';
 import HelpTooltipButton from '../help/HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import { helpPopUpData } from '../help/help';
 
 const radios = [
   { name: 'Approve Original', value: 1, help: "Confirm the original transcription is correct." },
@@ -20,7 +21,9 @@ const radioDict = radios.reduce((acc, cur) => {
 
 
 export default function TranscriptionCheck({ qualifier, agent, classification, utterance, setUtterance }) {
-  const [radioValue, setRadioValue] = useState(classification?.category && classification.category.length > 0 ? radioDict[classification.category] : '');
+  const [radioValue, setRadioValue] = useState(
+    classification?.category && classification.category.length > 0 ? radioDict[classification.category] : ''
+  );
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
 
@@ -62,7 +65,7 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
     <Card className='mt-3 mb-3'>
       <Card.Header className='pb-0'>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Card.Title>{qualifier}</Card.Title>
+          <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
           <div className='pb-2'>
             {radioValue === 1 || radioValue === 3 ? (
               <span style={{ color: 'green', marginRight: '5px' }}>
@@ -74,15 +77,23 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
               </span>
             )}
             <HelpPopUp
-              header={"Transcription Verification"}
-              text={"Verify the accuracy of the transcription. FOCUS ON CORRECTING WORDS THAT ARE CLEARLY WRONG after listening to the audio. This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
-              }
+              header={helpPopUpData[qualifier].helpHeader}
+              text={helpPopUpData[qualifier].helpText}
               qualifier={qualifier} />
           </div>
         </div>
       </Card.Header>
 
+
+
       <Card.Body className='pb-0'>
+
+      <Card.Title>{helpPopUpData[qualifier].cardInstructionHeader}</Card.Title>
+        {helpPopUpData[qualifier].cardInstructionBody &&
+          <Card.Text>
+            {helpPopUpData[qualifier].cardInstructionBody}
+          </Card.Text>
+        }
         <Form>
           <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
 
@@ -98,7 +109,13 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
               onBlur={
                 (e) => {
                   if (radioValue == 2) { // edit with no approve
-                    postToAPI(utterance.uuid, qualifier, radios.filter((item) => item.value == radioValue).shift().name, e.currentTarget.value, agent);
+                    postToAPI(
+                      utterance.uuid,
+                      qualifier,
+                      radios.filter((item) => item.value == radioValue).shift().name,
+                      e.currentTarget.value,
+                      agent
+                    );
                   }
                 }
               }
@@ -129,7 +146,8 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
                             if (textValue.length > 0 && textValue != utterance.text) {
                               postToAPI(utterance.uuid, qualifier, radio.name, textValue, agent);
                             } else {
-                              alert("First click EDIT to enable editing in the text box, the APPROVE EDIT button will only work after changes have been made to the text in EDIT mode.")
+                              alert("First click EDIT to enable editing in the text box, the APPROVE EDIT button will \
+only work after changes have been made to the text in EDIT mode.")
                             }
                           } else if (e.currentTarget.value == 4) { // reset
                             setTextValue(utterance.text);

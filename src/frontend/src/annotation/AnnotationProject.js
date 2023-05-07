@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Utterance from './utterance/Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
-import { checkworthyLabels, advertisingLabels, motivationLabels, allQualifiers } from './data.js';
+import { checkworthyLabels, advertisingLabels, motivationLabels } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './factcheck/FactCheck';
@@ -258,6 +258,7 @@ export default function AnnotationProject() {
           index={index}
           segmentation={segmentation}
           setIndex={setIndex}
+          utterance={utterance}
           setUtterance={setUtterance}
           factCheckCount={factCheckCount}
           documentCount={documentCount}

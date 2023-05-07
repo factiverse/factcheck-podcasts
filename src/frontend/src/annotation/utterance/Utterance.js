@@ -4,35 +4,31 @@ import ReactPlayer from 'react-player/file';
 import axios from 'axios';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
-import Badge from 'react-bootstrap/Badge';
 import ClaimSpan from './ClaimSpan';
 import { FaCheck, FaTimes, FaPlayCircle, FaPlus, FaMinus } from 'react-icons/fa';
 import HelpPopUp from '../help/HelpPopUp';
-
+import { helpPopUpData } from '../help/help';
 
 export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
   const playerRef = useRef(null);
   const [showContext, toggleContext] = useState(true);
   const [playerTime, setPlayerTime] = useState(0);
   const scrollRef = useRef(null);
-
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [utteranceContext]);
-
   const handleKeyDown = (event) => {
     if (event.code === 'Space' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'BUTTON') {
       event.preventDefault();
       setAudioPlaying(!audioPlaying);
     }
   };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [utteranceContext]);
 
   useEffect(() => {
     if (utterance) {
@@ -57,7 +53,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     <Card className='mb-2'>
       <Card.Header className='pb-0'>
         <div className='d-flex justify-content-between align-items-center'>
-          <Card.Title>{isCheckworthy ? "Statement - Highlight Claim Span" : "Statement"}</Card.Title>
+          <Card.Title>{isCheckworthy ? helpPopUpData["ClaimSpan"].cardTitle : "Statement"}</Card.Title>
 
           {isCheckworthy &&
             <div className='pb-2'>
@@ -71,9 +67,9 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                 </span>
               )}
               <HelpPopUp
-                header={"helpHeader"}
-                text={"helpText"}
-                qualifier={"qualifier"} />
+                header={helpPopUpData["ClaimSpan"].helpHeader}
+                text={helpPopUpData["ClaimSpan"].helpText}
+                qualifier={"ClaimSpan"} />
             </div>}
         </div>
       </Card.Header>
@@ -101,10 +97,8 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
 
 
       {isCheckworthy && <Card.Body>
-        <Card.Title>{"Highlight the part of the podcast statement above which you will be fact checking."}</Card.Title>
-        <Card.Text>
-          {"Sometimes a statement will contain more than one individual claim or will contain other filler words at the beginning or end of the statement. In these cases, you should only highlight the part of the statement that you will be fact checking, otherwise highlight all words of the statement if the entire statement is relevant for your fact check."}
-        </Card.Text>
+        <Card.Title>{helpPopUpData["ClaimSpan"].cardInstructionHeader}</Card.Title>
+        <Card.Text>{helpPopUpData["ClaimSpan"].cardInstructionBody}</Card.Text>
       </Card.Body>}
 
       <Card.Header className='pb-0'>

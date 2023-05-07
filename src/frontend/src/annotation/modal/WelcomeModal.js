@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { helpModalData } from '../help/help';
+import { allQualifiers } from '../data';
 
 
 export default function WelcomeModal({ show, handleClose, segmentation }) {
+  const [qualifiers, setQualifiers] = useState(allQualifiers);
 
+  // loop through the segmentation utterance set, if any utterances have visibility=1,
+  // then set the qualifiers to allQualifiers, otherwise loop through the utterances and
+  // add the qualifiers in each utterance.visibility array to the qualifiers state which is a set
+  useEffect(() => {
+    for (let i = 0; i < segmentation.utterance_set.length; i++) {
+      if (segmentation.utterance_set[i].visibility === 1) {
+        setQualifiers(allQualifiers);
+        break;
+      } else {
+        for (let j = 0; j < segmentation.utterance_set[i].visibility.length; j++) {
+          setQualifiers(qualifiers.add(segmentation.utterance_set[i].visibility[j]));
+        }
+      }
+    }
+
+  }, [segmentation]);
 
   return (
     <Modal
@@ -15,43 +34,33 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
       fullscreen={"xl-down"}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Welcome to this Podcast Annotation Task</Modal.Title>
+        <Modal.Title>{helpModalData.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>Please take a moment to read through these instructions and guidlines which will help you complete the tasks
-          and ensure your work is accepted. You may refer back to this window at any time by clicking the green 
-          <strong> HELP</strong> button in the top left corner of the window.
-        </p>
-        <p>Your work will focus on one episode of a podcast, the assigned podcast for this study is:<br/>
-          <strong>Podcast Name :</strong> {segmentation.channel.title}<br/>
+        <p dangerouslySetInnerHTML={{ __html: helpModalData.introduction }}></p>
+        <p>Your work will focus on one episode of a podcast, the assigned podcast for this study is:<br />
+          <strong>Podcast Name :</strong> {segmentation.channel.title}<br />
           <strong>Episode Name :</strong> {segmentation.item.title}
         </p>
-        
-        <h5>What is your task?</h5>
-        <p>You will be presented with a series of statements from this podcast, and for each statement you will have some tasks to complete.
 
-        </p>
+
+        <h5>{helpModalData.workflowTitle}</h5>
+        <p dangerouslySetInnerHTML={{__html: helpModalData.workflowIntroduction}}></p>
         <ul>
-            <li>First, you will be asked to determine whether or not the statement is <strong>checkworthy</strong> ØÆÅØÆØÆÅØÆÅØØÅÅÅØØØÆPÅ.</li>
-            <li>If you mark the statement as <strong>checkworthy</strong> you will undertake a basic fact check of the statement on the internet.
-            You will make a search on a platform of your choice, recording the query you used, then select several document provided by the query
-             and make a judgement whether these documents support the query or not</li>
-            <li>Finally, you will be asked to <strong>summarize</strong> the evidence you have selected.</li>
-          </ul>
-        You will be presented with a limited selection of statements from this podcast, and for each statement you will have some tasks to complete.
-        Audio from the podcast is available on the integrated media player, and you can use this to listen to the podcast and check the context of the statement.
+          {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionCheckworthy }}></li> : null}
+          {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionFactcheck }}></li> : null}
+          {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionClaimSpan }}></li> : null}
+          {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionMotivation }}></li> : null}
+          {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionTranscribe }}></li> : null}
+          {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionAdvertising }}></li> : null}
+        </ul>
         {/* POLITICS */}
 
-
-        {/* POLITICS */}
-        <h5>Is this political?</h5>
-        <p>The podcast content you will be labelling and listening to will often be of a political nature, but the creators of this study are politically neutral. 
-          For researchers to build accurate and non-biased AI systems, it is essential to have the input of people with a wide range of views. Whether you agree with
-          the views expressed in this podcast or not, your work here is equally valuable. The key factor is that you remain critical and objective in your labelling.
-          You are free to formulate your own search queries, on your chosen platform, and prioritize evidence documents from sources that you find most trustworthy, but 
-          all judgements as to whether the evidence refutes or supports the claim must be based on the content of the evidence document as it presents the facts.
-
-        </p>
+        <h5>{helpModalData.politicalTitle}</h5>
+        <p dangerouslySetInnerHTML={{__html: helpModalData.politicalBody}}></p>
+        
+        <h5>{helpModalData.healthTitle}</h5>
+        <p dangerouslySetInnerHTML={{__html: helpModalData.healthBody}}></p>
 
       </Modal.Body>
       <Modal.Footer>
@@ -62,4 +71,3 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
     </Modal>
   );
 }
-

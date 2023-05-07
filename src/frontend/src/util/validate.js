@@ -3,10 +3,8 @@ import { allQualifiers } from "../annotation/data";
 export function validateAnnotations(segmentation, minFactChecks, minDocs, single = false) {
 
     const isClassificationMissing = (qual, classification_set) =>
-        classification_set.filter((item) => item.qualifier == qual).length === 0 ||
-        classification_set.filter((item) => item.qualifier == qual)[0].label == "[]" || //empty ClaimSpan
+        classification_set.filter((item) => item.qualifier === qual).length === 0 ||
         classification_set.filter((item) => item.category).length === 0;
-
 
     const checkForMissingDocuments = (query) => {
         if (query.document_set.length < 1) {
@@ -22,6 +20,16 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
         return docCount;
     };
 
+    function isValidURL(str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+
     let queryCount = 0;
     let docCount = 0;
     let complete = true;
@@ -34,15 +42,21 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
             const qualifiers = utterance.visibility === 1 ? allQualifiers : utterance.visibility;
 
             for (const qual of qualifiers) {
-                if (qual !== "Factcheck" && isClassificationMissing(qual, utterance.classification_set)) {
+                if (qual !== "Factcheck" && qual !== "ClaimSpan" && isClassificationMissing(qual, utterance.classification_set)) {
                     errorTxt += `MISSING: ${qual}, on STATEMENT: ${i}\n`;
                     complete = false;
-                } else if (qual === "Factcheck" && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
-                    if (utterance.query_set.length < 1) {
+                } else if ((qual === "Factcheck" || qual === "ClaimSpan") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
+                    if (qual === "ClaimSpan" && isClassificationMissing("ClaimSpan", utterance.classification_set)) {
+                        errorTxt += `MISSING: CLAIMSPAN, on STATEMENT: ${i}\n`;
+                        complete = false;
+                    }
+                    if (qual === "Factcheck" && utterance.query_set.length < 1) {
                         errorTxt += `MISSING: Factcheck, on STATEMENT: ${i}\n`;
                         complete = false;
                     } else {
+                        let j = 0;
                         for (const query of utterance.query_set) {
+                            j++;
                             if (query.valid) {
                                 queryCount++;
                             } else {
@@ -55,6 +69,23 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                                 complete = false;
                             } else {
                                 docCount += queryDocCount;
+                                // check if any two query documents have the exact same URL and text
+                                // if so, mark the second one as invalid
+                                // or if any of the query documents is not a valid URL
+                                for (let l = 0; l < query.document_set.length; l++) {
+                                    const doc = query.document_set[l];
+                                    if (!isValidURL(doc.document)) {
+                                        errorTxt += `INVALID: Factcheck EVIDENCE not a URL, on STATEMENT: ${i}, QUERY: ${j}, EVIDENCE: ${l+1}\n`;
+                                        complete = false;
+                                    }
+                                    for (let m = l + 1; m < query.document_set.length; m++) {
+                                        const doc2 = query.document_set[m];
+                                        if (doc.document === doc2.document && doc.comment === doc2.comment) {
+                                            errorTxt += `DUPLICATE: Factcheck EVIDENCE, on STATEMENT: ${i}\n`;
+                                            complete = false;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -71,6 +102,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                 errorTxt += `MISSING: Factcheck EVIDENCE, ${docCount}/${minDocs} across ALL STATEMENTS\n`;
             }
         }
+
         return { complete, errorTxt };
 
     }

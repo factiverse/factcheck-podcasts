@@ -6,7 +6,6 @@ import HelpTooltipButton from './help/HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
-
 export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, setUtterance }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
@@ -118,7 +117,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                     role="radio"
                                                     aria-checked={radioValue === label.label}
                                                 >
-                                                    {label.label}
+                                                    <strong>{label.label}</strong>
                                                 </ToggleButton>
                                             }
                                             key={label.label}

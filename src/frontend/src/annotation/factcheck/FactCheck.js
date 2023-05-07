@@ -5,17 +5,18 @@ import { Badge, Nav, Tab, Form, Card } from 'react-bootstrap';
 import HelpPopUp from '../help/HelpPopUp';
 import FactCheckQuery from './FactCheckQuery';
 import { FaCheck, FaTimes, FaPlus } from 'react-icons/fa';
+import { helpPopUpData } from '../help/help';
 
-
+const qualifier = 'Factcheck';
 const createEmptyFactCheck = (agent) => {
     return {
-        query: "",
+        query: null,
         platform: null,
         agent: agent,
         valid: false,
         document_set: [
             {
-                document: "",
+                document: null,
                 supports: null,
                 agent: agent,
                 comment: null,
@@ -30,12 +31,11 @@ const allValid = (fc) => {
         return doc.valid;
     });
 };
-
 export default function FactCheck({ utterance, setUtterance, agent }) {
-    const [factChecks, setFactChecks] = useState([createEmptyFactCheck(agent)]);
-    const [activeFactCheck, setActiveFactCheck] = useState(`fc-0-pane`);
+    const [factChecks, setFactChecks] = useState();
+    const [activeFactCheck, setActiveFactCheck] = useState('');
     // Fact check shows complete (allows progress to next card) if any of the fact checks are valid
-    const [isValid, setIsValid] = useState(factChecks.every((fc) => allValid(fc)));
+    const [isValid, setIsValid] = useState(false);
 
     const postToAPI = (utterance, factChecks, agent) => {
         // filter the factChecks to remove any where the query is empty
@@ -43,7 +43,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
         const newfactChecks = factChecks.filter((fc) => {
             if (fc.query.length > 0) {
                 fc.document_set = fc.document_set.filter((doc) => {
-                    return doc.document.length > 0;
+                    return doc.document && doc.document.length > 0;
                 });
                 return true;
             }
@@ -53,6 +53,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
         axios.post('/api/factchecks/' + utterance.uuid + "/", data)
             .then((response) => {
                 setUtterance({ ...utterance, query_set: response.data });
+                //setFactChecks(response.data);
             })
             .catch((error) => {
                 if (error.response) {
@@ -62,21 +63,22 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                 }
             });
     };
-    
 
-    // sync the factChecks state with the utterance.query_set state from props
+
     useEffect(() => {
         if (utterance.query_set.length > 0) {
             setFactChecks(utterance.query_set);
             setActiveFactCheck(`fc-${utterance.query_set.length - 1}-pane`);
         } else {
             setFactChecks([createEmptyFactCheck(agent)]);
+            setActiveFactCheck(`fc-0-pane`);
         }
-    }, [utterance, utterance.query_set]);
+    }, []);
+
 
     // update the isValid state whenever the factChecks state changes
     useEffect(() => {
-        setIsValid(factChecks.every((fc) => allValid(fc)));
+        setIsValid(factChecks?.every((fc) => allValid(fc)));
     }, [utterance, utterance.query_set, factChecks]);
 
 
@@ -88,20 +90,19 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                 classification.category === 'Checkworthy'
             )
         );
-        console.log(checkworthyClassification)
 
         if (!checkworthyClassification) {
             setFactChecks([]);
             setUtterance({ ...utterance, query_set: [] });
             postToAPI(utterance, [], agent);
-        } 
+        }
     }, [utterance.classification_set]);
 
     return (
         <Card key={`factcheck-utt-${utterance.uuid}`}>
             <Card.Header className='pb-0'>
                 <div className="d-flex justify-content-between">
-                    <Card.Title>Fact Check</Card.Title>
+                    <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
                     <div>
                         {isValid ? (
                             <span style={{ color: 'green', marginRight: '5px' }}>
@@ -113,19 +114,23 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                             </span>
                         )}
                         <HelpPopUp
-                            header={"Carry out a basic fact check on the statement."}
-                            text={"Here you will search with a search engine and record the search phrase you use (or simply paste the link to the search results page in). You can also add a link to a search engine result. If you find a result that supports the statement, you can add it to the document set. If you find a result that does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."}
-                            qualifier={"factcheck"} />
+                            header={helpPopUpData[qualifier].helpHeader}
+                            text={helpPopUpData[qualifier].helpText}
+                            qualifier={qualifier} />
                     </div>
                 </div>
             </Card.Header>
+            <Card.Body>
+                <Card.Title>{helpPopUpData[qualifier].cardInstructionHeader}</Card.Title>
+                <Card.Text>{helpPopUpData[qualifier].cardInstructionBody}</Card.Text>
+            </Card.Body>
             <Card.Body className="pb-0">
                 <Form>
                     <Tab.Container activeKey={activeFactCheck}>
                         <Nav fill variant="tabs" onSelect={(selectedKey) => {
                             setActiveFactCheck(selectedKey);
                         }}>
-                            {factChecks.map((fc, i) => (
+                            {factChecks?.map((fc, i) => (
                                 <Nav.Item key={`fc-${i}-navitem`}>
                                     <Nav.Link key={`fc-${i}-tab`} eventKey={`fc-${i}-pane`}>
                                         <div className="d-flex justify-content-between">
@@ -153,7 +158,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                                                         e.preventDefault(); // Prevent the default behavior of the Nav.Link
                                                         const newFactChecks = factChecks.filter((_, index) => index !== i);
                                                         setFactChecks(newFactChecks);
-                                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the last fact check
+                                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`);
                                                         postToAPI(utterance, newFactChecks, agent, setUtterance);
                                                     }}
                                                 >
@@ -178,7 +183,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                                         const newFactChecks = [...factChecks];
                                         newFactChecks.push(createEmptyFactCheck(agent));
                                         setFactChecks(newFactChecks);
-                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`); // Set the active key to the newly added fact check
+                                        setActiveFactCheck(`fc-${newFactChecks.length - 1}-pane`);
                                         setUtterance({ ...utterance, query_set: newFactChecks });
                                     }}
                                 >
@@ -187,7 +192,7 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                             </Nav.Item>
                         </Nav>
                         <Tab.Content>
-                            {factChecks.map((fc, i) => (
+                            {factChecks?.map((fc, i) => (
                                 <Tab.Pane key={`fc-${i}-pane`} eventKey={`fc-${i}-pane`} title={i}>
 
                                     {/* FACT CHECK QUERY */}
@@ -201,19 +206,19 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
                                     />
 
                                     {/* FACT CHECK*/}
-                                    {(fc.document_set.length === 0 ? [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
-                                        <FactCheckDocument
-                                            document={doc}
-                                            fc_idx={i}
-                                            doc_idx={j}
-                                            factChecks={factChecks}
-                                            setFactChecks={setFactChecks}
-                                            key={`fc-${i}-${j}`}
-                                            postToAPI={postToAPI}
-                                            agent={agent}
-                                            utterance={utterance}
-                                        />
-                                    ))}
+                                    {(fc.document_set.length === 0 ?
+                                        [createEmptyFactCheck(agent).document_set[0]] : fc.document_set).map((doc, j) => (
+                                            <FactCheckDocument
+                                                fc_idx={i}
+                                                doc_idx={j}
+                                                factChecks={factChecks}
+                                                setFactChecks={setFactChecks}
+                                                key={`fc-${i}-${j}`}
+                                                postToAPI={postToAPI}
+                                                agent={agent}
+                                                utterance={utterance}
+                                            />
+                                        ))}
                                 </Tab.Pane>
                             ))}
                         </Tab.Content>

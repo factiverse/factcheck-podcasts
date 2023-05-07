@@ -6,7 +6,7 @@ import HelpPopUp from './help/HelpPopUp';
 import FinalizeModal from './modal/FinalizeModal';
 import WelcomeModal from './modal/WelcomeModal';
 import { validateAnnotations } from '../util/validate';
-
+import { helpPopUpData } from './help/help';
 function NavButton({ disabled, text, onClick, keyStroke }) {
     return (
         <button disabled={disabled} onClick={onClick} className="NavButton btn btn-secondary">
@@ -15,9 +15,7 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-
-export default function NavigationButtons({ index, segmentation, setIndex, setUtterance, factCheckCount, documentCount }) {
-    const utterance = segmentation.utterance_set[index];
+export default function NavigationButtons({ index, segmentation, setIndex, utterance, setUtterance, factCheckCount, documentCount }) {
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
     const [canSubmit, setCanSubmit] = useState(false);
@@ -37,7 +35,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
             setCanSubmit(validation.complete);
             setErrorMessage(validation.errorTxt);
         }
-    }, [utterance, factCheckCount, documentCount]);
+    }, [utterance, utterance?.classification_set, factCheckCount, documentCount]);
 
     // keep track of where the counter is in the utterance set to enable/disable buttons
     let isFirst = false;
@@ -113,7 +111,13 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                         <div className='overflow-hidden d-flex align-items-center py-0 w-50'>
                             <div className="d-flex align-items-center p-0 m-0">
                                 <Button variant="success" size="sm" className="me-2" onClick={handleWelcomeModalShow}>HELP</Button>
-                                <WelcomeModal show={showWelcomeModal} handleClose={handleWelcomeModalClose} segmentation={segmentation}></WelcomeModal>
+                                <WelcomeModal
+                                    show={showWelcomeModal}
+                                    handleClose={handleWelcomeModalClose}
+                                    segmentation={segmentation}
+                                >
+
+                                </WelcomeModal>
                                 <p className='h4 text-truncate text-uppercase mb-0'>{segmentation.channel.title}</p>
                             </div>
                         </div>
@@ -167,11 +171,11 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                         <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
                         <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
                         <Button className='ps-1' style={{ backgroundColor: "transparent" }} disabled={true} variant='secondary'>
-                            { utterance && validateAnnotations({utterance_set: [utterance]}, minFactChecks, minDocs, true).complete ? (
+                            {utterance && validateAnnotations({ utterance_set: [utterance] }, 0, 0, true).complete ? (
                                 <span style={{ color: 'green', marginLeft: '5px' }}>
                                     <FaCheck />
                                 </span>
-                            
+
                             ) : (
                                 <span style={{ color: 'red', marginLeft: '5px' }}>
                                     <FaTimes />
@@ -185,9 +189,9 @@ export default function NavigationButtons({ index, segmentation, setIndex, setUt
                 <Col>
                     <div className='float-end position-relative'>
                         <HelpPopUp
-                            header={"Final submission after completion of all tasks."}
-                            text={"Complete each individual task card for the podcast statement to receive a green checkmark and advance to the next statement. After all statements have a green check mark, and the minimum number of fact checks queries and evidence are submitted, this button will be activated to finalize and return to Prolific.\n" + errorMessage}
-                            qualifier={"final-submission"}
+                            header={helpPopUpData["FinalSubmission"].helpHeader}
+                            text={helpPopUpData["FinalSubmission"].helpText + "\n" + errorMessage}
+                            qualifier={"FinalSubmission"}
                             badgeClass={"me-1"}
                         />
                         <Button variant={canSubmit ? "success" : "outline-primary"} disabled={!canSubmit} onClick={handleFinalizeModalShow}>Final Submission</Button>
