@@ -8,6 +8,7 @@ import ClaimSpan from './ClaimSpan';
 import { FaCheck, FaTimes, FaPlayCircle, FaPlus, FaMinus } from 'react-icons/fa';
 import HelpPopUp from '../help/HelpPopUp';
 import { helpPopUpData } from '../help/help';
+import StringDiff from './StringDiff';
 
 export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
   const playerRef = useRef(null);
@@ -128,10 +129,10 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                       <td className="p-0 px-2">
                         <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(contextUtterance.start)); }} />
                       </td>
-                      <td className="p-0 pe-2">{secondsToHms(contextUtterance.start)}</td>
-                      <td className="p-0 pe-2">{secondsToHms(contextUtterance.end)}</td>
-                      <td className="p-0 pe-2">{contextUtterance.speaker}</td>
-                      <td className="p-0 pe-2 text-start">{contextUtterance.text}</td>
+                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(contextUtterance.start)}</td>
+                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(contextUtterance.end)}</td>
+                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{contextUtterance.speaker}</td>
+                      <td className="pt-1 pe-1 text-start">{contextUtterance.text}</td>
                     </tr>
                   );
                 })}
@@ -139,15 +140,19 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                   <td className="p-0 px-2">
                     <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} />
                   </td>
-                  <td className="p-0 pe-2">{secondsToHms(utterance.start)}</td>
-                  <td className="p-0 pe-2">{secondsToHms(utterance.end)}</td>
-                  <td className="p-0 pe-2">{utterance.speaker}</td>
-                  <td className="p-0 pe-2 text-start">{utterance.text}</td>
+                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(utterance.start)}</td>
+                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(utterance.end)}</td>
+                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{utterance.speaker}</td>
+                  <td className="pt-1 pe-1 text-start">{utterance.text}</td>
                 </tr>
               </tbody>
             </Table>
           </div>
         </Card.Body>}
+        <Card.Header>Automated Pronoun Resolution</Card.Header>
+        {utterance.text_coref && <Card.Footer>
+          <StringDiff stringA={utterance?.text} stringB={utterance?.text_coref} />
+        </Card.Footer>}
     </Card>
   );
 }

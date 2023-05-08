@@ -5,7 +5,7 @@ import { allQualifiers } from '../data';
 
 
 export default function WelcomeModal({ show, handleClose, segmentation }) {
-  const [qualifiers, setQualifiers] = useState(allQualifiers);
+  const [qualifiers, setQualifiers] = useState([]);
 
   // loop through the segmentation utterance set, if any utterances have visibility=1,
   // then set the qualifiers to allQualifiers, otherwise loop through the utterances and
@@ -17,7 +17,11 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
         break;
       } else {
         for (let j = 0; j < segmentation.utterance_set[i].visibility.length; j++) {
-          setQualifiers(qualifiers.add(segmentation.utterance_set[i].visibility[j]));
+          // if the qualifiers array doesn't already contain the qualifier, add it
+          if (!qualifiers.includes(segmentation.utterance_set[i].visibility[j])) {
+            setQualifiers([...qualifiers, segmentation.utterance_set[i].visibility[j]]);
+          }
+          
         }
       }
     }
