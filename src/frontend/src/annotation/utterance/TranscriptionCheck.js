@@ -104,15 +104,15 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
               value={textValue}
               className='form-control mb-2 overflow-visible'
               ref={inputRef}
-              disabled={radioValue != 2}
+              disabled={radioValue !== 2}
               onChange={(e) => setTextValue(e.target.value)}
               onBlur={
                 (e) => {
-                  if (radioValue == 2) { // edit with no approve
+                  if (radioValue === 2) { // edit with no approve
                     postToAPI(
                       utterance.uuid,
                       qualifier,
-                      radios.filter((item) => item.value == radioValue).shift().name,
+                      radios.filter((item) => item.value === radioValue).shift().name,
                       e.currentTarget.value,
                       agent
                     );
@@ -137,19 +137,19 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
                       checked={radioValue === radio.value}
                       onChange={
                         (e) => {
-                          if (e.currentTarget.value == 1) { // approve original
+                          if (e.currentTarget.value === 1) { // approve original
                             setTextValue(utterance.text);
                             postToAPI(utterance.uuid, qualifier, radio.name, '', agent);
-                          } else if (e.currentTarget.value == 2) { // edit
+                          } else if (e.currentTarget.value === 2) { // edit
                             postToAPI(utterance.uuid, qualifier, radio.name, textValue, agent);
-                          } else if (e.currentTarget.value == 3) { // approve edit
-                            if (textValue.length > 0 && textValue != utterance.text) {
+                          } else if (e.currentTarget.value === 3) { // approve edit
+                            if (textValue.length > 0 && textValue !== utterance.text) {
                               postToAPI(utterance.uuid, qualifier, radio.name, textValue, agent);
                             } else {
                               alert("First click EDIT to enable editing in the text box, the APPROVE EDIT button will \
 only work after changes have been made to the text in EDIT mode.")
                             }
-                          } else if (e.currentTarget.value == 4) { // reset
+                          } else if (e.currentTarget.value === 4) { // reset
                             setTextValue(utterance.text);
                             postToAPI(utterance.uuid, qualifier, '', '', agent);
                           }

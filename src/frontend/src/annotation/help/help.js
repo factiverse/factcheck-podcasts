@@ -78,6 +78,12 @@ export const helpPopUpData = {
         repeated words, stutters, and false starts are often left out, DO NOT ADD THESE., click \"Edit\" to make changes \
         followed by \"Approve Edit\" to confirm them, \"Rest\" deletes your previous input."
     },
+    Diarization: {
+        cardTitle: "Diarization",
+        cardInstructionHeader: "Enter the full name of the speaker.",
+        helpHeader: "Diarization",
+        helpText: "Identify the correct speaker for the statement. If the speaker is not listed, select \"Other\" and type the speaker's name."
+    },
     FinalSubmission: {
         helpHeader: "Final submission after completion of all tasks.",
         helpText: "Complete each individual task card for the podcast statement to receive a green checkmark and \

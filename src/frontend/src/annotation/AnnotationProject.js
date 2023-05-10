@@ -9,9 +9,20 @@ import FactCheck from './factcheck/FactCheck';
 import TranscriptionCheck from './utterance/TranscriptionCheck';
 import UserModal from './modal/UserModal';
 import { useSwipeable } from 'react-swipeable';
-import { Row, Col, Alert, Container } from "react-bootstrap";
+import { Row, Col, Container } from "react-bootstrap";
 import Masonry from 'react-masonry-css';
 import './annotation.css';
+import Diarization from './utterance/Diarization';
+import { allQualifiers } from './data.js';
+
+const qual_cw = "Checkworthiness";
+const qual_ad = "Advertising";
+const qual_fc = "Factcheck";
+const qual_mot = "Motivation";
+const qual_trans = "Transcription";
+const qual_coref = "Coreference";
+const qual_diar = "Diarization";
+
 const numContextUtterances = 20;
 
 const breakpointCols = {
@@ -30,18 +41,81 @@ export default function AnnotationProject() {
   const [utterance, setUtterance] = useState(null);
   const [classifications, setClassifications] = useState(null);
   const [agent, setAgent] = useState(null);
+  const [agentSession, setAgentSession] = useState(null);
+  const [agentSessionUpdated, setAgentSessionUpdated] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false);
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
-  const [documentCount, setDocumentCount] = useState(0);    
+  const [documentCount, setDocumentCount] = useState(0);
 
-  // set the intial value of factCheckCount and documentCount by looping through
-  // every utterance in the segmentation and counting the number of queries in utterance.query_set that are valid
-  // and then for documents, count the number of valid documents in the document_set of each valid query
+  // constant that contains the array with unique strings of all the entries in the utterance.visibility
+  // JSON field containing either the number 1 or an array for every utterance in segmentation.utterance_set. 
+  //If any utterance has visibility=1, then short circuit and set active qualifiers to the allQualifiers array
+  const [activeQualifiers, setActiveQualifiers] = useState(null);
+
+  // initialize the agent session
   useEffect(() => {
-    if (segmentation) {
+    if (agent && activeQualifiers && segmentation) {
+      let labelsObject = null;
+      if (activeQualifiers.includes(qual_diar)) {
+        if (!segmentation.agent_session.diarization) {
+          let uniqueLabelsArray = segmentation.diarization.content.map(item => item.label)
+            .filter((value, index, self) => self.indexOf(value) === index);
+          labelsObject = uniqueLabelsArray.reduce((obj, label) => {
+            obj[label] = '';
+            return obj;
+          }, {});
+        } else {
+          labelsObject = segmentation.agent_session.diarization;
+        }
+      }
+
+      const data = {
+        uuid: segmentationUuid,
+        agent: agent.PROLIFIC_PID,
+        prolific_session: agent.SESSION_ID,
+        prolific_study: agent.STUDY_ID,
+        diarization: labelsObject,
+        survey: segmentation.agent_session.survey,
+        finished: segmentation.agent_session.finished,
+      }
+      setSegmentation(segmentation => ({ ...segmentation, agent_session: data }));  // update the segmentation object with the agent session
+      setAgentSession(data);
+      setAgentSessionUpdated(!agentSessionUpdated);
+    }
+  }, [agent, activeQualifiers]);
+
+  // post to api to update the agent session when the agent session object is updated
+  useEffect(() => {
+    if (agentSession) {
+      axios({
+        method: "PUT",
+        url: `/api/agentsession/${segmentation.uuid}/`,
+        data: agentSession,
+      }).then((response) => {
+
+        const data = response.data;
+        setAgentSession(data);
+        const newSegmentation = { ...segmentation };
+        newSegmentation.agent_session = data;
+        setSegmentation(newSegmentation);
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
+    }
+  }, [agentSessionUpdated]);
+
+  useEffect(() => {
+    if (segmentation?.utterance_set.length > 0) {
+      // set the intial value of factCheckCount and documentCount by looping through
+      // every utterance in the segmentation and counting the number of queries in utterance.query_set that are valid
+      // and then for documents, count the number of valid documents in the document_set of each valid query
       let factCheckCount = 0;
       let documentCount = 0;
       segmentation.utterance_set.forEach((utt) => {
@@ -62,8 +136,6 @@ export default function AnnotationProject() {
       setDocumentCount(documentCount);
     }
   }, [segmentation]);
-
-
   const swipeConfig = { delta: 100 };
   const handlers = useSwipeable({
     onSwiped: (eventData) => {
@@ -98,6 +170,15 @@ export default function AnnotationProject() {
         setSegmentation(filteredData);
         setUtterance(filteredData.utterance_set[index]);
         setClassifications(filteredData.utterance_set[index].classification_set);
+
+
+
+        let actQuals = filteredData.utterance_set.map((utt) => utt.visibility).flat().filter((value, index, self) => self.indexOf(value) === index);
+        if (actQuals.includes(1)) {
+          actQuals = allQualifiers;
+        }
+        setActiveQualifiers(actQuals);
+
       }).catch((error) => {
         if (error.response) {
           console.log(error.response);
@@ -180,12 +261,6 @@ export default function AnnotationProject() {
     }
   }, [utterance]);
 
-  const qual_cw = "Checkworthiness";
-  const qual_ad = "Advertising";
-  const qual_fc = "Factcheck";
-  const qual_mot = "Motivation";
-  const qual_trans = "Transcription";
-  const qual_coref = "Coreference";
 
   const renderItems = () => {
     if (!classifications || !utterance?.visibility) return null;
@@ -229,6 +304,18 @@ export default function AnnotationProject() {
           />
         </div>
       ),
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_diar)) && agentSession?.diarization && (
+        <div key={qual_diar}>
+          <Diarization
+            qualifier={qual_diar}
+            agent={agent}
+            agentSession={agentSession}
+            setAgentSession={setAgentSession}
+            agentSessionUpdated={agentSessionUpdated}
+            setAgentSessionUpdated={setAgentSessionUpdated}
+          />
+        </div>
+      ),
       (utterance.visibility === 1 || utterance.visibility.includes(qual_ad)) && (
         <div key={qual_ad}>
           <ExclusiveSelector
@@ -262,6 +349,10 @@ export default function AnnotationProject() {
           setUtterance={setUtterance}
           factCheckCount={factCheckCount}
           documentCount={documentCount}
+          agentSession={agentSession}
+          setAgentSession={setAgentSession}
+          agentSessionUpdated={agentSessionUpdated}
+          setAgentSessionUpdated={setAgentSessionUpdated}
         />
 
         {utterance && agent && classifications && (
@@ -281,24 +372,24 @@ export default function AnnotationProject() {
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
               />
-              {(utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) && 
-              <TranscriptionCheck
-                agent={agent}
-                key={segmentation.uuid + "-transcheck"}
-                qualifier={"Transcription"}
-                classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
-                utterance={utterance}
-                setUtterance={setUtterance}
-              />}
-              {false && utterance.text_coref && (utterance.visibility === 1 || utterance.visibility.includes(qual_coref)) && 
-              <TranscriptionCheck
-                agent={agent}
-                key={segmentation.uuid + "-coreference"}
-                qualifier={"Coreference"}
-                classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
-                utterance={utterance}
-                setUtterance={setUtterance}
-              />}
+              {(utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) &&
+                <TranscriptionCheck
+                  agent={agent}
+                  key={segmentation.uuid + "-transcheck"}
+                  qualifier={"Transcription"}
+                  classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
+                  utterance={utterance}
+                  setUtterance={setUtterance}
+                />}
+              {false && utterance.text_coref && (utterance.visibility === 1 || utterance.visibility.includes(qual_coref)) &&
+                <TranscriptionCheck
+                  agent={agent}
+                  key={segmentation.uuid + "-coreference"}
+                  qualifier={"Coreference"}
+                  classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
+                  utterance={utterance}
+                  setUtterance={setUtterance}
+                />}
             </Col>
             <Col>
               <Masonry

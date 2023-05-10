@@ -1,12 +1,22 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { finalModalData } from '../help/help';
 
 
-export default function FinalizeModal({ show, handleClose }) {
+export default function FinalizeModal({ show, handleClose, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
 
   const completionCode = "I2PWSFRG";
   const externalLink = "https://app.prolific.co/submissions/complete?cc=" + completionCode;
+
+  // handle updating agentSession.finished to true after the okay button is clicked
+  const handleFinish = (e) => {
+    setAgentSession({
+        ...agentSession,
+        finished: true
+    });
+    setAgentSessionUpdated(!agentSessionUpdated);
+};
+
 
   return (
     <Modal
@@ -29,8 +39,8 @@ export default function FinalizeModal({ show, handleClose }) {
         <Button variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
-        <a href={externalLink}>
-          <Button variant="primary">Submit</Button>
+        <a href={externalLink} target='blank'>
+          <Button variant="primary" onClick={handleFinish}>Submit</Button>
         </a>
       </Modal.Footer>
     </Modal>

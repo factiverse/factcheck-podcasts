@@ -84,10 +84,10 @@ export default function ClaimSpan({ utterance, setUtterance, classification, isC
 
     // if isCheckworthy is false, then delete the claimspan classification and post to the api
     useEffect(() => {
-        if (!isCheckworthy && utterance.classification_set.filter((item) => item.category == "Not Checkworthy").length > 0) {
+        if (!isCheckworthy && utterance.classification_set.filter((item) => item.category === "Not Checkworthy").length > 0) {
             postToAPI(utterance.uuid, qualifier, "", "", agent);
         }
-    }, [isCheckworthy, classification]);
+    }, [isCheckworthy, classification, agent]);
 
     return (
         <div>

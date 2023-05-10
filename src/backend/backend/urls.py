@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-from .api.views import AudioChannelApiView, TranscriptionApiView, UtteranceApiView, SegmentationApiView, ClassificationApiView, QueryApiView, MediaFileView, AudioItemApiView
+from .api.views import AudioChannelApiView, TranscriptionApiView, UtteranceApiView, SegmentationApiView, ClassificationApiView, QueryApiView, MediaFileView, AudioItemApiView, AgentSessionView
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
@@ -24,9 +24,11 @@ urlpatterns = [
     path('api/transcriptions/<str:uuid>/', TranscriptionApiView.as_view()), # get transcription
     path('api/transcriptions/', TranscriptionApiView.as_view()), # post transcription
     path('api/segmentations/<str:uuid>/', SegmentationApiView.as_view()), # get segmentations
-    path('api/podcasts/<slug:chan_slug>/<str:guid>/utterances/', SegmentationApiView.as_view()),# post segmentations
+    path('api/agentsession/<str:uuid>/', AgentSessionView.as_view()), # post agent session, uuid is segmentation uuid
+    path('api/podcasts/<slug:chan_slug>/<str:guid>/utterances/', SegmentationApiView.as_view()),# post segmentation
     path('api/utterances/<str:uuid>/', UtteranceApiView.as_view()), # update utterance
     path('api/classifications/<str:uuid>/', ClassificationApiView.as_view()),
     path('api/factchecks/<str:uuid>/', QueryApiView.as_view()),
+
     re_path(r'^media/(?P<path>.+)$', MediaFileView.as_view(), name='media-file'),
 ]

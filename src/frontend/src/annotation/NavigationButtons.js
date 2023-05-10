@@ -4,6 +4,7 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Button, ProgressBar, Row, Col, Alert } from 'react-bootstrap';
 import HelpPopUp from './help/HelpPopUp';
 import FinalizeModal from './modal/FinalizeModal';
+import FinishedModal from './modal/FinishedModal';
 import WelcomeModal from './modal/WelcomeModal';
 import { validateAnnotations } from '../util/validate';
 import { helpPopUpData } from './help/help';
@@ -15,13 +16,27 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-export default function NavigationButtons({ index, segmentation, setIndex, utterance, setUtterance, factCheckCount, documentCount }) {
+export default function NavigationButtons({ index, segmentation, setIndex, utterance, setUtterance, factCheckCount, documentCount, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
     const [canSubmit, setCanSubmit] = useState(false);
     const [errorMessage, setErrorMessage] = useState(false);
     const [showFinalizeModal, setShowFinalizeModal] = useState(false);
-    const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+    const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+    const [showFinishedModal, setShowFinishedModal] = useState(false);
+
+    // check if segmentation.agent_session.finshed is true, if so showFinishedModal, otherwise show showWelcomeModal
+    useEffect(() => {
+        if (segmentation?.agent_session?.finished) {
+            setShowFinishedModal(true);
+        } else {
+            setShowWelcomeModal(true);
+        }
+    }, [segmentation?.agent_session?.finished]);
+
+
+    // constant containing the number of utterances in segmentation.utterance_set which are either equal to 1, or an array which contains "Diarization"
+    const utterancesWithDiarization = segmentation.utterance_set.filter((utterance) => utterance.visibility === 1 || utterance.visibility.includes("Diarization")).length;
 
     // functions to handle opening and closing of the welcome and finalize modals
     const handleWelcomeModalClose = () => setShowWelcomeModal(false);
@@ -30,12 +45,12 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
     const handleFinalizeModalShow = () => setShowFinalizeModal(true);
 
     useEffect(() => {
-        if (segmentation) {
-            const validation = validateAnnotations(segmentation, minFactChecks, minDocs)
+        if (segmentation?.utterance_set && segmentation?.agent_session) {
+            const validation = validateAnnotations(segmentation, minFactChecks, minDocs, false, null, utterancesWithDiarization >= 1)
             setCanSubmit(validation.complete);
             setErrorMessage(validation.errorTxt);
         }
-    }, [utterance, utterance?.classification_set, factCheckCount, documentCount]);
+    }, [utterance, utterance?.classification_set, utterance?.query_set, factCheckCount, documentCount, segmentation]);
 
     // keep track of where the counter is in the utterance set to enable/disable buttons
     let isFirst = false;
@@ -105,6 +120,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
 
     return (
         <div>
+            {segmentation.agent_session && <FinishedModal show={showFinishedModal} /> }
             {segmentation.item && segmentation.channel &&
                 <Alert variant="secondary" className='p-2 mt-1 mb-1'>
                     <div className="d-flex justify-content-between align-items-center">
@@ -115,6 +131,10 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                                     show={showWelcomeModal}
                                     handleClose={handleWelcomeModalClose}
                                     segmentation={segmentation}
+                                    agentSession={agentSession}
+                                    setAgentSession={setAgentSession}
+                                    agentSessionUpdated={agentSessionUpdated}
+                                    setAgentSessionUpdated={setAgentSessionUpdated}
                                 >
 
                                 </WelcomeModal>
@@ -134,6 +154,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                 {/* QUERY / EVIDENCE COUNT */}
                 <Col>
                     <ProgressBar
+                        striped
                         variant="primary"
                         now={100 * factCheckCount / minFactChecks}
                     />
@@ -148,6 +169,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                         {`Fact Check QUERY: ${factCheckCount}/${minFactChecks}`}
                     </div>
                     <ProgressBar
+                        striped
                         variant="primary"
                         now={100 * documentCount / minDocs}
                     />
@@ -171,7 +193,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                         <NavButton disabled={isLast} text="" keyStroke="→" onClick={handleNextClick} />
                         <NavButton disabled={isLast} text="Last" keyStroke="↓" onClick={handleLastClick} />
                         <Button className='ps-1' style={{ backgroundColor: "transparent" }} disabled={true} variant='secondary'>
-                            {utterance && validateAnnotations({ utterance_set: [utterance] }, 0, 0, true).complete ? (
+                            {utterance && validateAnnotations({ utterance_set: [utterance], agent_session: agentSession }, 0, 0, true, null, utterancesWithDiarization > 1 ? true : false).complete ? (
                                 <span style={{ color: 'green', marginLeft: '5px' }}>
                                     <FaCheck />
                                 </span>
@@ -195,13 +217,22 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                             badgeClass={"me-1"}
                         />
                         <Button variant={canSubmit ? "success" : "outline-primary"} disabled={!canSubmit} onClick={handleFinalizeModalShow}>Final Submission</Button>
-                        <FinalizeModal show={showFinalizeModal} handleClose={handleFinalizeModalClose}></FinalizeModal>
+                        <FinalizeModal
+                            show={showFinalizeModal}
+                            handleClose={handleFinalizeModalClose}
+                            agentSession={agentSession}
+                            setAgentSession={setAgentSession}
+                            agentSessionUpdated={agentSessionUpdated}
+                            setAgentSessionUpdated={setAgentSessionUpdated}
+
+                        ></FinalizeModal>
                     </div>
                 </Col>
 
                 {/* UTTERANCE PROGRESS BAR */}
                 <Col xxl={12} className='mt-1'>
                     <ProgressBar
+                        striped
                         variant="success"
                         now={progressPercentage}
                     />

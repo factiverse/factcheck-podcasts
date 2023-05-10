@@ -192,7 +192,7 @@ export default function SegmentationViewer() {
         console.log(error.response.headers);
       }
     });
-  }, []);
+  }, [segmentationUuid]);
 
 
 

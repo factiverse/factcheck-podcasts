@@ -89,11 +89,11 @@ export default function FactCheckDocument({ fc_idx, doc_idx, factChecks, setFact
                             key={`radio-doc-${fc_idx}-${doc_idx}-${k}`}
                             id={`radio-doc-${fc_idx}-${doc_idx}-${k}`}
                             type="radio"
-                            variant={radioValue == radio.value ? "outline-success" : "outline-secondary"}
+                            variant={radioValue === radio.value ? "outline-success" : "outline-secondary"}
                             size='sm'
                             name={`radio-doc-${fc_idx}-${doc_idx}`}
                             value={radio.value}
-                            checked={radioValue == radio.value}
+                            checked={radioValue === radio.value}
                             disabled={!document?.document}
                             //onClick={!document.document ? inputRef.current ? inputRef.current.focus() : null : null}
                             onChange={

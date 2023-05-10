@@ -1,6 +1,22 @@
 from rest_framework import serializers
-from .models import AudioChannel, AudioItem, Transcription, Utterance, Segmentation, Classification, Query, Document
+from .models import AudioChannel, AudioItem, Transcription, Utterance, Segmentation, Classification, Query, Document, AgentSession
 
+
+class AgentSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentSession
+        fields = [
+            'uuid',
+            'agent',
+            'prolific_study',
+            'prolific_session',
+            'created',
+            'last_updated',
+            'survey',
+            'diarization',
+            'segmentation',
+            'finished'
+        ]
 
 # class to serialize documents associated with queries
 class DocumentSerializer(serializers.ModelSerializer):
@@ -106,6 +122,8 @@ class SegmentationSerializer(serializers.ModelSerializer):
     audio_file_link = serializers.SerializerMethodField()
     item = serializers.SerializerMethodField()
     channel = serializers.SerializerMethodField()
+    diarization = serializers.SerializerMethodField()
+    agent_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Segmentation
@@ -117,7 +135,10 @@ class SegmentationSerializer(serializers.ModelSerializer):
             'utterance_set',
             'audio_file_link',
             'item',
-            'channel']
+            'channel', 
+            'diarization',
+            'agent_session',
+            ]
 
     def create(self, validated_data):
         utterances_data = validated_data.pop('utterance_set')
@@ -144,6 +165,14 @@ class SegmentationSerializer(serializers.ModelSerializer):
 
     def get_channel(self, obj):
         return ChannelSerializerGet(obj.transcription.item.channel).data
+    
+    def get_diarization(self, obj):
+        return obj.transcription.diarization
+    
+    def get_agent_session(self, obj):
+        sess = AgentSession.objects.filter(segmentation=obj.id).first()
+        return AgentSessionSerializer(sess).data
+
 
 # return details of the segmentation without including the text data
 
@@ -287,7 +316,7 @@ class ChannelSerializerPost(serializers.ModelSerializer):
             'categories', 
             'type', 
             'description', 
-            'explicit', 
+            'explicit',
             'audioitem_set'
             ]
 
@@ -320,7 +349,8 @@ class ChannelSerializerGet(serializers.ModelSerializer):
             'categories', 
             'type', 
             'description', 
-            'explicit', 
+            'explicit',
+            'study_category',
             'audioitem_set'
             ]
 

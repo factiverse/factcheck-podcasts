@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { helpModalData } from '../help/help';
 import { allQualifiers } from '../data';
 
 
-export default function WelcomeModal({ show, handleClose, segmentation }) {
+export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
   const [qualifiers, setQualifiers] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(null);
 
-  // loop through the segmentation utterance set, if any utterances have visibility=1,
-  // then set the qualifiers to allQualifiers, otherwise loop through the utterances and
-  // add the qualifiers in each utterance.visibility array to the qualifiers state which is a set
   useEffect(() => {
     for (let i = 0; i < segmentation.utterance_set.length; i++) {
       if (segmentation.utterance_set[i].visibility === 1) {
@@ -21,12 +19,31 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
           if (!qualifiers.includes(segmentation.utterance_set[i].visibility[j])) {
             setQualifiers([...qualifiers, segmentation.utterance_set[i].visibility[j]]);
           }
-          
+
         }
       }
     }
 
   }, [segmentation]);
+
+  // set the intial value of the political survey question to the value in the agentSession
+  useEffect(() => {
+    setSelectedValue(agentSession?.survey?.political || null);
+  }, [agentSession]);
+
+
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
+  const handleOkay = () => {
+    setAgentSession({
+      ...agentSession,
+      survey: {political: selectedValue},
+    });
+    setAgentSessionUpdated(!agentSessionUpdated);
+    handleClose();
+  };
 
   return (
     <Modal
@@ -34,10 +51,10 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
       onHide={handleClose}
       backdrop="static"
       keyboard={false}
-      size="lg"
-      fullscreen={"xl-down"}
+      size="xl"
+      fullscreen={"lg-down"}
     >
-      <Modal.Header closeButton>
+      <Modal.Header closeButton={selectedValue ?? null}>
         <Modal.Title>{helpModalData.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -49,7 +66,7 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
 
 
         <h5>{helpModalData.workflowTitle}</h5>
-        <p dangerouslySetInnerHTML={{__html: helpModalData.workflowIntroduction}}></p>
+        <p dangerouslySetInnerHTML={{ __html: helpModalData.workflowIntroduction }}></p>
         <ul>
           {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionCheckworthy }}></li> : null}
           {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionFactcheck }}></li> : null}
@@ -60,15 +77,77 @@ export default function WelcomeModal({ show, handleClose, segmentation }) {
         </ul>
         {/* POLITICS */}
 
-        <h5>{helpModalData.politicalTitle}</h5>
-        <p dangerouslySetInnerHTML={{__html: helpModalData.politicalBody}}></p>
-        
-        <h5>{helpModalData.healthTitle}</h5>
-        <p dangerouslySetInnerHTML={{__html: helpModalData.healthBody}}></p>
+        {segmentation.channel.study_category === "politics" && agentSession ?
+          <>
+            <h5>{helpModalData.politicalTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpModalData.politicalBody }}></p>
+            <Form>
+              <div key={`inline-radio`} className="mb-3 d-flex justify-content-center">
+                <Form.Check
+                  inline
+                  name='politicalLean'
+                  label="Very Liberal"
+                  type="radio"
+                  id={`inline-radio-1`}
+                  value="Very Liberal"
+                  checked={selectedValue === "Very Liberal"}
+                  onChange={handleChange}
+                />
+                <Form.Check
+                  inline
+                  name='politicalLean'
+                  label="Moderate Liberal"
+                  type="radio"
+                  id={`inline-radio-2`}
+                  value="Moderate Liberal"
+                  checked={selectedValue === "Moderate Liberal"}
+                  onChange={handleChange}
+                />
+                <Form.Check
+                  inline
+                  name='politicalLean'
+                  label="Neutral / Independent"
+                  type="radio"
+                  id={`inline-radio-3`}
+                  value="Neutral / Independent"
+                  checked={selectedValue === "Neutral / Independent"}
+                  onChange={handleChange}
+                />
+                <Form.Check
+                  inline
+                  name='politicalLean'
+                  label="Moderate Conservative"
+                  type="radio"
+                  id={`inline-radio-4`}
+                  value="Moderate Conservative"
+                  checked={selectedValue === "Moderate Conservative"}
+                  onChange={handleChange}
+                />
+                <Form.Check
+                  inline
+                  name='politicalLean'
+                  label="Very Conservative"
+                  type="radio"
+                  id={`inline-radio-5`}
+                  value="Very Conservative"
+                  checked={selectedValue === "Very Conservative"}
+                  onChange={handleChange}
+                />
+              </div>
+            </Form>
+          </>
+          : null}
+
+        {segmentation.channel.study_category === "health" ?
+          <>
+            <h5>{helpModalData.healthTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpModalData.healthBody }}></p>
+          </>
+          : null}
 
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
+      <Button variant="secondary" onClick={handleOkay} disabled={!selectedValue}>
           Okay
         </Button>
       </Modal.Footer>

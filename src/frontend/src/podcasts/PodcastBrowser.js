@@ -44,7 +44,7 @@ export default function PodcastBrowser({ }) {
         console.log(error.response.headers);
       }
     });
-  }, []);
+  }, [podcastGuid, podcastSlug]);
 
   return (
     <Row className="h-100">

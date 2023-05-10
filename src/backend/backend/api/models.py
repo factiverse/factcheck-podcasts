@@ -47,6 +47,7 @@ class AudioChannel(models.Model):
     slug = AutoSlugField("slug", populate_from="title", unique="True")
     description = models.TextField("description", max_length=4000)
     explicit = models.PositiveSmallIntegerField("explicit", default=1, choices=EXPLICIT_CHOICES)
+    study_category = models.CharField("study category", max_length=255, null=True)
 
 class AudioItem(models.Model):
     """
@@ -111,6 +112,20 @@ class Utterance(models.Model):
     microfacts = models.JSONField("summarized text info", null=True)
     claimspan = models.JSONField("text span containing claim", null=True)
 
+class AgentSession(models.Model):
+    """
+    Represents a session of a user
+    """
+    uuid = UUIDField("uuid", unique=True)
+    segmentation = models.ForeignKey(Segmentation, on_delete=models.CASCADE)
+    agent = models.CharField("agent", max_length=100)
+    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
+    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
+    created = models.DateTimeField("created time")
+    last_updated = models.DateTimeField("last updated time")
+    survey = models.JSONField("user initial survey answers", null=True)
+    diarization = models.JSONField("user diarization labels", null=True)
+    finished = models.BooleanField("annotation submitted to prolific", default=False)
 
 class Classification(models.Model):
     """

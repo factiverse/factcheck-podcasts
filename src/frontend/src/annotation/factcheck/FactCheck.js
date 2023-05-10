@@ -98,14 +98,13 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
             postToAPI(utterance, [], agent);
         }
     }, [utterance.classification_set]);
-
     return (
         <Card key={`factcheck-utt-${utterance.uuid}`}>
             <Card.Header className='pb-0'>
                 <div className="d-flex justify-content-between">
                     <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
                     <div>
-                        {validateAnnotations({utterance_set: [utterance]}, 0, 0, true).complete ? (
+                        {validateAnnotations({utterance_set: [utterance]}, 0, 0, true, qualifier).complete ? (
                             <span style={{ color: 'green', marginRight: '5px' }}>
                                 <FaCheck />
                             </span>

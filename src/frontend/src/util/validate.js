@@ -1,6 +1,6 @@
 import { allQualifiers } from "../annotation/data";
 
-export function validateAnnotations(segmentation, minFactChecks, minDocs, single = false) {
+export function validateAnnotations(segmentation, minFactChecks, minDocs, single = false, singleQual = null, multiDiarize=false) {
 
     const isClassificationMissing = (qual, classification_set) =>
         classification_set.filter((item) => item.qualifier === qual).length === 0 ||
@@ -29,28 +29,41 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
         }
     }
 
-
     let queryCount = 0;
     let docCount = 0;
     let complete = true;
     let errorTxt = "";
-
     if (segmentation.utterance_set) {
         let i = 0;
         for (const utterance of segmentation.utterance_set) {
             i++;
-            const qualifiers = utterance.visibility === 1 ? allQualifiers : utterance.visibility;
-
+            let qualifiers = null;
+            if (singleQual) {
+                qualifiers = [singleQual];
+            } else {
+                qualifiers = utterance.visibility === 1 ? allQualifiers : utterance.visibility;
+            }
             for (const qual of qualifiers) {
-                if (qual !== "Factcheck" && qual !== "ClaimSpan" && isClassificationMissing(qual, utterance.classification_set)) {
+
+                if (qual !== "Factcheck" && qual !== "ClaimSpan" && qual !== "Diarization" && isClassificationMissing(qual, utterance.classification_set)) {
                     errorTxt += `MISSING: ${qual}, on STATEMENT: ${i}\n`;
                     complete = false;
+                } else if (qual === "Diarization" && segmentation.agent_session?.diarization) {
+                    for (const [key, value] of Object.entries(segmentation.agent_session?.diarization)) {
+                        if (value.length === 0) {
+                            if (!multiDiarize && single) {
+                                errorTxt += `MISSING: DIARIZATION for ${key} on STATEMENT: ${i}\n`;
+                                complete = false;
+                            }
+                        }
+                    }
+
+
                 } else if ((qual === "Factcheck" || qual === "ClaimSpan") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
                     if (qual === "ClaimSpan" && isClassificationMissing("ClaimSpan", utterance.classification_set)) {
                         errorTxt += `MISSING: CLAIMSPAN, on STATEMENT: ${i}\n`;
                         complete = false;
-                    }
-                    if (qual === "Factcheck" && utterance.query_set.length < 1) {
+                    } else if (qual === "Factcheck" && utterance.query_set.length < 1) {
                         errorTxt += `MISSING: Factcheck, on STATEMENT: ${i}\n`;
                         complete = false;
                     } else {
@@ -75,7 +88,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                                 for (let l = 0; l < query.document_set.length; l++) {
                                     const doc = query.document_set[l];
                                     if (!isValidURL(doc.document)) {
-                                        errorTxt += `INVALID: Factcheck EVIDENCE not a URL, on STATEMENT: ${i}, QUERY: ${j}, EVIDENCE: ${l+1}\n`;
+                                        errorTxt += `INVALID: Factcheck EVIDENCE not a URL, on STATEMENT: ${i}, QUERY: ${j}, EVIDENCE: ${l + 1}\n`;
                                         complete = false;
                                     }
                                     for (let m = l + 1; m < query.document_set.length; m++) {
@@ -89,10 +102,21 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                             }
                         }
                     }
-                    break;
                 }
             }
         }
+        if (segmentation.agent_session?.diarization) {
+            for (const [key, value] of Object.entries(segmentation.agent_session.diarization)) {
+                if (value.length === 0 && !single) {
+                    if (multiDiarize) {
+                        errorTxt += `MISSING: SPEAKER NAME, for: ${key}\n`;
+                        complete = false;
+                    }
+                } 
+            }
+        }
+
+
         if (!single) {
             if (queryCount < minFactChecks) {
                 complete = false;
@@ -103,8 +127,6 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                 errorTxt += `MISSING: Factcheck EVIDENCE, ${docCount}/${minDocs} across ALL STATEMENTS\n`;
             }
         }
-
-        return { complete, errorTxt };
-
     }
-}
+    return { complete, errorTxt };
+}           

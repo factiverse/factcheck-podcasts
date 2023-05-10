@@ -6,10 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost, ItemSerializerGet, UtteranceSerializer
-from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document
+from .serializers import ChannelSerializerGet, ChannelSerializerPost, TranscriptionSerializer, SegmentationSerializer, QuerySerializer, ClassificationSerializer, DocumentSerializer, TranscriptionPostSerializer, ItemSerializerPost, ItemSerializerGet, UtteranceSerializer, AgentSessionSerializer
+from .models import AudioChannel, AudioItem, Transcription, Segmentation, Utterance, Classification, Query, Document, AgentSession, AgentSession
 from ..utils.pod_parser import parse_channel
 import os
+from django.utils import timezone
 
 class AudioChannelApiView(APIView):
     # List all without including the child items
@@ -65,8 +66,6 @@ class MediaFileView(APIView):
                 destination.write(chunk)
             return Response(status=status.HTTP_201_CREATED)
     
-        
-    
 
 class TranscriptionApiView(APIView):
 
@@ -113,12 +112,15 @@ class SegmentationApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         agent = request.query_params.get('PROLIFIC_PID', None)
+        prolific_session = request.query_params.get('SESSION_ID', None)
+        prolific_study = request.query_params.get('STUDY_ID', None)
         uuid = kwargs['uuid']
 
         if agent:
-            classification_prefetch = Prefetch('utterance_set__classification_set', queryset=Classification.objects.filter(agent=agent))
-            query_prefetch = Prefetch('utterance_set__query_set', queryset=Query.objects.filter(agent=agent))
-            seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(classification_prefetch, query_prefetch).first()
+            classification_prefetch = Prefetch('utterance_set__classification_set', queryset=Classification.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
+            query_prefetch = Prefetch('utterance_set__query_set', queryset=Query.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
+            session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
+            seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(classification_prefetch, query_prefetch, session_prefetch).first()
         else:
             seg = Segmentation.objects.filter(uuid=uuid).first()
 
@@ -241,3 +243,35 @@ class QueryApiView(APIView):
 
         serializer = QuerySerializer(queries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class AgentSessionView(APIView):
+    def put(self, request, *args, **kwargs):
+        
+        seg = Segmentation.objects.filter(uuid=kwargs['uuid']).first()
+        # check for existing session
+        session = AgentSession.objects.filter(segmentation_id=seg.id, agent=request.data["agent"], prolific_study=request.data.get("prolific_study"), prolific_session=request.data.get("prolific_session")).first()
+        if session:
+            session.last_updated = timezone.now()
+            session.survey = request.data.get("survey", None)
+            session.diarization = request.data.get("diarization", None)
+            session.finished = request.data.get("finished", None)
+            session.save()
+            serializer = AgentSessionSerializer(session)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            serializer = AgentSessionSerializer(data={
+                'agent': request.data["agent"],
+                'prolific_study': request.data.get("prolific_study"),
+                'prolific_session': request.data.get("prolific_session"),
+                'created': timezone.now(),
+                'last_updated': timezone.now(),
+                'survey': request.data.get("survey", None),
+                'diarization': request.data.get("diarization", None),
+                'segmentation': Segmentation.objects.filter(uuid=kwargs['uuid']).first().id,
+                'finished': request.data.get("finished", None)
+            })
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
