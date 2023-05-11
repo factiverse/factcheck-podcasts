@@ -381,15 +381,7 @@ export default function AnnotationProject() {
                   utterance={utterance}
                   setUtterance={setUtterance}
                 />}
-              {false && utterance.text_coref && (utterance.visibility === 1 || utterance.visibility.includes(qual_coref)) &&
-                <TranscriptionCheck
-                  agent={agent}
-                  key={segmentation.uuid + "-coreference"}
-                  qualifier={"Coreference"}
-                  classification={classifications.filter((c) => c.qualifier === "Coreference")[0]}
-                  utterance={utterance}
-                  setUtterance={setUtterance}
-                />}
+
             </Col>
             <Col>
               <Masonry

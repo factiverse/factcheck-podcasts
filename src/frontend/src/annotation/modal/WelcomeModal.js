@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { helpModalData } from '../help/help';
 import { allQualifiers } from '../data';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
@@ -39,7 +40,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
   const handleOkay = () => {
     setAgentSession({
       ...agentSession,
-      survey: {political: selectedValue},
+      survey: { political: selectedValue },
     });
     setAgentSessionUpdated(!agentSessionUpdated);
     handleClose();
@@ -67,6 +68,8 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
 
         <h5>{helpModalData.workflowTitle}</h5>
         <p dangerouslySetInnerHTML={{ __html: helpModalData.workflowIntroduction }}></p>
+
+        <h5>The following task cards will appear on at least one statement:</h5>
         <ul>
           {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionCheckworthy }}></li> : null}
           {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionFactcheck }}></li> : null}
@@ -74,10 +77,13 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
           {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionMotivation }}></li> : null}
           {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionTranscribe }}></li> : null}
           {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionAdvertising }}></li> : null}
+          {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionDiarization }}></li> : null}
         </ul>
+        <p>Remember to click the <strong style={{ backgroundColor: "blue", color: "white" }}>&nbsp;?&nbsp;</strong> button on the invididual cards for more details.</p>
+
         {/* POLITICS */}
 
-        {segmentation.channel.study_category === "politics" && agentSession ?
+        {segmentation.channel.study_category === "politics" && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?
           <>
             <h5>{helpModalData.politicalTitle}</h5>
             <p dangerouslySetInnerHTML={{ __html: helpModalData.politicalBody }}></p>
@@ -145,9 +151,13 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
           </>
           : null}
 
+        <h5>{helpModalData.closingTitle}</h5>
+        <p dangerouslySetInnerHTML={{ __html: helpModalData.closingBody }}></p>
+
+
       </Modal.Body>
       <Modal.Footer>
-      <Button variant="secondary" onClick={handleOkay} disabled={!selectedValue}>
+        <Button variant="secondary" onClick={handleOkay} disabled={!(selectedValue || segmentation.channel.study_category !== "politics" || (!qualifiers.includes("Checkworthiness") || !qualifiers.includes("Factcheck")))}>
           Okay
         </Button>
       </Modal.Footer>
