@@ -6,35 +6,45 @@ import { circleStyle } from "./CircleFirstLetter";
 export const helpModalData = {
     title: "Welcome to this Podcast Annotation Task",
     introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
-    and ensure your work is accepted. You may refer back to this window at any time by clicking the <strong style='background-color:green; color:white'>&nbspHELP&nbsp</strong> \
+    and ensure your work is accepted. You may refer back to this window at any time by clicking the <span style='background-color:green; color:white; display:inline-flex; justify-content:center; \
+    align-items:center; border-radius:3px;'>&nbspHELP&nbsp</span> \
     button in the top left corner of the window.",
     workflowTitle: "How does this work?",
     workflowIntroduction: "<p>For each statement from the podcast that is assigned you will be presented with a page containing different cards. \
     The main <strong>Statement</strong> card is where you will view the current statement you are to focus on, this \
     card also contains a list of previous statements to provide context, and a section showing results from an \
     automated pronoun resolution model which can provide helpful context but be aware that is not 100% reliable. \
-    Finally, the statement card contains an audio player loaded with the podcast audio, you may click the <span style='background-color:green; color:white'>⏵</span> \
+    Finally, the statement card contains an audio player loaded with the podcast audio, you may click the \
+    <span style='background-color:green; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>⏵</span>    \
     buttons to jump to a specific statement in the audio. When you move to a new statement the media player will \
-    automatically be set to this statement's start time.</p> \
+    automatically be set to this statement's start time. It is possible to adjust the speed of the audio playback as needed, \
+    it can be slowed for difficult to understand statements or sped up for slow speech. How this is set depends on your browser, \
+    find a menu button or try right clicking on the media player.</p> \
+    \
     <p>For each card on a statement you must complete, an <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
     fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over multiple statements, \
     and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is complete and has passed a basic validation. After you have received a \
     <strong style='color:green; font-size:1.2rem'>✓</strong> on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement as a whole \
-    (shown next to the navigation buttons) and are free to move to the next statement.</p><p> To navigate between statements use the bottons on the top center of the screen, the \
+    (shown next to the navigation buttons) and are free to move to the next statement.</p> \
+    \
+    <p> To navigate between statements use the buttons on the top center of the screen, the \
     corresponding arrow keys on your keyboard, or on a touch screen you can swipe between statements. Each card has a \
-    <strong style='background-color:blue; color:white'>&nbsp?&nbsp</strong> button which will provide more detailed instructions \
-    for that card, and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.\
+    <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+    align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button which will provide more detailed instructions \
+    for that card and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.\
     <span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center'>B</span>uttons \
     where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. </p> \
+    \
     <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards contained on all statements, and completed \
     the mandatory minimum number of certain tasks that require this, the <strong>Final Submission</strong> button in the upper right hand \
     corner of your screen will be activated and turn green. When you are complete you must click this button and confirm you are finished \
-    before being automatically redirected back to Prolific. The <strong style='background-color:blue; color:white'>&nbsp?&nbsp</strong> \
+    before being automatically redirected back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; \
+    display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong>    \
     button to the left of the Final Submission button will give you an overview of missing tasks and which statements have errors.</p>",
 
     workflowDescriptionCheckworthy: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
     and if fact checking this statement would be beneficial or interesting for the public.",
-    workflowDescriptionTranscribe: "<strong>Transcription Verification:</strong> Verififying that the automatically generated transcription is correct, and fixing any errors if not.",
+    workflowDescriptionTranscribe: "<strong>Transcription Verification:</strong> Verifying that the automatically generated transcription is correct, and fixing any errors if not.",
     workflowDescriptionFactcheck: "<strong>Fact Check:</strong> Carrying out a basic fact check on the statement by making searches with your preferred search engine, \
     selecting documents from the results and copying and pasting a section from the document which either supports or refutes the statement.",
     workflowDescriptionClaimSpan: "<strong>Highlight Claim:</strong> Highlight the part of the statement which you will carry out the fact check on.",
@@ -126,5 +136,6 @@ export const helpPopUpData = {
         fact checks queries and evidence are submitted, this button will be activated to finalize and return to Prolific."
     },
 };
+
 
 
