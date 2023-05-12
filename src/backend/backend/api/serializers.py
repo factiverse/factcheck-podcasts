@@ -293,10 +293,33 @@ class ItemSerializerPost(serializers.ModelSerializer):
             "audio_link",
             "rss_index",
             ]
+        
+class ItemSerializerPostWithChannel(serializers.ModelSerializer):
+    class Meta:
+        model = AudioItem
+        fields = [
+            "title", 
+            "subtitle", 
+            "author", 
+            "link", 
+            "summary", 
+            "description", 
+            "image", 
+            "guid", 
+            "pub_date",
+            "language", 
+            "explicit", 
+            "season", 
+            "episode_num", 
+            "episode_type", 
+            "duration", 
+            "audio_link",
+            "rss_index",
+            ]
 
 
 class ChannelSerializerPost(serializers.ModelSerializer):
-    audioitem_set = ItemSerializerPost(many=True)
+    audioitem_set = ItemSerializerPostWithChannel(many=True)
 
     class Meta:
         model = AudioChannel
