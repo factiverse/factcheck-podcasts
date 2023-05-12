@@ -107,7 +107,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
         }
         if (segmentation.agent_session?.diarization) {
             for (const [key, value] of Object.entries(segmentation.agent_session.diarization)) {
-                if (value.length === 0 && !single) {
+                if (value.length < 2 && !single) {
                     if (multiDiarize) {
                         errorTxt += `MISSING: SPEAKER NAME, for: ${key}\n`;
                         complete = false;

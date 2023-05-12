@@ -28,7 +28,7 @@ export default function Diarization({ qualifier, agentSession, setAgentSession, 
         });
         setAgentSessionUpdated(!agentSessionUpdated);
     };
-
+    
     return (
         <Card className='mt-3 mb-3'>
             <Card.Header className='pb-0'>
@@ -63,7 +63,7 @@ export default function Diarization({ qualifier, agentSession, setAgentSession, 
                     </Card.Text>
                 }
                 <Form>
-                    {agentSession.diarization && Object.keys(agentSession.diarization).map((key, index) => (
+                    {agentSession.diarization && Object.keys(agentSession.diarization).sort().map((key, index) => (
                         <Form.Group as={Row} key={index} className='pb-2'>
                             <Form.Label column sm="auto">{key}</Form.Label>
                             <Col>

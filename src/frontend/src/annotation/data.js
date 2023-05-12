@@ -151,11 +151,14 @@ export const checkworthyLabels = {
 };
 
 export const advertisingLabels = {
-  instruction1: "Is this advertising, or do you think it might be?",
+  instruction1: "Is this advertising, or do you think it could be?",
   instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement.",
   helpHeader: "Advertising Labels",
-  helpText: "Advertising is a common way for podcast creators to support themselves. In contrast to traditional radio or television broadcasts, \
-  podcasters have a wider range of options from the familiar splicing in of externally produced ads, to explicitly reading ads as part of podcast content, or as.",
+  helpText: "Advertising is a common way for podcast creators to cover costs and support themselves. Podcasters have a wide range of options \
+  for including advertising, for example:\n <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
+  or end of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners in the course of the podcast, but being open about the \
+  fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service in the course of the podcast, but without clearly \
+  stating that they are benefiting in some way from mentioning the product.",
   key: "Advertising",
   labels: [
     {

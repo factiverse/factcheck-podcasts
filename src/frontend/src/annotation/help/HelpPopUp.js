@@ -7,10 +7,10 @@ export default function HelpPopUp({ header, text, qualifier, badgeClass }) {
         <Popover id={`popover-positioned-${qualifier}`} style={{maxWidth: 450}}>
             <Popover.Header as="h3">{header}</Popover.Header>
             <Popover.Body>
-                <p>{text.split('\n')[0]}</p>
+                <p dangerouslySetInnerHTML={{__html: text.split('\n')[0]}}></p>
                 <ul>
                 {text.split('\n').map((line, index) => (
-                    line.length > 0 && index != 0 ? <li key={index} style={{ margin: 0 }}>{line}</li> : ''
+                    line.length > 0 && index != 0 ? <li key={index} style={{ margin: 0 }} dangerouslySetInnerHTML={{__html: line}}></li> : ''
                 ))}
                 </ul>
             </Popover.Body>

@@ -120,7 +120,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
 
       {showContext &&
         <Card.Body ref={scrollRef} className="overflow-scroll p-0" style={{ maxHeight: '20em', overflowX: 'hidden' }}>
-          <div>
+          <div className='me-2'>
             <Table className="table-striped">
               <tbody>
                 {utteranceContext.map((contextUtterance) => {
@@ -149,7 +149,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
             </Table>
           </div>
         </Card.Body>}
-        <Card.Header>Automated Pronoun Resolution</Card.Header>
+        <Card.Header>Automated Pronoun Resolution (accuracy not guaranteed)</Card.Header>
         {utterance.text_coref && <Card.Footer>
           <StringDiff stringA={utterance?.text} stringB={utterance?.text_coref} />
         </Card.Footer>}
