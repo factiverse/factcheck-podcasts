@@ -86,6 +86,57 @@ export default function AnnotationProject() {
     }
   }, [agent, activeQualifiers]);
 
+  // Listen for keydown events on the document, for shortcut keys
+  useEffect(() => {
+    const keyHandler = (event) => {
+      const { tagName } = event.target;
+      if (tagName !== 'INPUT' && tagName !== 'TEXTAREA') {
+        // APPROVE EXISTING TRANSCRIPTION
+        if (allQualifiers.includes(qual_trans) && (event.key === 'a' || event.key === 'A')) {
+          postClassification(utterance.uuid, qual_trans, 'Approve Original', '', agent);
+        }
+        // MARK AS NOT ADVERTISING
+        if (allQualifiers.includes(qual_ad) && (event.key === 'n' || event.key === 'N')) {
+          postClassification(utterance.uuid, qual_ad, 'Not Advertising', 'Not Advertising', agent);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('keydown', keyHandler);
+    };
+  }, [utterance]);
+
+  // post a classification to the API, used by TranscriptionCheck and ExclusiveSelector
+  const postClassification = (utt_uuid, qualifier, category, label, agent) => {
+    axios.post('/api/classifications/' + utt_uuid + "/", {
+      utterance: utt_uuid,
+      qualifier,
+      category,
+      label,
+      agent,
+    })
+      .then((response) => {
+        // update the classifications list in the utterance with the new classification received back from the API
+        var newClassificationSet = [...utterance.classification_set];
+        const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
+        if (classificationIndex !== -1) {
+          newClassificationSet[classificationIndex] = response.data;
+        } else {
+          newClassificationSet.push(response.data);
+        }
+        setUtterance({ ...utterance, classification_set: newClassificationSet });
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      });
+  };
+
   // post to api to update the agent session when the agent session object is updated
   useEffect(() => {
     if (agentSession) {
@@ -169,9 +220,6 @@ export default function AnnotationProject() {
         setSegmentation(filteredData);
         setUtterance(filteredData.utterance_set[index]);
         setClassifications(filteredData.utterance_set[index].classification_set);
-
-
-
         let actQuals = filteredData.utterance_set.map((utt) => utt.visibility).flat().filter((value, index, self) => self.indexOf(value) === index);
         if (actQuals.includes(1)) {
           actQuals = allQualifiers;
@@ -272,7 +320,7 @@ export default function AnnotationProject() {
             qualifier={"Transcription"}
             classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
             utterance={utterance}
-            setUtterance={setUtterance}
+            postToAPI={postClassification}
           />
         </div>
       ),
@@ -288,6 +336,7 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_cw)[0]
             }
+            postToAPI={postClassification}
           />
         </div>
       ),
@@ -312,6 +361,7 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_mot)[0]
             }
+            postToAPI={postClassification}
           />
         </div>
       ),
@@ -339,6 +389,7 @@ export default function AnnotationProject() {
             classification={
               classifications.filter((c) => c.qualifier === qual_ad)[0]
             }
+            postToAPI={postClassification}
           />
         </div>
       ),

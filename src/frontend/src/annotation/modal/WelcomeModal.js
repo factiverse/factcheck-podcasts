@@ -83,8 +83,8 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
               {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionAdvertising }}></li> : null}
               {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionDiarization }}></li> : null}
             </ul>
-            <p>Remember to click the <strong style={{ backgroundColor: "blue", color: "white" }}>&nbsp;?&nbsp;</strong> button on the invididual cards and hover your cursor over the buttons for more details.</p>
-
+            <p>Remember to click the <strong className='me-1' style={{fontSize: '0.8rem', backgroundColor:'blue', color:'white', display:'inline-flex', justifyContent:'center', alignItems:'center', borderRadius:'5px',}}>&nbsp;&nbsp;?&nbsp;&nbsp;</strong>
+              button on the top right of the task card for more information about the task.</p>
             {/* POLITICS */}
 
             {segmentation.channel.study_category === "politics" && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?

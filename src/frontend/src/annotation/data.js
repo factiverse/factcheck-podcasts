@@ -166,7 +166,8 @@ export const advertisingLabels = {
       keyStroke: "1",
       label: "Not Advertising",
       category: "Not Advertising",
-      help: "Regular podcast audio content, no advertising."
+      help: "Regular podcast audio content, no advertising.",
+      isKeyboardShortcut: true
     },
     {
       keyStroke: "2",

@@ -4,39 +4,12 @@ import { Row, Col, Card, Alert, ToggleButton, ButtonGroup } from 'react-bootstra
 import HelpPopUp from './help/HelpPopUp';
 import HelpTooltipButton from './help/HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import CircleFirstLetter from './help/CircleFirstLetter';
 
 
-export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, setUtterance }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, postToAPI }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
-
-    const postToAPI = (utt_uuid, qualifier, category, label, agent) => {
-        axios.post('/api/classifications/' + utt_uuid + "/", {
-            utterance: utt_uuid,
-            qualifier,
-            category,
-            label,
-            agent,
-        })
-            .then((response) => {
-                // update the classifications list in the utterance with the new classification received back from the API
-                var newClassificationSet = [...utterance.classification_set];
-                const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
-                if (classificationIndex !== -1) {
-                    newClassificationSet[classificationIndex] = response.data;
-                } else {
-                    newClassificationSet.push(response.data);
-                }
-                setUtterance({ ...utterance, classification_set: newClassificationSet });
-            })
-            .catch((error) => {
-                if (error.response) {
-                    console.log(error.response);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                }
-            });
-    };
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
@@ -117,7 +90,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                     role="radio"
                                                     aria-checked={radioValue === label.label}
                                                 >
-                                                    <strong>{label.label}</strong>
+                                                    <strong>{label.isKeyboardShortcut ? <CircleFirstLetter text={label.label} /> :label.label}</strong>
                                                 </ToggleButton>
                                             }
                                             key={label.label}
