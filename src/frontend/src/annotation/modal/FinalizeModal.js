@@ -1,22 +1,36 @@
-import { useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { finalModalData } from '../help/help';
-
 
 export default function FinalizeModal({ show, handleClose, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
 
-  const completionCode = "I2PWSFRG";
+  const [feedback, setFeedback] = useState(''); // create a state for the feedback
+
+  const completionCode = "C18BT6R7";
   const externalLink = "https://app.prolific.co/submissions/complete?cc=" + completionCode;
 
-  // handle updating agentSession.finished to true after the okay button is clicked
-  const handleFinish = (e) => {
-    setAgentSession({
-        ...agentSession,
-        finished: true
-    });
-    setAgentSessionUpdated(!agentSessionUpdated);
-};
+  const handleFeedbackChange = (e) => {
+    setFeedback(e.target.value); // update the feedback state
+  };
 
+  const handleFinish = (e) => {
+    if (feedback) { // check if there is feedback
+      setAgentSession({
+          ...agentSession,
+          survey: {
+              ...agentSession.survey,
+              feedback // add the feedback to the survey
+          },
+          finished: true
+      });
+    } else {
+      setAgentSession({
+          ...agentSession,
+          finished: true
+      });
+    }
+    setAgentSessionUpdated(!agentSessionUpdated);
+  };
 
   return (
     <Modal
@@ -33,7 +47,10 @@ export default function FinalizeModal({ show, handleClose, agentSession, setAgen
         {finalModalData.body.map(
           (paragraph, index) => <p key={index} dangerouslySetInnerHTML={{ __html: paragraph }}></p>
         )}
-
+        <Form.Group>
+          <Form.Label>{finalModalData.feedbackTitle}</Form.Label>
+          <Form.Control as="textarea" rows={3} onChange={handleFeedbackChange}/>
+        </Form.Group>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
@@ -46,4 +63,3 @@ export default function FinalizeModal({ show, handleClose, agentSession, setAgen
     </Modal>
   );
 }
-

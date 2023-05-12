@@ -153,6 +153,8 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
             <Row className='pt-0'>
                 {/* QUERY / EVIDENCE COUNT */}
                 <Col>
+                { true && 
+                <>
                     <ProgressBar
                         striped
                         variant="primary"
@@ -183,6 +185,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                     >
                         {`Fact Check EVIDENCE: ${documentCount}/${minDocs}`}
                     </div>
+                    </>}
                 </Col>
 
                 {/* CENTER NAV BUTTONS */}

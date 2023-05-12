@@ -35,9 +35,9 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
     let errorTxt = "";
     if (segmentation.utterance_set) {
         let i = 0;
+        let qualifiers = null;
         for (const utterance of segmentation.utterance_set) {
             i++;
-            let qualifiers = null;
             if (singleQual) {
                 qualifiers = [singleQual];
             } else {
@@ -117,7 +117,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
         }
 
 
-        if (!single) {
+        if (!single && qualifiers.includes("Factcheck")) {
             if (queryCount < minFactChecks) {
                 complete = false;
                 errorTxt += `MISSING: Factcheck QUERY, ${queryCount}/${minFactChecks} across ALL STATEMENTS\n`;

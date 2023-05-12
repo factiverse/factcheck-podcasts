@@ -3,7 +3,7 @@ export const allQualifiers = ['Checkworthiness', 'Advertising', 'Motivation', 'T
 export const searchPlatforms = [{ name: "Google", key: "google" }, { name: "Bing", key: "bing" }, { name: "Yahoo", key: "yahoo" }, { name: "DuckDuckGo", key: "duckduckgo" }, { name: "Other (specify with query)", key: "other" }];
 
 export const checkworthyLabels = {
-  key: "Checkworthy", // string that can be used in HTML id attributes
+  key: "Checkworthy", // string that can be used in HTML id attributes.
   instruction1: "Would it even be possible to fact check this statement using publicly available websites?",
   instruction2: "The checkworthy labels are used to describe statements that could feasibly be checked. \
   Non-checkworthy labels are labels that are used to describe claims that cannot be checked.",
@@ -17,7 +17,7 @@ export const checkworthyLabels = {
     // CHECKWORTHY
     {
       keyStroke: "1",
-      label: "Action or Occurance",
+      label: "Action or Occurrence",
       category: "Checkworthy",
       help: "Something that was done by a person, nature, force, entity, etc. and is part of the public record.",
       examples: [
@@ -156,8 +156,8 @@ export const advertisingLabels = {
   helpHeader: "Advertising Labels",
   helpText: "Advertising is a common way for podcast creators to cover costs and support themselves. Podcasters have a wide range of options \
   for including advertising, for example:\n <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
-  or end of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners in the course of the podcast, but being open about the \
-  fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service in the course of the podcast, but without clearly \
+  or end of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners during the podcast, but being open about the \
+  fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service during the podcast, but without clearly \
   stating that they are benefiting in some way from mentioning the product.",
   key: "Advertising",
   labels: [
@@ -257,3 +257,5 @@ export const motivationLabels = {
     },
   ]
 };
+
+

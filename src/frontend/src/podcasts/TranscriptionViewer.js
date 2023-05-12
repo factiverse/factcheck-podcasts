@@ -32,7 +32,7 @@ export default function TranscriptionViewer() {
         console.log(error.response.headers);
       }
     });
-  }, [transcriptUuid]);
+  }, []);
 
   // add transcript to the parent item's transcription set so it can be sent to the EpisodeCard
   useEffect(() => {

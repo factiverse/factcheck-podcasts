@@ -24,7 +24,7 @@ export default function ChannelListItem({channel, setChan, setItem, currentEpiso
     return (
         <li className="my-2">
             <Link 
-                className={`btn d-inline-flex align-items-center border-0 ${currentEpisode && currentEpisode.slug === channel.slug ? '' : 'collapsed'}`}
+                className={`btn d-inline-flex align-items-center border-0 ${currentEpisode && currentEpisode.slug == channel.slug ? '' : 'collapsed'}`}
                 variant="outline-primary"
                 data-bs-toggle="collapse"
                 data-bs-target= {"#" + channel.slug + "_collapselist"}
@@ -33,7 +33,7 @@ export default function ChannelListItem({channel, setChan, setItem, currentEpiso
                 onClick={handleItemListClick}
                 >{channel.title}
             </Link>
-            <ListGroup as="ul" className={`list-unstyled ps-3 collapse ${currentChannel && currentChannel.slug === channel.slug ? 'show' : ''}`} id={channel.slug + "_collapselist"}>
+            <ListGroup as="ul" className={`list-unstyled ps-3 collapse ${currentChannel && currentChannel.slug == channel.slug ? 'show' : ''}`} id={channel.slug + "_collapselist"}>
                 {listItems}
             </ListGroup>
 

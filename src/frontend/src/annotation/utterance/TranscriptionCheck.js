@@ -10,7 +10,7 @@ const radios = [
   { name: 'Approve Original', value: 1, help: "Confirm the original transcription is correct." },
   { name: 'Edit', value: 2, help: "Unlock the text box and make corrections to the original transcription." },
   { name: 'Approve Edit', value: 3, help: "Confirm your edits to the original transcription." },
-  { name: 'Unsure', value: 4, help: "I am unable to determine if this transcription is correct based on the audio." },
+  { name: 'Unsure', value: 4, help: "I cannot determine if this transcription is correct. For example unclear audio or foreign language." },
   { name: 'Reset', value: 5, help: "Delete your edits and restore original." },
 ];
 
