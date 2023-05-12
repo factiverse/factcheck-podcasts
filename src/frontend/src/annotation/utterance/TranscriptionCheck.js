@@ -59,7 +59,7 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
   }, [utterance, classification]);
 
   return (
-    <Card className='mt-3 mb-3'>
+    <Card>
       <Card.Header className='pb-0'>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
@@ -128,7 +128,7 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
                       id={`${qualifier}-button-${k}`}
                       type="radio"
                       variant='outline-secondary'
-                      className='text-nowrap'
+                      className='p-1'
                       name={`${qualifier}-button`}
                       value={radio.value}
                       checked={radioValue === radio.value}
@@ -157,7 +157,7 @@ only work after changes have been made to the text in EDIT mode.")
                         }
                       }
                     >
-                      {radio.name}
+                      <strong>{radio.name}</strong>
                     </ToggleButton>}
                   key={`help-box-${k}`}
                 />

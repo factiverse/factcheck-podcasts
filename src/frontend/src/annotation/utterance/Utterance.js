@@ -51,7 +51,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
   }, [audioPlaying]);
 
   return (
-    <Card className='mb-2'>
+    <Card className='mb-3'>
       <Card.Header className='pb-0'>
         <div className='d-flex justify-content-between align-items-center'>
           <Card.Title>{isCheckworthy ? helpPopUpData["ClaimSpan"].cardTitle : "Statement"}</Card.Title>
@@ -86,13 +86,22 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
       </Card.Header>
 
       <Card.Body style={{ minHeight: "8rem" }}>
+
+        <div className="d-flex flex-row mt-0 pt-0">
+          <div className="p-0 pe-1"><FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} /></div>
+          <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.start)}</div>
+          <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.end)}</div>
+          <div className="p-0 pe-1 text-muted">{utterance.speaker}</div>
+        </div>
         {utterance &&
           <ClaimSpan
             utterance={utterance}
             setUtterance={setUtterance}
             agent={agent}
             isCheckworthy={isCheckworthy}
-            classification={classification}>
+            classification={classification}
+            setPlayerTime={setPlayerTime}
+          >
           </ClaimSpan>}
       </Card.Body>
 
@@ -129,9 +138,9 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                       <td className="p-0 px-2">
                         <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(contextUtterance.start)); }} />
                       </td>
-                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(contextUtterance.start)}</td>
-                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(contextUtterance.end)}</td>
-                      <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{contextUtterance.speaker}</td>
+                      <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.start)}</td>
+                      <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.end)}</td>
+                      <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{contextUtterance.speaker}</td>
                       <td className="pt-1 pe-1 text-start">{contextUtterance.text}</td>
                     </tr>
                   );
@@ -140,19 +149,23 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                   <td className="p-0 px-2">
                     <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} />
                   </td>
-                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(utterance.start)}</td>
-                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{secondsToHms(utterance.end)}</td>
-                  <td className="pt-1 pe-1" style={{fontSize: "0.8rem"}}>{utterance.speaker}</td>
+                  <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.start)}</td>
+                  <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.end)}</td>
+                  <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{utterance.speaker}</td>
                   <td className="pt-1 pe-1 text-start">{utterance.text}</td>
                 </tr>
               </tbody>
             </Table>
           </div>
         </Card.Body>}
-        <Card.Header>Automated Pronoun Resolution (accuracy not guaranteed)</Card.Header>
-        {utterance.text_coref && <Card.Footer>
-          <StringDiff stringA={utterance?.text} stringB={utterance?.text_coref} />
-        </Card.Footer>}
+      {utterance.text_coref &&
+        <>
+          <Card.Header>Automated Pronoun Resolution (accuracy not guaranteed)</Card.Header>
+          <Card.Footer>
+            <StringDiff stringA={utterance?.text} stringB={utterance?.text_coref} />
+          </Card.Footer>
+        </>
+      }
     </Card>
   );
 }

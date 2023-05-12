@@ -18,7 +18,8 @@ export const helpModalData = {
     fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over multiple statements, \
     and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is complete and has passed a basic validation. After you have received a \
     <strong style='color:green; font-size:1.2rem'>✓</strong> on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement as a whole \
-    (shown next to the navigation buttons) and are free to move to the next statement. Each card has a \
+    (shown next to the navigation buttons) and are free to move to the next statement. To navigate between statements use the bottons on the top center of the screen, the \
+    corresponding arrow keys on your keyboard, or on a touch screen you can swipe between statements. Each card has a \
     <strong style='background-color:blue; color:white'>&nbsp?&nbsp</strong> button which will provide more detailed instructions \
     for that card, and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.</p> \
     <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards contained on all statements, and completed \
@@ -107,7 +108,8 @@ export const helpPopUpData = {
         helpHeader: "Identifying the Speakers",
         helpText: "Unlike other cards, the speaker identification card will remain unchanged as you advance from statement to statement. \
         It is your job to identify the full name of all speakers before you before completing this study.\n You will use the context of the \
-        podcast to identify the speakers, including the episode and podcast titles visible at the top of the page.\n \
+        podcast to identify the speakers, including the episode and podcast titles visible at the top of the page and the details given on the \
+        <strong>Podcast Details</strong> tab of the <strong style='background-color:green; color:white'>&nbspHELP&nbsp</strong> page.\n \
         You may also use the podcast website, or other public sources, to identify the speakers. If the speaker is not identified, and only speaks briefly, \
         for example, in advertisements, you may enter <strong>UNKNOWN</strong>.\n The speakers for each statement have been automatically detected, and therefore may \
         not be completely accurate.\n You may enter the name of a single speaker twice if you believe the speaker has been incorrectly identified as two \

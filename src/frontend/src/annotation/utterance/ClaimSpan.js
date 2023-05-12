@@ -40,7 +40,7 @@ const convertStringToValue = (string) => {
 };
 
 
-export default function ClaimSpan({ utterance, setUtterance, classification, isCheckworthy, agent }) {
+export default function ClaimSpan({ utterance, setUtterance, classification, isCheckworthy, agent, setPlayerTime }) {
     const qualifier = "ClaimSpan";
     const [value, setValue] = React.useState([]);
     const [tag, setTag] = React.useState("ClaimSpan");
@@ -89,8 +89,10 @@ export default function ClaimSpan({ utterance, setUtterance, classification, isC
         }
     }, [isCheckworthy, classification, agent]);
 
+
     return (
         <div>
+
             <TextAnnotate
                 style={{
                     fontSize: "1.6rem",

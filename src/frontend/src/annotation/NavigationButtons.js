@@ -24,6 +24,20 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
     const [showFinalizeModal, setShowFinalizeModal] = useState(false);
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [showFinishedModal, setShowFinishedModal] = useState(false);
+    const [studyContainsFactChecks, setStudyContainsFactChecks] = useState(false);
+
+    // check if the study contains fact checks by looping through the utterances in segmentation.utterance_set
+    // and setting true and finish if any utterance has visibility=1 or if visibility is an array which contains "FactCheck"
+    useEffect(() => {
+        let containsFactChecks = false;
+        segmentation.utterance_set.forEach((utterance) => {
+            if (utterance.visibility === 1 || utterance.visibility.includes("FactCheck")) {
+                containsFactChecks = true;
+            }
+        });
+        setStudyContainsFactChecks(containsFactChecks);
+    }, [segmentation.utterance_set]);
+
 
     // check if segmentation.agent_session.finshed is true, if so showFinishedModal, otherwise show showWelcomeModal
     useEffect(() => {
@@ -153,7 +167,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
             <Row className='pt-0'>
                 {/* QUERY / EVIDENCE COUNT */}
                 <Col>
-                { true && 
+                { studyContainsFactChecks && 
                 <>
                     <ProgressBar
                         striped

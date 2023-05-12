@@ -158,7 +158,8 @@ export const advertisingLabels = {
   for including advertising, for example:\n <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
   or end of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners during the podcast, but being open about the \
   fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service during the podcast, but without clearly \
-  stating that they are benefiting in some way from mentioning the product.",
+  stating that they are benefiting in some way from mentioning the product. \n <strong>Note :</strong> the podcast audio you are given in the media player was downloaded \
+  outside of the US, so any unexpected foreign language is likely to be <strong>External Advertising</strong>.",
   key: "Advertising",
   labels: [
     {

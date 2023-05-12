@@ -26,11 +26,10 @@ const qual_diar = "Diarization";
 const numContextUtterances = 20;
 
 const breakpointCols = {
-  default: 4, // The default number of columns.
-  2500: 3, // 3 columns for screens wider than 1500px.
-  1900: 2, // 2 columns for screens wider than 1100px.
-  1000: 1, // 2 column for screens between 700px and 1100px.
-  500: 1, // 1 column for screens smaller than 500px.
+  default: 3,
+  2800: 3, // 2 columns for screens wider than 1100px.
+  2200: 2, // 2 column for screens between 700px and 1100px.
+  1400: 1, // 1 column for screens smaller than 500px.
 };
 
 export default function AnnotationProject() {
@@ -265,6 +264,18 @@ export default function AnnotationProject() {
   const renderItems = () => {
     if (!classifications || !utterance?.visibility) return null;
     return [
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) && (
+        <div key={qual_trans}>
+          <TranscriptionCheck
+            agent={agent}
+            key={segmentation.uuid + "-transcheck"}
+            qualifier={"Transcription"}
+            classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
+            utterance={utterance}
+            setUtterance={setUtterance}
+          />
+        </div>
+      ),
       (utterance.visibility === 1 || utterance.visibility.includes(qual_cw)) && (
         <div key={qual_cw}>
           <ExclusiveSelector
@@ -331,6 +342,7 @@ export default function AnnotationProject() {
           />
         </div>
       ),
+
     ];
   };
 
@@ -372,16 +384,6 @@ export default function AnnotationProject() {
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
               />
-              {(utterance.visibility === 1 || utterance.visibility.includes(qual_trans)) &&
-                <TranscriptionCheck
-                  agent={agent}
-                  key={segmentation.uuid + "-transcheck"}
-                  qualifier={"Transcription"}
-                  classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
-                  utterance={utterance}
-                  setUtterance={setUtterance}
-                />}
-
             </Col>
             <Col>
               <Masonry

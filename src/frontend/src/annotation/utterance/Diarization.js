@@ -30,7 +30,7 @@ export default function Diarization({ qualifier, agentSession, setAgentSession, 
     };
     
     return (
-        <Card className='mt-3 mb-3'>
+        <Card>
             <Card.Header className='pb-0'>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Card.Title>{helpPopUpData[qualifier].cardTitle}</Card.Title>
