@@ -3,6 +3,7 @@ import { Modal, Button, Form, Tabs, Tab, Image } from 'react-bootstrap';
 import { helpModalData } from '../help/help';
 import { allQualifiers } from '../data';
 import DOMPurify from 'dompurify';
+import { circleStyle } from '../help/CircleFirstLetter';
 
 
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {

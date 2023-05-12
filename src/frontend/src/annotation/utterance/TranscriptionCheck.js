@@ -5,6 +5,7 @@ import HelpPopUp from '../help/HelpPopUp';
 import HelpTooltipButton from '../help/HelpTooltipButton';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { helpPopUpData } from '../help/help';
+import CircleFirstLetter from '../help/CircleFirstLetter';
 
 const radios = [
   { name: 'Approve Original', value: 1, help: "Confirm the original transcription is correct." },
@@ -20,38 +21,10 @@ const radioDict = radios.reduce((acc, cur) => {
   return acc;
 }, {});
 
-export default function TranscriptionCheck({ qualifier, agent, classification, utterance, setUtterance }) {
+export default function TranscriptionCheck({ qualifier, agent, classification, utterance, postToAPI }) {
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const inputRef = useRef(null);
-
-  const postToAPI = (utt_uuid, qualifier, category, label, agent) => {
-    axios.post('/api/classifications/' + utt_uuid + "/", {
-      utterance: utt_uuid,
-      qualifier,
-      category,
-      label,
-      agent,
-    })
-      .then((response) => {
-        // update the classifications list in the utterance with the new classification received back from the API
-        var newClassificationSet = [...utterance.classification_set];
-        const classificationIndex = newClassificationSet.findIndex((item) => item.qualifier === qualifier);
-        if (classificationIndex !== -1) {
-          newClassificationSet[classificationIndex] = response.data;
-        } else {
-          newClassificationSet.push(response.data);
-        }
-        setUtterance({ ...utterance, classification_set: newClassificationSet });
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.log(error.response);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        }
-      });
-  };
 
   useEffect(() => {
     setRadioValue(classification?.category && classification.category.length > 0 ? radioDict[classification.category] : '');
@@ -157,7 +130,7 @@ only work after changes have been made to the text in EDIT mode.")
                         }
                       }
                     >
-                      <strong>{radio.name}</strong>
+                      <strong>{radio.name !== "Approve Original" ? radio.name : <CircleFirstLetter text="Approve Original" />}</strong>
                     </ToggleButton>}
                   key={`help-box-${k}`}
                 />

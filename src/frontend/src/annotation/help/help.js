@@ -1,6 +1,8 @@
 // blue question mark icon help buttons:
 // Help for exclusive selector (radio buttons) is located in their data definition in data.js
 
+import { circleStyle } from "./CircleFirstLetter";
+
 export const helpModalData = {
     title: "Welcome to this Podcast Annotation Task",
     introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
@@ -18,10 +20,12 @@ export const helpModalData = {
     fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over multiple statements, \
     and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is complete and has passed a basic validation. After you have received a \
     <strong style='color:green; font-size:1.2rem'>✓</strong> on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement as a whole \
-    (shown next to the navigation buttons) and are free to move to the next statement. To navigate between statements use the bottons on the top center of the screen, the \
+    (shown next to the navigation buttons) and are free to move to the next statement.</p><p> To navigate between statements use the bottons on the top center of the screen, the \
     corresponding arrow keys on your keyboard, or on a touch screen you can swipe between statements. Each card has a \
     <strong style='background-color:blue; color:white'>&nbsp?&nbsp</strong> button which will provide more detailed instructions \
-    for that card, and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.</p> \
+    for that card, and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.\
+    <span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center'>B</span>uttons \
+    where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. </p> \
     <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards contained on all statements, and completed \
     the mandatory minimum number of certain tasks that require this, the <strong>Final Submission</strong> button in the upper right hand \
     corner of your screen will be activated and turn green. When you are complete you must click this button and confirm you are finished \
