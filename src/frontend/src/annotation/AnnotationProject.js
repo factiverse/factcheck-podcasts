@@ -29,7 +29,7 @@ const breakpointCols = {
   default: 3,
   2800: 3, // 2 columns for screens wider than 1100px.
   2200: 2, // 2 column for screens between 700px and 1100px.
-  1400: 1, // 1 column for screens smaller than 500px.
+  1300: 1, // 1 column for screens smaller than 500px.
 };
 
 export default function AnnotationProject() {
@@ -365,18 +365,6 @@ export default function AnnotationProject() {
           />
         </div>
       ),
-      (utterance.visibility === 1 || utterance.visibility.includes(qual_diar)) && agentSession?.diarization && (
-        <div key={qual_diar}>
-          <Diarization
-            qualifier={qual_diar}
-            agent={agent}
-            agentSession={agentSession}
-            setAgentSession={setAgentSession}
-            agentSessionUpdated={agentSessionUpdated}
-            setAgentSessionUpdated={setAgentSessionUpdated}
-          />
-        </div>
-      ),
       (utterance.visibility === 1 || utterance.visibility.includes(qual_ad)) && (
         <div key={qual_ad}>
           <ExclusiveSelector
@@ -390,6 +378,18 @@ export default function AnnotationProject() {
               classifications.filter((c) => c.qualifier === qual_ad)[0]
             }
             postToAPI={postClassification}
+          />
+        </div>
+      ),
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_diar)) && agentSession?.diarization && (
+        <div key={qual_diar}>
+          <Diarization
+            qualifier={qual_diar}
+            agent={agent}
+            agentSession={agentSession}
+            setAgentSession={setAgentSession}
+            agentSessionUpdated={agentSessionUpdated}
+            setAgentSessionUpdated={setAgentSessionUpdated}
           />
         </div>
       ),
@@ -420,7 +420,7 @@ export default function AnnotationProject() {
 
         {utterance && agent && classifications && (
           <Row>
-            <Col xs={12} lg={6} xxl={4}>
+            <Col sm={12} md={6} lg={6} xxl={4}>
               <Utterance
                 key={segmentation.uuid + "-utterance"}
                 utterance={utterance}
@@ -436,7 +436,7 @@ export default function AnnotationProject() {
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
               />
             </Col>
-            <Col>
+            <Col sm={12} md={6} lg={6} xxl={8}>
               <Masonry
                 breakpointCols={breakpointCols}
                 className="masonry-grid"

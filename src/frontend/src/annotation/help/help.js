@@ -15,7 +15,7 @@ export const helpModalData = {
     card also contains a list of previous statements to provide context, and a section showing results from an \
     automated pronoun resolution model which can provide helpful context but be aware that is not 100% reliable. \
     Finally, the statement card contains an audio player loaded with the podcast audio, you may click the \
-    <span style='background-color:green; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>⏵</span>    \
+    <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span>    \
     buttons to jump to a specific statement in the audio. When you move to a new statement the media player will \
     automatically be set to this statement's start time. It is possible to adjust the speed of the audio playback as needed, \
     it can be slowed for difficult to understand statements or sped up for slow speech. How this is set depends on your browser, \
