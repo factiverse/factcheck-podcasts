@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Utterance from './utterance/Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -48,6 +48,7 @@ export default function AnnotationProject() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
   const [documentCount, setDocumentCount] = useState(0);
+  const transcriptionInputRef = useRef(null);
 
   // constant that contains the array with unique strings of all the entries in the utterance.visibility
   // JSON field containing either the number 1 or an array for every utterance in segmentation.utterance_set. 
@@ -56,10 +57,10 @@ export default function AnnotationProject() {
 
   // initialize the agent session
   useEffect(() => {
-    if (agent && activeQualifiers && segmentation) {
+    if (agent && activeQualifiers && segmentation.utterance_set.length > 0) {
       let labelsObject = null;
       if (activeQualifiers.includes(qual_diar)) {
-        if (!segmentation.agent_session.diarization) {
+        if (!segmentation.agent_session?.diarization) {
           let uniqueLabelsArray = segmentation.diarization.content.map(item => item.label)
             .filter((value, index, self) => self.indexOf(value) === index);
           labelsObject = uniqueLabelsArray.reduce((obj, label) => {
@@ -77,8 +78,8 @@ export default function AnnotationProject() {
         prolific_session: agent.SESSION_ID,
         prolific_study: agent.STUDY_ID,
         diarization: labelsObject,
-        survey: segmentation.agent_session.survey,
-        finished: segmentation.agent_session.finished,
+        survey: segmentation.agent_session?.survey,
+        finished: segmentation.agent_session?.finished ?? false,
       }
       setSegmentation(segmentation => ({ ...segmentation, agent_session: data }));  // update the segmentation object with the agent session
       setAgentSession(data);
@@ -89,19 +90,71 @@ export default function AnnotationProject() {
   // Listen for keydown events on the document, for shortcut keys
   useEffect(() => {
     const keyHandler = (event) => {
+      console.log(event.code);
       const { tagName } = event.target;
-      if (tagName !== 'INPUT' && tagName !== 'TEXTAREA') {
-        // APPROVE EXISTING TRANSCRIPTION
-        if (allQualifiers.includes(qual_trans) && (event.key === 'a' || event.key === 'A')) {
-          postClassification(utterance.uuid, qual_trans, 'Approve Original', '', agent);
+      //SHORT CUT KEYS
+      if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
+        console.log("if number 1")
+        if (activeQualifiers.includes(qual_trans)) {
+          console.log("if number 2")
+          // get the transcription classification for the current utterance
+          const trClass = utterance.classification_set.filter(cl => cl.qualifier == qual_trans)[0];
+
+          // APPROVE EXISTING TRANSCRIPTION
+          if (allQualifiers.includes(qual_trans) && (event.key === 'a' || event.key === 'A')) {
+            postClassification(utterance.uuid, qual_trans, 'Approve Original', '', agent);
+          }
+          // EDIT EXISTING TRANSCRIPTION
+          else if (allQualifiers.includes(qual_trans) && (event.key === 'e' || event.key === 'E')) {
+            postClassification(utterance.uuid, qual_trans, 'Edit', trClass?.label ?? '', agent);
+            transcriptionInputRef.current.focus();
+          }
+          // CONFIRM EDIT TRANSCRIPTION
+          // check to see if the transcription is actually different from the original
+          else if (allQualifiers.includes(qual_trans) && (event.key === 'c' || event.key === 'C')) {
+            if (trClass.label && trClass.label !== utterance.text) {
+              postClassification(utterance.uuid, qual_trans, 'Confirm Edit', trClass.label, agent);
+            } else {
+              alert("First click EDIT to enable editing in the text box, the CONFIRM EDIT button will \
+only work after changes have been made to the text in EDIT mode.");
+              transcriptionInputRef.current.focus();
+            }
+          }
+          // UNSURE TRANSCRIPTION
+          else if (allQualifiers.includes(qual_trans) && (event.key === 'u' || event.key === 'U')) {
+            postClassification(utterance.uuid, qual_trans, 'Unsure', '', agent);
+          }
         }
+
         // MARK AS NOT ADVERTISING
         if (allQualifiers.includes(qual_ad) && (event.key === 'n' || event.key === 'N')) {
           postClassification(utterance.uuid, qual_ad, 'Not Advertising', 'Not Advertising', agent);
+          console.Console("not advertising")
+        }
+
+        if (event.code === 'Space') {
+          console.log('spacebar pressed in AnnotationProject')
+          console.log('document.activeElement: ', document.activeElement.tagName)
+          // if a button is focused, and the user presses the spacebar, click the button
+          if (document.activeElement.tagName === 'LABEL') {
+            document.activeElement.click();
+            console.log('label clicked');
+          } 
+          else if (document.activeElement.tagName === 'INPUT') {
+            console.log('in input');
+            let labelElement = document.querySelector(`label[for='${document.activeElement.id}']`);
+            console.log("labelElement: ", labelElement);
+            if (labelElement) {
+              labelElement.click();
+            }
+          }
         }
       }
     };
 
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
     document.addEventListener('keydown', keyHandler);
     return () => {
       document.removeEventListener('keydown', keyHandler);
@@ -304,6 +357,8 @@ export default function AnnotationProject() {
         const newSegmentation = { ...segmentation };
         newSegmentation.utterance_set = newUtteranceSet;
         setSegmentation(newSegmentation);
+
+
       }
     }
   }, [utterance]);
@@ -321,6 +376,7 @@ export default function AnnotationProject() {
             classification={classifications.filter((c) => c.qualifier === "Transcription")[0]}
             utterance={utterance}
             postToAPI={postClassification}
+            transcriptionInputRef={transcriptionInputRef}
           />
         </div>
       ),

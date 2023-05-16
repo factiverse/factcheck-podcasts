@@ -110,7 +110,6 @@ class UtteranceApiView(APIView):
     
 # get segmentations of a transcript
 class SegmentationApiView(APIView):
-
     def get(self, request, *args, **kwargs):
         agent = request.query_params.get('PROLIFIC_PID', None)
         prolific_session = request.query_params.get('SESSION_ID', None)
@@ -255,7 +254,7 @@ class AgentSessionView(APIView):
             session.last_updated = timezone.now()
             session.survey = request.data.get("survey", None)
             session.diarization = request.data.get("diarization", None)
-            session.finished = request.data.get("finished", None)
+            session.finished = request.data.get("finished", False)
             session.save()
             serializer = AgentSessionSerializer(session)
             return Response(serializer.data, status=status.HTTP_200_OK)

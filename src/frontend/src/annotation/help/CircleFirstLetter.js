@@ -17,10 +17,10 @@ function CircleFirstLetter({ text }) {
     const remainingText = text.slice(1);
 
     return (
-        <>
+        <div className="d-inline-flex align-items-center text-nowrap">
             <span className='me-0' style={circleStyle}>{firstLetter}</span>
             {remainingText}
-        </>
+        </div>
     );
 }
 

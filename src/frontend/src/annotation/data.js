@@ -152,14 +152,14 @@ export const checkworthyLabels = {
 
 export const advertisingLabels = {
   instruction1: "Is this advertising, or do you think it could be?",
-  instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement.",
+  instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement. Any unexpected <strong>foreign language</strong> is likely to be <em>External Advertising</em>.</strong>",
   helpHeader: "Advertising Labels",
   helpText: "Advertising is a common way for podcast creators to cover costs and support themselves. Podcasters have a wide range of options \
   for including advertising, for example:\n <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
-  or end of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners during the podcast, but being open about the \
+  or end of the podcast, including foreign language that does not fit in the context of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners during the podcast, but being open about the \
   fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service during the podcast, but without clearly \
   stating that they are benefiting in some way from mentioning the product. \n <strong>Note :</strong> the podcast audio you are given in the media player was downloaded \
-  outside of the US, so any unexpected foreign language is likely to be <strong>External Advertising</strong>.",
+  outside of the US, so any <strong>unexpected foreign language</strong> is likely to be <strong>External Advertising</strong>.",
   key: "Advertising",
   labels: [
     {
@@ -179,25 +179,26 @@ export const advertisingLabels = {
       keyStroke: "3",
       label: "Sponsor Mentions",
       category: "Advertising",
-      help: "Advertising that is read by presenters but clearly identified as advertising for a commercial partner."
+      help: "Advertising that is spoken by the hosts of this podcast, but they are not trying to hide that they are promoting some commercial partner."
     },
     {
       keyStroke: "4",
       label: "Obviously",
       category: "Product Placement",
-      help: "I think this statement contains obvious product placement."
+      help: "A specific product or service is being discussed, and it seems likely the podcast hosts will benefit without being open about it to listeners."
     },
     {
       keyStroke: "5",
       label: "Could Be",
       category: "Product Placement",
-      help: "It's possible this statement could contain product placement, but I'm not entirely sure."
+      help: "A specific product or service is being discussed, and I think it could potentially be unannounced product placement."
     },
     {
       keyStroke: "6",
       label: "Doubtful",
       category: "Product Placement",
-      help: "I do not think this statement contains product placement, but it is not impossible. (select \"Not Advertising\" if you think product placement is impossible)"
+      help: "I doubt this is product placement, but I don't think it's impossible. \
+      (select \"Not Advertising\" if you think product placement is impossible)"
     },
   ]
 };

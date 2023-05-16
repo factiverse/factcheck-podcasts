@@ -1,5 +1,5 @@
 // blue question mark icon help buttons:
-// Help for exclusive selector (radio buttons) is located in their data definition in data.js
+// Help for exclusive selector (radio buttons) is in their data definition in data.js
 
 import { circleStyle } from "./CircleFirstLetter";
 
@@ -10,37 +10,48 @@ export const helpModalData = {
     align-items:center; border-radius:3px;'>&nbspHELP&nbsp</span> \
     button in the top left corner of the window.",
     workflowTitle: "How does this work?",
-    workflowIntroduction: "<p>For each statement from the podcast that is assigned you will be presented with a page containing different cards. \
-    The main <strong>Statement</strong> card is where you will view the current statement you are to focus on, this \
-    card also contains a list of previous statements to provide context, and a section showing results from an \
-    automated pronoun resolution model which can provide helpful context but be aware that is not 100% reliable. \
-    Finally, the statement card contains an audio player loaded with the podcast audio, you may click the \
+    workflowIntroduction: "<p>For each sentence from the podcast that is assigned you will be presented with a page containing different cards. \
+    On this page, the main <strong>Statement</strong> card is where you will view the text for the current sentence you are to focus on. This \
+    card also contains a list of previous sentences to provide context, and a section showing results from an \
+    automated pronoun resolution model which can provide helpful context but is not 100% reliable. </p> \
+    <p> \
+    The <strong>Statement</strong> card contains an audio player loaded with the podcast audio; you may click the \
     <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span>    \
     buttons to jump to a specific statement in the audio. When you move to a new statement the media player will \
     automatically be set to this statement's start time. It is possible to adjust the speed of the audio playback as needed, \
     it can be slowed for difficult to understand statements or sped up for slow speech. How this is set depends on your browser, \
     find a menu button or try right clicking on the media player.</p> \
     \
-    <p>For each card on a statement you must complete, an <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
-    fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over multiple statements, \
-    and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is complete and has passed a basic validation. After you have received a \
-    <strong style='color:green; font-size:1.2rem'>✓</strong> on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement as a whole \
-    (shown next to the navigation buttons) and are free to move to the next statement.</p> \
-    \
     <p> To navigate between statements use the buttons on the top center of the screen, the \
     corresponding arrow keys on your keyboard, or on a touch screen you can swipe between statements. Each card has a \
     <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
     align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button which will provide more detailed instructions \
     for that card and hovering your mouse cursor over buttons on the cards will show a more detailed description for that button.\
-    <span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center'>B</span>uttons \
-    where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. </p> \
+    <strong>You must click the  <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+    align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button and read the instructions completely before completing any task type \
+    for the first time.</strong> </p> \
+    \
+    <p><span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; \
+    justify-content:center; align-items:center'>B</span>uttons \
+    where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. \
+    if you are navigating the task with your keyboard, you may tab between fields and select the highlighted buttons with your space bar.\
+    The audio player can be manually started or stopped by pressing the <em>Enter</em> key on your keyboard. Several audio player keyboard \
+    shortcuts are available for advanced users: Shift+PlusKey increases audio speed, Shift+MinusKey decreases audio speed, Shift+RightArrowKey \
+    scrubs(skips) audio forward, and Shift+LeftArrowKey scrubs audio backwards. \
+    </p> \
+    \
+    <p>For each card you are assigned to complete, an <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
+    fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over multiple statements, \
+    and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is complete and has passed a basic validation. After you have received a \
+    <strong style='color:green; font-size:1.2rem'>✓</strong> on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement as a whole \
+    (shown next to the navigation buttons) and are free to move to the next statement.</p> \
     \
     <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards contained on all statements, and completed \
     the mandatory minimum number of certain tasks that require this, the <strong>Final Submission</strong> button in the upper right hand \
     corner of your screen will be activated and turn green. When you are complete you must click this button and confirm you are finished \
     before being automatically redirected back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; \
     display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong>    \
-    button to the left of the Final Submission button will give you an overview of missing tasks and which statements have errors.</p>",
+    button to the left of the <em>Final Submission</em> button will give you an <strong>overview of missing tasks and which statements have errors</strong>.</p>",
 
     workflowDescriptionCheckworthy: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
     and if fact checking this statement would be beneficial or interesting for the public.",
@@ -67,8 +78,9 @@ export const helpModalData = {
     .",
     closingTitle: "Thank you for your time!",
     closingBody: "We hope you enjoy the task and find the compensation fair. If you have any questions or feedback, please do not hesitate to \
-    contact us here on Prolific. We will be publishing a range of studies with different podcasts and tasks soon, including bonus \
-    opportunities for those with the most accurate work, so please check back regularly and watch for invites to new studies." 
+    contact us here on Prolific or leave a comment in the field shown before finalizing your submission. We will be publishing a range of studies \
+    with different podcasts and tasks soon, including bonus opportunities for those with the most accurate work, so please check back regularly and \
+    watch for invites to new studies." 
 }
 
 export const finalModalData = {
@@ -77,7 +89,7 @@ export const finalModalData = {
         "Your responses have passed basic validation and you can now submit your work.",
         "Please take a moment to review your work if you have not already done so, \
     click the <strong>Cancel</strong> button and cycle back through the statements you have already labelled \
-    verifying that you agree with all your answers, and they follow the guidlines."
+    verifying that you agree with all your answers, and they follow the guidelines."
     ],
     feedbackTitle: "If you have any final comments or feedback, please enter them here:",
 }
@@ -108,26 +120,35 @@ export const helpPopUpData = {
     },
     Transcription: {
         cardTitle: "Transcription",
-        cardInstructionHeader: "Verify the machine transcription matches the audio.",
+        cardInstructionHeader: "Verify machine transcription matches the audio.",
+        cardInstructionBody: "<strong>Focus on fixing individual words</strong> that have been incorrectly transcribed. \
+        <strong>This is a non-verbatim transcription</strong>, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", \
+        repeated words, stutters, and false starts are often left out, <strong>do not add or remove these words</strong>. \
+        Choose <strong>Unsure</strong> if the audio is in a <strong>foreign language</strong> that you do not understand.",
         helpHeader: "Transcription Verification",
-        helpText: "Verify the accuracy of the transcription. <strong>focus on fixing words that have been incorrectly transcribed</strong> \
-        after listening to the audio. \n This is a non-verbatim transcription, so filler words such as \"um,\" \"uh,\" \"like,\" \"so,\" and \"you know.\", \
-        repeated words, stutters, and false starts are often left out, <strong>do not add these words</strong>. \n If the transcription is correct, \
-        click <strong>Approve</strong>.\n If the transcription is incorrect, click <strong>Edit</strong> to make changes followed by <strong>Approve Edit</strong> to confirm them. \n \
-        If you are unable to understand the speech, click <strong>Unsure</strong>. \nIf you have made a mistake, click <strong>Reset</strong> to revert your changes."
+        helpText: "It is important all words in the audio which have any effect on the statement's meaning are included. \
+        Do not add or remove words from the transcription if they do not directly impact how the statement would be understood. \
+        Focus most on words that are transcribed wrong, for example 'and' mistaken for 'in' during rapid speech. \
+        <strong>If two people are talking at the same time</strong>, focus on the speech of only one of them, the one who you consider louder \
+        or more dominating. \n If the transcription is acceptable, select <strong>Approve</strong>.\n If the transcription is incorrect, \
+        select <strong>Edit</strong> to make changes followed by <strong>Confirm Edit</strong> to approve them. \n \
+        If you are unable to understand the speech, including foreign languages, select <strong>Unsure</strong>. \n \
+        If you have made a mistake, click <strong>Reset</strong> to revert your changes \n <strong>Foreign language</strong> you do not understand \
+        should be marked as unsure and is usually <em>External Advertising</em> spliced in (this podcast audio was downloaded outside of the US)."
     },
     Diarization: {
         cardTitle: "Speaker Identification",
         cardInstructionHeader: "Enter the full name for each of the machine-detected speakers.",
         helpHeader: "Identifying the Speakers",
         helpText: "Unlike other cards, the speaker identification card will remain unchanged as you advance from statement to statement. \
-        It is your job to identify the full name of all speakers before you before completing this study.\n You will use the context of the \
-        podcast to identify the speakers, including the episode and podcast titles visible at the top of the page and the details given on the \
+        It is your job to identify the full name of all speakers before completing this study.\n You will use what you hear in the \
+        podcast to identify the speakers' names, along with the addition information about the assigned podcast that is given on the \
         <strong>Podcast Details</strong> tab of the <strong style='background-color:green; color:white'>&nbspHELP&nbsp</strong> page.\n \
-        You may also use the podcast website, or other public sources, to identify the speakers. If the speaker is not identified, and only speaks briefly, \
-        for example, in advertisements, you may enter <strong>UNKNOWN</strong>.\n The speakers for each statement have been automatically detected, and therefore may \
-        not be completely accurate.\n You may enter the name of a single speaker twice if you believe the speaker has been incorrectly identified as two \
-        different people.\n If you believe two different people have been identified as a single speaker, enter the name of the person who has spoken most. "
+        You may also use the podcast website, or other public sources, to identify the speakers.\n <strong>If you are not able to determine the identity of the speaker</strong>, \
+        for example, in advertisements, you may enter <em>UNKNOWN</em> or some description like '<em>Advertising announcer</em>'.\n The speakers for each statement have been automatically detected, and therefore may \
+        not be completely accurate.\n You may enter the name of a single speaker twice if you believe <strong>a speaker has been incorrectly identified as two \
+        different people</strong>.\n If you believe <strong>two different people have been identified as a single speaker</strong>, enter the name of the person \
+        most often identified as this speaker number in the podcast"
     },
     FinalSubmission: {
         helpHeader: "Final submission after completion of all tasks.",
@@ -136,6 +157,3 @@ export const helpPopUpData = {
         fact checks queries and evidence are submitted, this button will be activated to finalize and return to Prolific."
     },
 };
-
-
-

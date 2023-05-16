@@ -3,6 +3,8 @@ from .models import AudioChannel, AudioItem, Transcription, Utterance, Segmentat
 
 
 class AgentSessionSerializer(serializers.ModelSerializer):
+    finished = serializers.BooleanField(default=False)
+
     class Meta:
         model = AgentSession
         fields = [
@@ -170,8 +172,14 @@ class SegmentationSerializer(serializers.ModelSerializer):
         return obj.transcription.diarization
     
     def get_agent_session(self, obj):
-        sess = AgentSession.objects.filter(segmentation=obj.id).first()
-        return AgentSessionSerializer(sess).data
+        # Get the first agent session.
+        agent_session = obj.agentsession_set.first()
+        # If there is no agent session, return None.
+        if agent_session is None:
+            return None
+        # Otherwise, return the serialized data of the agent session.
+        else:
+            return AgentSessionSerializer(agent_session).data
 
 
 # return details of the segmentation without including the text data

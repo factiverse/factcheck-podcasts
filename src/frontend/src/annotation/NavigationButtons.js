@@ -83,18 +83,22 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
 
     // handle what happens on key press
     let handleKeyPress = (event) => {
-        if (event.key === 'ArrowRight' && !isLast) {
-            event.preventDefault();
-            handleNextClick();
-        } else if (event.key === 'ArrowLeft' && !isFirst) {
-            event.preventDefault();
-            handlePrevClick();
-        } else if (event.key === 'ArrowUp' && !isFirst) {
-            event.preventDefault();
-            handleFirstClick();
-        } else if (event.key === 'ArrowDown' && !isLast) {
-            event.preventDefault();
-            handleLastClick();
+        //console.log(event.code, event.key)
+        const { tagName } = event.target;
+        if (event.target.type !== 'text' && tagName !== 'TEXTAREA' && tagName !== 'BUTTON') {
+            if (event.code === 'ArrowRight' && !event.shiftKey && !isLast) {
+                event.preventDefault();
+                handleNextClick();
+            } else if (event.code === 'ArrowLeft' && !event.shiftKey && !isFirst) {
+                event.preventDefault();
+                handlePrevClick();
+            } else if (event.code === 'ArrowUp' && !isFirst) {
+                event.preventDefault();
+                handleFirstClick();
+            } else if (event.code === 'ArrowDown' && !isLast) {
+                event.preventDefault();
+                handleLastClick();
+            }
         }
     };
 
@@ -134,7 +138,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
 
     return (
         <div>
-            {segmentation.agent_session && <FinishedModal show={showFinishedModal} /> }
+            {segmentation.agent_session && <FinishedModal show={showFinishedModal} />}
             {segmentation.item && segmentation.channel &&
                 <Alert variant="secondary" className='p-2 mt-1 mb-1'>
                     <div className="d-flex justify-content-between align-items-center">
@@ -167,39 +171,39 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
             <Row className='pt-0'>
                 {/* QUERY / EVIDENCE COUNT */}
                 <Col>
-                { studyContainsFactChecks && 
-                <>
-                    <ProgressBar
-                        striped
-                        variant="primary"
-                        now={100 * factCheckCount / minFactChecks}
-                    />
-                    <div
-                        style={{
-                            position: 'relative',
-                            top: -20,
-                            color: (100 * factCheckCount / minFactChecks < 50) ? 'black' : 'white',
-                            marginBottom: -20,
-                        }}
-                    >
-                        {`Fact Check QUERY: ${factCheckCount}/${minFactChecks}`}
-                    </div>
-                    <ProgressBar
-                        striped
-                        variant="primary"
-                        now={100 * documentCount / minDocs}
-                    />
-                    <div
-                        style={{
-                            position: 'relative',
-                            top: -20,
-                            color: 100 * documentCount / minDocs < 50 ? 'black' : 'white',
-                            marginBottom: -20,
-                        }}
-                    >
-                        {`Fact Check EVIDENCE: ${documentCount}/${minDocs}`}
-                    </div>
-                    </>}
+                    {studyContainsFactChecks &&
+                        <>
+                            <ProgressBar
+                                striped
+                                variant="primary"
+                                now={100 * factCheckCount / minFactChecks}
+                            />
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    top: -20,
+                                    color: (100 * factCheckCount / minFactChecks < 50) ? 'black' : 'white',
+                                    marginBottom: -20,
+                                }}
+                            >
+                                {`Fact Check QUERY: ${factCheckCount}/${minFactChecks}`}
+                            </div>
+                            <ProgressBar
+                                striped
+                                variant="primary"
+                                now={100 * documentCount / minDocs}
+                            />
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    top: -20,
+                                    color: 100 * documentCount / minDocs < 50 ? 'black' : 'white',
+                                    marginBottom: -20,
+                                }}
+                            >
+                                {`Fact Check EVIDENCE: ${documentCount}/${minDocs}`}
+                            </div>
+                        </>}
                 </Col>
 
                 {/* CENTER NAV BUTTONS */}
