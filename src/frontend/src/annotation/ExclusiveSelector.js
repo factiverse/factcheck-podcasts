@@ -44,8 +44,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
 
             <Card.Body className='pt-1 pb-1'>
                 <Card.Title>{labels.instruction1}</Card.Title>
-                <Card.Text>
-                    {labels.instruction2}
+                <Card.Text dangerouslySetInnerHTML={{__html:labels.instruction2}}>
                 </Card.Text>
                 <Row>
                     {categories.map((cat) => {
@@ -66,7 +65,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                             button={
                                                 <ToggleButton
                                                     key={`radio-${labels.key}-${label.keyStroke}`}
-                                                    className='p-1'
+                                                    className='p-1 ifc-button'
                                                     size='md'
                                                     id={`radio-${labels.key}-${label.keyStroke}`}
                                                     type="radio"
@@ -75,6 +74,9 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                     value={label.label}
                                                     checked={radioValue === label.label}
                                                     onClick={(e) => {
+                                                        e.preventDefault(); // prevent the default action (scroll / move caret)
+                                                        e.stopPropagation(); // prevent the event from bubbling up
+                                                        console.log("clicking radio button", label.label, radioValue, label.label === radioValue)
                                                         const selectedLabel = labels.labels.filter((item) => item.label === label.label).shift();
                                                         const cat = selectedLabel ? selectedLabel.category : '';
                                                         if (radioValue === label.label) {
@@ -87,7 +89,6 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                             postToAPI(utterance.uuid, qualifier, cat, label.label, agent);
                                                         }
                                                     }}
-                                                    role="radio"
                                                     aria-checked={radioValue === label.label}
                                                 >
                                                     <strong>{label.isKeyboardShortcut ? <CircleFirstLetter text={label.label} /> :label.label}</strong>

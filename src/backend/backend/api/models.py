@@ -42,7 +42,7 @@ class AudioChannel(models.Model):
     summary = models.TextField("summary", null=True)
     description = models.TextField("description", max_length=4000)
     owner = models.TextField("owner", max_length=255, blank=True)
-    categories = models.CharField("categories", max_length=255)
+    categories = models.CharField("categories", max_length=4000)
     type = models.PositiveSmallIntegerField("type", default=1, choices=CHANNEL_TYPE_CHOICES)
     slug = AutoSlugField("slug", populate_from="title", unique="True")
     description = models.TextField("description", max_length=4000)

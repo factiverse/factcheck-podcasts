@@ -14,3 +14,19 @@
 .masonry-grid_column>div {
   margin-bottom: 20px;
 }
+
+.btn-check:checked+.btn {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.label.ifc-button {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+
+.ifc-button.btn:focus:not(.btn-check:checked+.btn) {
+  background-color: white !important;
+  color: #6c757d !important;
+}

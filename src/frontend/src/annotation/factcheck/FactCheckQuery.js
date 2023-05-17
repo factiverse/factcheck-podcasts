@@ -107,7 +107,6 @@ export default function FactCheckQuery({ fc_idx, factChecks, setFactChecks, post
                             }
                         }}
                 />
-
                 <DropdownButton
                     variant="outline-secondary"
                     title={factCheck.platform ? factCheck.platform : "Platform"}

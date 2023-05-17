@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { secondsToHms } from '../../util/time';
 import ReactPlayer from 'react-player/file';
 import axios from 'axios';
@@ -10,10 +10,15 @@ import HelpPopUp from '../help/HelpPopUp';
 import { helpPopUpData } from '../help/help';
 import StringDiff from './StringDiff';
 
+// Time to overlap the utterance end time by
+const OVERLAP_TIME = 0.6;
+
 export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
   const playerRef = useRef(null);
   const [showContext, toggleContext] = useState(true);
   const [playerTime, setPlayerTime] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+
   const scrollRef = useRef(null);
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -21,21 +26,88 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     }
   };
   const handleKeyDown = (event) => {
-    if (event.code === 'Space' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'BUTTON') {
+    const { tagName } = event.target;
+    const scrubValue = 0.5; // Change this value to scrub more or less time
+
+    // Detect either regular Enter or numpad Enter
+    if ((event.code === "Enter" || event.code === "NumpadEnter") && tagName.type !== 'text') {
       event.preventDefault();
+      event.stopPropagation();
       setAudioPlaying(!audioPlaying);
+    }
+
+    // Detect Shift+LeftArrow to scrub backwards
+    if (event.shiftKey && event.code === "ArrowLeft") {
+      event.preventDefault();
+      setPlayerTime((current) => Math.max(0, current - scrubValue));
+    }
+
+    // Detect Shift+RightArrow to scrub forwards
+    if (event.shiftKey && event.code === "ArrowRight") {
+      event.preventDefault();
+      const duration = playerRef.current.getDuration();
+      setPlayerTime((current) => Math.min(duration, current + scrubValue));
+    }
+
+    // Detect Shift+'+' to increase playback speed
+    if (event.shiftKey && event.key === "+") {
+      event.preventDefault();
+      setPlaybackSpeed((current) => Math.min(2, current + 0.1));
+    }
+
+    // Detect Shift+'-' to decrease playback speed
+    if (event.shiftKey && event.key === "-") {
+      event.preventDefault();
+      setPlaybackSpeed((current) => Math.max(0.5, current - 0.1));
     }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [utteranceContext]);
+    setTimeout(scrollToBottom, 100);
+  }, [utterance.uuid]);
+
+  const playAudioSegment = (start, end) => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(start, 'seconds');
+      setAudioPlaying(true);
+
+      const duration = (end - start + 0.3) * 1000; // Convert to milliseconds and add 1 second
+      const timeoutId = setTimeout(() => {
+        setAudioPlaying(false);
+      }, duration);
+
+      return timeoutId; // return the timeoutId
+    }
+  };
+
+  useEffect(() => {
+    if (utterance) {
+      const start = parseFloat(utterance.start);
+      const end = parseFloat(utterance.end);
+      const timeoutId = playAudioSegment(start, end);
+
+      // Clear timeout if the component is unmounted or utterance changes
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [utterance.uuid, playerRef, setAudioPlaying]);
+
+  useEffect(() => {
+    utteranceContext.forEach(contextUtterance => {
+      const start = parseFloat(contextUtterance.start);
+      const end = parseFloat(contextUtterance.end);
+      contextUtterance.playFromContext = () => {
+        return playAudioSegment(start, end);
+      };
+    });
+  }, [utteranceContext, playerRef, setAudioPlaying]);
 
   useEffect(() => {
     if (utterance) {
       setPlayerTime(parseFloat(utterance.start));
     }
-  }, [utterance])
+  }, [utterance]);
 
   useEffect(() => {
     if (playerRef.current) {
@@ -44,11 +116,12 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
   }, [playerTime])
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [audioPlaying]);
+}, [audioPlaying]);
+
 
   return (
     <Card className='mb-3'>
@@ -82,13 +155,19 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
           playing={audioPlaying}
           width="100%"
           height="2em"
+          playbackRate={playbackSpeed} // use the playbackSpeed state here
         />
       </Card.Header>
 
       <Card.Body style={{ minHeight: "8rem" }}>
 
         <div className="d-flex flex-row mt-0 pt-0">
-          <div className="p-0 pe-1"><FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} /></div>
+          <div className="p-0 pe-1">
+            <FaPlayCircle style={{ color: "green" }} onClick={() => {
+              playerRef.current.seekTo(parseFloat(utterance.start), 'seconds');
+              setAudioPlaying(true);
+            }} />
+          </div>
           <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.start)}</div>
           <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.end)}</div>
           <div className="p-0 pe-1 text-muted">{utterance.speaker}</div>
@@ -136,7 +215,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                   return (
                     <tr key={contextUtterance.uuid + "test"}>
                       <td className="p-0 px-2">
-                        <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(contextUtterance.start)); }} />
+                        <FaPlayCircle style={{ color: "green" }} onClick={contextUtterance.playFromContext} />
                       </td>
                       <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.start)}</td>
                       <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.end)}</td>
@@ -147,7 +226,10 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                 })}
                 <tr className="table-primary">
                   <td className="p-0 px-2">
-                    <FaPlayCircle style={{ color: "green" }} onClick={() => { setPlayerTime(parseFloat(utterance.start)); }} />
+                    <FaPlayCircle style={{ color: "green" }} onClick={() => {
+                      playerRef.current.seekTo(parseFloat(utterance.start), 'seconds');
+                      setAudioPlaying(true);
+                    }} />
                   </td>
                   <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.start)}</td>
                   <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.end)}</td>
