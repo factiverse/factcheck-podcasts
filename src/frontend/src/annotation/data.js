@@ -161,6 +161,8 @@ export const advertisingLabels = {
   stating that they are benefiting in some way from mentioning the product. \n <strong>Note :</strong> the podcast audio you are given in the media player was downloaded \
   outside of the US, so any <strong>unexpected foreign language</strong> is likely to be <strong>External Advertising</strong>.",
   key: "Advertising",
+  expeditedValue: "Not Advertising",
+  expeditedCategory: "Not Advertising",
   labels: [
     {
       keyStroke: "1",

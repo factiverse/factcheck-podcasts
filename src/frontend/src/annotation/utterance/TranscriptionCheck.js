@@ -21,10 +21,18 @@ const radioDict = radios.reduce((acc, cur) => {
   return acc;
 }, {});
 
-export default function TranscriptionCheck({ qualifier, agent, classification, utterance, postToAPI, transcriptionInputRef }) {
+export default function TranscriptionCheck({ qualifier, agent, classification, utterance, postToAPI, transcriptionInputRef, isExpedited }) {
   const [radioValue, setRadioValue] = useState('');
   const [textValue, setTextValue] = useState('');
   const buttonRefs = useRef([])
+
+  // if isExpedited is true, and no classification exists, then just post "Approve Original" to the API
+  useEffect(() => {
+    console.log("isExpedited", isExpedited, "classification", classification)
+    if (isExpedited && !classification) {
+      postToAPI(utterance.uuid, qualifier, "Approve Original", '', agent);
+    }
+  }, [isExpedited, classification]);
 
   useEffect(() => {
     setRadioValue(classification?.category && classification.category.length > 0 ? radioDict[classification.category] : '');

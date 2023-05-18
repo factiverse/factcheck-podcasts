@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import { Badge } from 'react-bootstrap';
 
 function isUrl(string) {
     try {
@@ -108,7 +109,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                             target="_blank"
                                             to={{ pathname: '/segmentations/' + seg.uuid, search: queryParams.toString() }}
                                         >
-                                            Segmentation
+                                            Segmentation {seg.prolific_annotations > 0 ? <Badge pill className='p-0 px-1 m-0' bg='warning' text='dark'>Prolific: {seg.prolific_annotations}</Badge> : ''}
                                         </Button>
                                         <Button
                                             as={Link}

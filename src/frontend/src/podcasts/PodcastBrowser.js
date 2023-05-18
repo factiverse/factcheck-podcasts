@@ -52,16 +52,36 @@ export default function PodcastBrowser({ }) {
         <aside className="bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2">
           <nav className="small" id="toc">
             <ListGroup as="ul" className="list-unstyled">
-              {channels.length > 0 ? channels.map((chan) =>
-                <ChannelListItem
-                  channel={chan}
-                  setChan={setCurrentChannel}
-                  setItem={setCurrentEpisode}
-                  currentEpisode={currentEpisode}
-                  currentChannel={currentChannel}
-                  queryParams={searchParams}
-                  key={"menu_" + chan.slug}
-                />) : "loading"}
+              {
+                channels.length > 0 ?
+                  [...channels]
+                    .sort((a, b) => {
+                      const aKey = a.language + a.study_category + a.slug;
+                      const bKey = b.language + b.study_category + b.slug;
+
+                      if (a.language.substring(0, 2) === "en" && b.language.substring(0, 2) !== "en") {
+                        return -1;
+                      } else if (b.language.substring(0, 2) === "en" && a.language.substring(0, 2) !== "en") {
+                        return 1;
+                      } else {
+                        return aKey.localeCompare(bKey);
+                      }
+                    })
+                    .map((chan) =>
+                      <ChannelListItem
+                        channel={chan}
+                        setChan={setCurrentChannel}
+                        setItem={setCurrentEpisode}
+                        currentEpisode={currentEpisode}
+                        currentChannel={currentChannel}
+                        queryParams={searchParams}
+                        key={"menu_" + chan.slug}
+                      />
+                    )
+                  : "loading"
+              }
+
+
             </ListGroup>
           </nav>
         </aside>

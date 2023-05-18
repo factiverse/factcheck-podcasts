@@ -78,6 +78,7 @@ class TranscriptionApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         guid = request.data['guid']
+        print(guid)
         item = AudioItem.objects.filter(guid=guid).first()
         serializer = TranscriptionPostSerializer(data={
             'item': item.id, 

@@ -182,18 +182,35 @@ class SegmentationSerializer(serializers.ModelSerializer):
             return AgentSessionSerializer(agent_session).data
 
 
+
 # return details of the segmentation without including the text data
 
 
 class SegmentationSummarySerializer(serializers.ModelSerializer):
+    prolific_annotations = serializers.SerializerMethodField()
+
     class Meta:
         model = Segmentation
         fields = [
             'transcription',
             'uuid',
             'name',
-            'segmentor'
+            'segmentor',
+            'prolific_annotations',
         ]
+                
+    # count the number of annotations from prolific users in this segmentation
+    # the annotations are the number of classifications for each utterance in the utterance set
+    # prolific users will be defined as those where the agent starts with a number
+    def get_prolific_annotations(self, obj):
+        # get all the classifications for this segmentation
+        classifications = Classification.objects.filter(utterance__segmentation=obj)
+        # count the number of classifications from prolific users
+        prolific_annotations = 0
+        for classification in classifications:
+            if classification.agent[0].isdigit():
+                prolific_annotations += 1
+        return prolific_annotations
 
 
 class TranscriptionSerializer(serializers.ModelSerializer):

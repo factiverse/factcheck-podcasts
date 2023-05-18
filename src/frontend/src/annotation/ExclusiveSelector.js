@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import { Row, Col, Card, Alert, ToggleButton, ButtonGroup } from 'react-bootstrap';
 import HelpPopUp from './help/HelpPopUp';
 import HelpTooltipButton from './help/HelpTooltipButton';
@@ -7,17 +6,24 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 import CircleFirstLetter from './help/CircleFirstLetter';
 
 
-export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, postToAPI }) {
+export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, postToAPI, isExpedited }) {
     const [radioValue, setRadioValue] = useState('');
     const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
+
+    // if isExpedited is true, and no classification exists, then just post labels.expeditedValue to the API
+    useEffect(() => {
+        if (isExpedited && !classification) {
+            postToAPI(utterance.uuid, qualifier, labels.expeditedCategory, labels.expeditedValue, agent);
+        }
+    }, [isExpedited, classification]);
 
     // get the unique values in the category field of the dictionaries in the labels list
     const categories = [...new Set(labels.labels.map(item => item.category))];
     useEffect(() => {
-        setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0].label : '');
+        setRadioValue(classification ? labels.labels.filter((item) => item.label === classification.label)[0]?.label : '');
         setCategory(classification ? labels.labels.filter((item) => item.category == classification.category)[0].category : '');
     }, [classification]);
-
+    
     return (
         <Card>
             <Card.Header className='pb-0'>
@@ -44,7 +50,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
 
             <Card.Body className='pt-1 pb-1'>
                 <Card.Title>{labels.instruction1}</Card.Title>
-                <Card.Text dangerouslySetInnerHTML={{__html:labels.instruction2}}>
+                <Card.Text dangerouslySetInnerHTML={{ __html: labels.instruction2 }}>
                 </Card.Text>
                 <Row>
                     {categories.map((cat) => {
@@ -91,7 +97,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                                     }}
                                                     aria-checked={radioValue === label.label}
                                                 >
-                                                    <strong>{label.isKeyboardShortcut ? <CircleFirstLetter text={label.label} /> :label.label}</strong>
+                                                    <strong>{label.isKeyboardShortcut ? <CircleFirstLetter text={label.label} /> : label.label}</strong>
                                                 </ToggleButton>
                                             }
                                             key={label.label}

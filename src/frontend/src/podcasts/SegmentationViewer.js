@@ -4,44 +4,92 @@ import { useParams } from "react-router-dom";
 import EpisodeCard from './EpisodeCard';
 import { secondsToHms } from '../util/time';
 import DataTable from 'react-data-table-component';
+import { Alert } from 'react-bootstrap';
 
-const isValidUrl = (string) => {
-  try {
-    new URL(string);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-const customTableStyles = {
-  table: {
+const conditionalRowStyles = [
+  {
+    when: row => row.qualifier == "Transcription" && row.category != "Approve Original",
     style: {
-      backgroundColor: '#E0E0E0',
+      backgroundColor: '#fcc3a4',
+      '&:hover': {
+        cursor: 'pointer',
+      },
     },
   },
-  headRow: {
+  {
+    when: row => row.qualifier == "Advertising" && row.category != "Not Advertising",
     style: {
-      backgroundColor: "#E0E0E0",
+      backgroundColor: '#ffd6fd',
+      '&:hover': {
+        cursor: 'pointer',
+      },
     },
   },
+  {
+    when: row => row.calories >= 400,
+    style: {
+      backgroundColor: 'rgba(242, 38, 19, 0.9)',
+      color: 'white',
+      '&:hover': {
+        cursor: 'not-allowed',
+      },
+    },
+  },
+];
+
+const customStyles = {
   rows: {
-    style: {
-      backgroundColor: '#E0E0E0',
-    },
+      style: {
+          backgroundColor: '#565757', // override the row height
+          color: 'white',
+      },
+  },
+  headCells: {
+      style: {
+          //paddingLeft: '8px', // override the cell padding for head cells
+          //paddingRight: '8px',
+      },
+  },
+  cells: {
+      style: {
+          //paddingLeft: '8px', // override the cell padding for data cells
+          //paddingRight: '8px',
+      },
   },
 };
 
-
-
-// an expanded component with row details
+// Expanded component with row details
 const ExpandedComponent2 = ({ data }) => {
+  data.classification_set.sort((a, b) => {
+    // Compare qualifiers first
+    let compare = a.qualifier.localeCompare(b.qualifier);
+
+    // If qualifiers are equal, compare agents
+    if (compare === 0) {
+      const aStartsWithNumber = /^\d/.test(a.agent);
+      const bStartsWithNumber = /^\d/.test(b.agent);
+
+      if (!aStartsWithNumber && bStartsWithNumber) {
+        compare = -1;
+      } else if (aStartsWithNumber && !bStartsWithNumber) {
+        compare = 1;
+      } else {
+        compare = a.agent.localeCompare(b.agent);
+        // If agents are equal, compare categories
+        if (compare === 0) {
+          compare = a.category.localeCompare(b.category);
+        }
+      }
+    }
+
+    return compare;
+  });
 
   const columnsClassification = [
     {
       name: "Agent",
       selector: (row) => row.agent,
-      width: '10rem',
+      width: '15rem',
     },
     {
       name: "Qualifier",
@@ -49,13 +97,13 @@ const ExpandedComponent2 = ({ data }) => {
       width: '10rem',
     },
     {
-      name: "Label",
-      selector: (row) => row.label,
+      name: "Category",
+      selector: (row) => row.category,
       width: '10rem',
     },
     {
-      name: "Category",
-      selector: (row) => row.category,
+      name: "Label",
+      selector: (row) => row.label,
     },
   ];
 
@@ -74,32 +122,11 @@ const ExpandedComponent2 = ({ data }) => {
       name: "Contents",
       cell: row => {
         const displayText = row.query.length > 100 ? row.query.substring(0, 100) + "..." : row.query;
-      
+
         return (
-          <div>
-              <strong>{row.platform}</strong> - {
-                isValidUrl(row.query) ? (
-                  <a href={row.query} target="_blank" rel="noreferrer">
-                    <em>{displayText}</em>
-                  </a>
-                ) : (
-                  <em>{row.query}</em>
-                )
-              }
-              
-              <ul>
-              {row.document_set.map((doc) => {
-                return (
-                  <li key={doc.uuid}>
-                    <a href={doc.document} target="_blank" rel="noreferrer">{doc.document}</a>
-                    <p>{doc.comment}</p>
-                  </li>
-                );
-      
-              })}
-              
-              </ul>
-          </div>
+          <section className="bg-light p-3">
+            {/* DataTable components here */}
+          </section>
         );
       },
     },
@@ -107,23 +134,26 @@ const ExpandedComponent2 = ({ data }) => {
 
   return (
     <section>
-      <div style={{ maxHeight: '300px', overflowY: 'auto', backgroundColor: '#E0E0E0'}}>
-      {data.classification_set.length > 0 && <DataTable
-          columns={columnsClassification}
-          data={data.classification_set}
-          dense
-          direction="auto"
-          responsive
-          customStyles={customTableStyles}
-        />}
-        {data.query_set.length > 0 && <DataTable
-          columns={columnsQuery}
-          data={data.query_set}
-          dense
-          direction="auto"
-          responsive
-          customStyles={customTableStyles}
-        />}
+      <div style={{ overflowY: 'auto', backgroundColor: '#E0E0E0' }}>
+        {data.classification_set.length > 0 &&
+          <DataTable
+            columns={columnsClassification}
+            data={data.classification_set}
+            dense
+            direction="auto"
+            responsive
+            conditionalRowStyles={conditionalRowStyles}
+          />
+        }
+        {data.query_set.length > 0 &&
+          <DataTable
+            columns={columnsQuery}
+            data={data.query_set}
+            dense
+            direction="auto"
+            responsive
+          />
+        }
       </div>
     </section>
   );
@@ -153,31 +183,21 @@ const columnsMain = [
     selector: row => row.speaker,
     sortable: true,
     width: '8rem',
+
   },
   {
     name: 'Text',
-    cell: row => <div><p className='h6'>{row.text}</p><div>{row.text_coref}</div></div>,
-  },
-  {
-    name: 'Hidden',
-    selector: row => row.hidden * 1,
-    sortable: true,
-    width: '8rem',
+    cell: row => <div><p className='h6'>{row.text}</p><div style={{color:"#faf884"}}>{row.text_coref}</div></div>,
   },
 ];
 
-const styles = `
-.sc-dnwKUv {
-  overflow: visible;
-}
-
-
-`;
 
 export default function SegmentationViewer() {
   const { segmentationUuid } = useParams();
   const [segmentation, setSegmentation] = useState("");
   const [currentEpisode, setCurrentEpisode] = useState("");
+  const [expandAllRows, setExpandAllRows] = useState(true); // new state variable for expanding/collapsing all rows
+
   useEffect(() => {
     axios({
       method: "GET",
@@ -186,19 +206,30 @@ export default function SegmentationViewer() {
       const data = response.data;
       setSegmentation(data);
     }).catch((error) => {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
+      // Handle error...
     });
   }, [segmentationUuid]);
 
-
-
+  // function to toggle the expandAllRows state
+  const toggleExpandAllRows = () => {
+    setExpandAllRows(!expandAllRows);
+  };
+  
   return (
     <div>
-      <style>{styles}</style>
+
+      <Alert className="d-flex justify-content-between align-items-center p-0 m-0">
+        <div>
+          <h6 className="mb-0"><strong>Podcast: </strong>{segmentation?.channel?.title}</h6>
+        </div>
+        <div>
+          <h6 className="mb-0"><strong>Episode: </strong>{segmentation?.item?.title}</h6>
+        </div>
+        <button className="btn btn-primary p-1" onClick={toggleExpandAllRows} size="sm">
+          {"Toggle Detail"}
+        </button>
+      </Alert>
+
       {currentEpisode && <EpisodeCard episode={currentEpisode} />}
 
       <DataTable
@@ -206,17 +237,21 @@ export default function SegmentationViewer() {
         data={segmentation.utterance_set}
         dense
         direction="auto"
-        expandOnRowClicked
         expandableRows
+        expandOnRowClicked
         expandableRowsComponent={ExpandedComponent2}
+        expandableRowsHideExpander
+        expandableRowExpanded={row => expandAllRows}
         fixedHeader
-        fixedHeaderScrollHeight="300px"
+        fixedHeaderScrollHeight="calc(100vh - 60px)"
         responsive
         subHeaderAlign="right"
         subHeaderWrap
         overflow={true}
+        customStyles={customStyles}
       />
     </div>
+
   );
 
 }

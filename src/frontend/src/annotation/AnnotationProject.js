@@ -43,11 +43,12 @@ export default function AnnotationProject() {
   const [agentSession, setAgentSession] = useState(null);
   const [agentSessionUpdated, setAgentSessionUpdated] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false);
+  const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false); // used to hide/show fact check window after statement is classified as checkworthy
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
-  const [documentCount, setDocumentCount] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0); // number of documents URLs that have been added
+  const [isExpedited, setIsExpedited] = useState(false); // option to select defaults for faster annotation
   const transcriptionInputRef = useRef(null);
 
   // constant that contains the array with unique strings of all the entries in the utterance.visibility
@@ -90,13 +91,10 @@ export default function AnnotationProject() {
   // Listen for keydown events on the document, for shortcut keys
   useEffect(() => {
     const keyHandler = (event) => {
-      console.log(event.code);
       const { tagName } = event.target;
       //SHORT CUT KEYS
       if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
-        console.log("if number 1")
         if (activeQualifiers.includes(qual_trans)) {
-          console.log("if number 2")
           // get the transcription classification for the current utterance
           const trClass = utterance.classification_set.filter(cl => cl.qualifier == qual_trans)[0];
 
@@ -129,21 +127,15 @@ only work after changes have been made to the text in EDIT mode.");
         // MARK AS NOT ADVERTISING
         if (allQualifiers.includes(qual_ad) && (event.key === 'n' || event.key === 'N')) {
           postClassification(utterance.uuid, qual_ad, 'Not Advertising', 'Not Advertising', agent);
-          console.Console("not advertising")
         }
 
         if (event.code === 'Space') {
-          console.log('spacebar pressed in AnnotationProject')
-          console.log('document.activeElement: ', document.activeElement.tagName)
           // if a button is focused, and the user presses the spacebar, click the button
           if (document.activeElement.tagName === 'LABEL') {
             document.activeElement.click();
-            console.log('label clicked');
-          } 
+          }
           else if (document.activeElement.tagName === 'INPUT') {
-            console.log('in input');
             let labelElement = document.querySelector(`label[for='${document.activeElement.id}']`);
-            console.log("labelElement: ", labelElement);
             if (labelElement) {
               labelElement.click();
             }
@@ -333,6 +325,12 @@ only work after changes have been made to the text in EDIT mode.");
       if (searchParams.get("SESSION_ID")) {
         agent["SESSION_ID"] = searchParams.get("SESSION_ID");
       }
+      if (searchParams.get("expedited")) {
+        if (searchParams.get("expedited") === "true") {
+          agent["expedited"] = searchParams.get("expedited");
+          setIsExpedited(true);
+        }
+      }
       if (Object.keys(agent).length != 0) {
         setAgent(agent);
         setSearchParams(agent);
@@ -377,6 +375,7 @@ only work after changes have been made to the text in EDIT mode.");
             utterance={utterance}
             postToAPI={postClassification}
             transcriptionInputRef={transcriptionInputRef}
+            isExpedited={isExpedited}
           />
         </div>
       ),
@@ -393,6 +392,7 @@ only work after changes have been made to the text in EDIT mode.");
               classifications.filter((c) => c.qualifier === qual_cw)[0]
             }
             postToAPI={postClassification}
+            isExpedited={isExpedited}
           />
         </div>
       ),
@@ -418,6 +418,7 @@ only work after changes have been made to the text in EDIT mode.");
               classifications.filter((c) => c.qualifier === qual_mot)[0]
             }
             postToAPI={postClassification}
+            isExpedited={isExpedited}
           />
         </div>
       ),
@@ -434,6 +435,7 @@ only work after changes have been made to the text in EDIT mode.");
               classifications.filter((c) => c.qualifier === qual_ad)[0]
             }
             postToAPI={postClassification}
+            isExpedited={isExpedited}
           />
         </div>
       ),
@@ -452,6 +454,8 @@ only work after changes have been made to the text in EDIT mode.");
 
     ];
   };
+
+
 
   return (
     <div {...handlers}>
