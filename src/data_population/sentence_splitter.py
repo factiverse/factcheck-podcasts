@@ -42,7 +42,7 @@ def sentence_splitter(transcript, spacy_model):
     # Concatenate the words into a text string
     text = "".join([word["word"] for word in words])
     # Process the text
-    doc = nlp(text)
+    doc = nlp(text.strip())
     # load the diarization
     dz = transcript["diarization"]["content"]
 
@@ -66,7 +66,6 @@ def sentence_splitter(transcript, spacy_model):
                     idx += 1
                     break
         idx += 1
-
 
         end_time = word["end"]
         # Assign start and end times to the sentence
