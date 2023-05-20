@@ -5,7 +5,7 @@ DELETE FROM api_classification
 WHERE utterance_id IN (
     SELECT id FROM api_utterance
     WHERE segmentation_id IN (
-        SELECT id FROM api_segmentation WHERE name = 'spaCy'
+        SELECT id FROM api_segmentation WHERE name = 'spaCy-5% most CW'
     )
 );
 
@@ -14,22 +14,22 @@ DELETE FROM api_query
 WHERE utterance_id IN (
     SELECT id FROM api_utterance
     WHERE segmentation_id IN (
-        SELECT id FROM api_segmentation WHERE name = 'spaCy'
+        SELECT id FROM api_segmentation WHERE name = 'spaCy-5% most CW'
     )
 );
 
 -- Now, delete related records in the 'api_utterances' table
 DELETE FROM api_utterance
 WHERE segmentation_id IN (
-    SELECT id FROM api_segmentation WHERE name = 'spaCy'
+    SELECT id FROM api_segmentation WHERE name = 'spaCy-5% most CW'
 );
 
 -- Now, delete related records in the 'api_utterances' table
 DELETE FROM api_agentsession
 WHERE segmentation_id IN (
-    SELECT id FROM api_segmentation WHERE name = 'spaCy'
+    SELECT id FROM api_segmentation WHERE name = 'spaCy-5% most CW'
 );
 
 -- Finally, delete the records in the 'api_segmentations' table
 DELETE FROM api_segmentation
-WHERE name = 'spaCy';
+WHERE name = 'spaCy-5% most CW';

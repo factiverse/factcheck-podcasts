@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { finalModalData } from '../help/help';
 
-export default function FinalizeModal({ show, handleClose, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
+// SHOWN TO USERS AFTER THEIR SUBMISSION PASSES VALIDATION IN JS, SUMBIT AND RETURN TO PROLIFIC
+
+export default function FinalizeModal({ show, handleClose, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated, attentionCheckIndices }) {
 
   const [feedback, setFeedback] = useState(''); // create a state for the feedback
 
@@ -19,6 +21,7 @@ export default function FinalizeModal({ show, handleClose, agentSession, setAgen
           ...agentSession,
           survey: {
               ...agentSession.survey,
+              attention: attentionCheckIndices,
               feedback // add the feedback to the survey
           },
           finished: true

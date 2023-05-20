@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import AudioChannel, AudioItem, Transcription, Utterance, Segmentation, Classification, Query, Document, AgentSession
-
+from mutagen.mp3 import MP3
+import os
+from django.conf import settings
+from rest_framework import serializers
 
 class AgentSessionSerializer(serializers.ModelSerializer):
     finished = serializers.BooleanField(default=False)
@@ -277,6 +280,7 @@ class TranscriptionSummarySerializer(serializers.ModelSerializer):
 
 class ItemSerializerGet(serializers.ModelSerializer):
     transcription_set = TranscriptionSummarySerializer(many=True)
+    audio_length = serializers.SerializerMethodField()
 
     class Meta:
         model = AudioItem
@@ -298,10 +302,18 @@ class ItemSerializerGet(serializers.ModelSerializer):
             "duration", 
             "audio_link", 
             "rss_index",
-            "transcription_set"
-            ]
+            "transcription_set",
+            "audio_length" 
+        ]
 
-
+    def get_audio_length(self, obj):
+        audio_file_path = os.path.join(settings.MEDIA_ROOT, f'{obj.channel.slug}_{obj.guid}.mp3')
+        try:
+            audio = MP3(audio_file_path)
+            return audio.info.length  # length of the audio in seconds
+        except:
+            return None  # return None or an appropriate value if the audio file doesn't exist
+        
 class ItemSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = AudioItem

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from 'react-bootstrap';
+import { secondsToHms } from '../util/time';
 
 export default function EpisodeListItem({ item, channel, setChan, setItem, currentEpisode, queryParams }) {
   function handleItemListClick() {
@@ -36,15 +37,18 @@ export default function EpisodeListItem({ item, channel, setChan, setItem, curre
   }
 
   return (
-    <li className="w-100">
-      <Link
-        className={`d-inline-flex align-items-center rounded text-decoration-none ${currentEpisode && currentEpisode.guid == item.guid ? 'active' : ''}`}
-        to={{ pathname: "/podcasts/" + channel.slug + "/" + item.guid, search: queryParams.toString() }}
-        onClick={handleItemListClick}
-        style={{ maxWidth: '100%' }}
-      >
-        <span style={{ minWidth: '70%' }} className="text-truncate">{item.title}</span>
-        <div className='d-flex align-items-center justify-content-end'>
+
+    <li>
+      <div className='d-flex align-items-center justify-content-between'>
+        <Link
+          className={`rounded text-decoration-none text-truncate ${currentEpisode && currentEpisode.guid == item.guid ? 'active' : ''}`}
+          to={{ pathname: "/podcasts/" + channel.slug + "/" + item.guid, search: queryParams.toString() }}
+          onClick={handleItemListClick}
+        >
+          {item.title}
+
+        </Link>
+        <div style={{ minWidth: "25%" }} className='d-flex align-items-center justify-content-end'>
           <Badge
             pill
             className='p-0 px-1 me-1'
@@ -62,8 +66,17 @@ export default function EpisodeListItem({ item, channel, setChan, setItem, curre
             >
               {prolific_annotations}
             </Badge> : ''}
+          <Badge
+            pill
+            className='p-0 px-1 me-1'
+            style={{ opacity: "50%" }}
+            bg={"secondary"}>
+            {secondsToHms(item.audio_length)}
+          </Badge>
         </div>
-      </Link>
+      </div>
     </li>
   );
+
+
 }

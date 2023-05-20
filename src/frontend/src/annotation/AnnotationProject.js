@@ -66,7 +66,6 @@ export default function AnnotationProject() {
         attentionCheckIndices.push(randomIndex);
       }
     }
-    console.log("attentionCheckIndices", attentionCheckIndices)
     setAttentionCheckIndices(attentionCheckIndices);
   }
 
@@ -498,6 +497,7 @@ only work after changes have been made to the text in EDIT mode.");
           setAgentSession={setAgentSession}
           agentSessionUpdated={agentSessionUpdated}
           setAgentSessionUpdated={setAgentSessionUpdated}
+          attentionCheckIndices={attentionCheckIndices}
         />
 
         {utterance && agent && classifications && (

@@ -4,13 +4,14 @@
 import { circleStyle } from "./CircleFirstLetter";
 
 export const helpModalData = {
-    title: "Welcome to this Podcast Annotation Task",
-    introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
+    original: {
+        title: "Welcome to this Podcast Annotation Task",
+        introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
     and ensure your work is accepted. You may refer back to this window at any time by clicking the <span style='background-color:green; color:white; display:inline-flex; justify-content:center; \
     align-items:center; border-radius:3px;'>&nbspHELP&nbsp</span> \
     button in the top left corner of the window.",
-    workflowTitle: "How does this work?",
-    workflowIntroduction: "<p>For each sentence from the podcast that is assigned you will be presented with a page containing different cards. \
+        workflowTitle: "How does this work?",
+        workflowIntroduction: "<p>For each sentence from the podcast that is assigned you will be presented with a page containing different cards. \
     On this page, the main <strong>Statement</strong> card is where you will view the text for the current sentence you are to focus on. This \
     card also contains a list of previous sentences to provide context, and a section showing results from an \
     automated pronoun resolution model which can provide helpful context but is not 100% reliable. </p> \
@@ -53,18 +54,18 @@ export const helpModalData = {
     display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong>    \
     button to the left of the <em>Final Submission</em> button will give you an <strong>overview of missing tasks and which statements have errors</strong>.</p>",
 
-    workflowDescriptionCheckworthy: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
+        workflowDescriptionCheckworthy: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
     and if fact checking this statement would be beneficial or interesting for the public.",
-    workflowDescriptionTranscribe: "<strong>Transcription Verification:</strong> Verifying that the automatically generated transcription is correct, and fixing any errors if not.",
-    workflowDescriptionFactcheck: "<strong>Fact Check:</strong> Carrying out a basic fact check on the statement by making searches with your preferred search engine, \
+        workflowDescriptionTranscribe: "<strong>Transcription Verification:</strong> Verifying that the automatically generated transcription is correct, and fixing any errors if not.",
+        workflowDescriptionFactcheck: "<strong>Fact Check:</strong> Carrying out a basic fact check on the statement by making searches with your preferred search engine, \
     selecting documents from the results and copying and pasting a section from the document which either supports or refutes the statement.",
-    workflowDescriptionClaimSpan: "<strong>Highlight Claim:</strong> Highlight the part of the statement which you will carry out the fact check on.",
-    workflowDescriptionMotivation: "<strong>Motivation:</strong> Identify why this statement is import to fact check.",
-    workflowDescriptionAdvertising: "<strong>Advertising:</strong> Identify whether the statement is advertising or not.",
-    workflowDescriptionDiarization: "<strong>Speaker Identification:</strong> Identify and type the full name of the speaker.",
+        workflowDescriptionClaimSpan: "<strong>Highlight Claim:</strong> Highlight the part of the statement which you will carry out the fact check on.",
+        workflowDescriptionMotivation: "<strong>Motivation:</strong> Identify why this statement is import to fact check.",
+        workflowDescriptionAdvertising: "<strong>Advertising:</strong> Identify whether the statement is advertising or not.",
+        workflowDescriptionDiarization: "<strong>Speaker Identification:</strong> Identify and type the full name of the speaker.",
 
-    politicalTitle: "Is this political?",
-    politicalBody: "The podcast content you will be labelling and listening to will often be of a political nature, \
+        politicalTitle: "Is this political?",
+        politicalBody: "The podcast content you will be labelling and listening to will often be of a political nature, \
     but the creators of this study are politically neutral. For researchers to build accurate and non-biased AI systems, \
     it is essential to have the input of people with a wide range of views. Whether you agree with the views expressed in \
     this podcast or not, your work here is equally valuable. The key factor is that you remain critical and objective in your labelling. \
@@ -72,17 +73,17 @@ export const helpModalData = {
     find most trustworthy, but all judgements as to whether the evidence refutes or supports the claim must be based on the content of the \
     evidence document as it presents the facts.",
 
-    healthTitle: "You are assigned a podcast in the category Health & Wellness.",
-    healthBody: "You are not required to have any special background knowledge in this area, but we especially appreciate contributions from \
+        healthTitle: "You are assigned a podcast in the category Health & Wellness.",
+        healthBody: "You are not required to have any special background knowledge in this area, but we especially appreciate contributions from \
     those who do and will prioritize those with quality work in new studies that will be published regularly. \
     .",
-    closingTitle: "Thank you for your time!",
-    closingBody: "We hope you enjoy the task and find the compensation fair. If you have any questions or feedback, please do not hesitate to \
+        closingTitle: "Thank you for your time!",
+        closingBody: "We hope you enjoy the task and find the compensation fair. If you have any questions or feedback, please do not hesitate to \
     contact us here on Prolific or leave a comment in the field shown before finalizing your submission. We will be publishing a range of studies \
     with different podcasts and tasks soon, including bonus opportunities for those with the most accurate work, so please check back regularly and \
-    watch for invites to new studies." 
+    watch for invites to new studies."
+    }
 }
-
 export const finalModalData = {
     title: "Finalize your submission and return to Prolific",
     body: [

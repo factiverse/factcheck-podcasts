@@ -15,7 +15,7 @@ export default function ChannelCard({ channel }) {
   // and add ellipsis
 
   return (
-    <Card className='mw-100'>
+    <Card style={{minWidth: "20rem", maxWidth: "40rem"}}>
       <Card.Header>
         <Card.Title>{channel.title}</Card.Title>
         <Card.Subtitle className="text-muted">{channel.categories}</Card.Subtitle>

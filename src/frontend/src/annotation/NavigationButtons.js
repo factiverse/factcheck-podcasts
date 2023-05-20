@@ -16,7 +16,20 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-export default function NavigationButtons({ index, segmentation, setIndex, utterance, setUtterance, factCheckCount, documentCount, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
+export default function NavigationButtons({ 
+    index, 
+    segmentation, 
+    setIndex, 
+    utterance, 
+    setUtterance, 
+    factCheckCount, 
+    documentCount, 
+    agentSession, 
+    setAgentSession, 
+    agentSessionUpdated, 
+    setAgentSessionUpdated,
+    attentionCheckIndices,
+ }) {
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
     const [canSubmit, setCanSubmit] = useState(false);
@@ -245,6 +258,7 @@ export default function NavigationButtons({ index, segmentation, setIndex, utter
                             setAgentSession={setAgentSession}
                             agentSessionUpdated={agentSessionUpdated}
                             setAgentSessionUpdated={setAgentSessionUpdated}
+                            attentionCheckIndices={attentionCheckIndices}
 
                         ></FinalizeModal>
                     </div>

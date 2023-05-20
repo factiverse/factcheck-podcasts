@@ -85,10 +85,10 @@ export default function Utterance({
     const player = isAttentionCheck ? attentionCheckPlayerRef.current : playerRef.current;
 
     if (player) {
-      player.seekTo(start - 0.3, 'seconds');
+      player.seekTo(start - 0.2, 'seconds');
       setAudioPlaying(true);
 
-      const duration = (end - start + 0.6) * 1000;
+      const duration = (end - start + 0.4) * 1000;
       const timeoutId = setTimeout(() => {
         setAudioPlaying(false);
       }, duration);
@@ -134,7 +134,7 @@ export default function Utterance({
     };
   }, [audioPlaying]);
 
-console.log(playerTime)
+
   return (
     <Card className='mb-3'>
       <Card.Header className='pb-0'>

@@ -3,12 +3,11 @@ import { Modal, Button, Form, Tabs, Tab, Image } from 'react-bootstrap';
 import { helpModalData } from '../help/help';
 import { allQualifiers } from '../data';
 import DOMPurify from 'dompurify';
-import { circleStyle } from '../help/CircleFirstLetter';
-
 
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
   const [qualifiers, setQualifiers] = useState([]);
   const [selectedValue, setSelectedValue] = useState(null);
+  const [helpData, setHelpData] = useState(helpModalData.original);
 
   useEffect(() => {
     for (let i = 0; i < segmentation.utterance_set.length; i++) {
@@ -57,12 +56,12 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
       fullscreen={"lg-down"}
     >
       <Modal.Header closeButton={selectedValue ?? null}>
-        <Modal.Title>{helpModalData.title}</Modal.Title>
+        <Modal.Title>{helpData.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Tabs defaultActiveKey="introduction" id="uncontrolled-tab-example">
           <Tab eventKey="introduction" title="Introduction">
-            <p dangerouslySetInnerHTML={{ __html: helpModalData.introduction }} className='pt-2'></p>
+            <p dangerouslySetInnerHTML={{ __html: helpData.introduction }} className='pt-2'></p>
             <p>Your work will focus on one episode of a podcast, the assigned podcast for this study is:<br />
               <strong>Podcast Name :</strong> {segmentation.channel.title}<br />
               <strong>Episode Name :</strong> {segmentation.item.title}<br />
@@ -70,18 +69,18 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
             </p>
 
 
-            <h5>{helpModalData.workflowTitle}</h5>
-            <p dangerouslySetInnerHTML={{ __html: helpModalData.workflowIntroduction }}></p>
+            <h5>{helpData.workflowTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpData.workflowIntroduction }}></p>
 
             <h5>The following task cards will appear on at least one statement:</h5>
             <ul>
-              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionCheckworthy }}></li> : null}
-              {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionFactcheck }}></li> : null}
-              {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionClaimSpan }}></li> : null}
-              {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionMotivation }}></li> : null}
-              {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionTranscribe }}></li> : null}
-              {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionAdvertising }}></li> : null}
-              {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpModalData.workflowDescriptionDiarization }}></li> : null}
+              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionCheckworthy }}></li> : null}
+              {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionFactcheck }}></li> : null}
+              {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionClaimSpan }}></li> : null}
+              {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionMotivation }}></li> : null}
+              {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionTranscribe }}></li> : null}
+              {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionAdvertising }}></li> : null}
+              {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionDiarization }}></li> : null}
             </ul>
             <p><strong>Remember you are required to click the <strong className='me-1' style={{fontSize: '0.8rem', backgroundColor:'blue', color:'white', display:'inline-flex', justifyContent:'center', alignItems:'center', borderRadius:'5px',}}>&nbsp;&nbsp;?&nbsp;&nbsp;</strong>
               button on the top right of the task cards before completing that task for the first time.</strong></p>
@@ -89,8 +88,8 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
 
             {segmentation.channel.study_category === "politics" && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?
               <>
-                <h5>{helpModalData.politicalTitle}</h5>
-                <p dangerouslySetInnerHTML={{ __html: helpModalData.politicalBody }}></p>
+                <h5>{helpData.politicalTitle}</h5>
+                <p dangerouslySetInnerHTML={{ __html: helpData.politicalBody }}></p>
                 <Form>
                   <div key={`inline-radio`} className="mb-3 d-flex justify-content-center">
                     <Form.Check
@@ -150,13 +149,13 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
 
             {segmentation.channel.study_category === "health" ?
               <>
-                <h5>{helpModalData.healthTitle}</h5>
-                <p dangerouslySetInnerHTML={{ __html: helpModalData.healthBody }}></p>
+                <h5>{helpData.healthTitle}</h5>
+                <p dangerouslySetInnerHTML={{ __html: helpData.healthBody }}></p>
               </>
               : null}
 
-            <h5>{helpModalData.closingTitle}</h5>
-            <p dangerouslySetInnerHTML={{ __html: helpModalData.closingBody }}></p>
+            <h5>{helpData.closingTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpData.closingBody }}></p>
           </Tab>
           <Tab eventKey="podcastInfo" title="Podcast Details">
 
