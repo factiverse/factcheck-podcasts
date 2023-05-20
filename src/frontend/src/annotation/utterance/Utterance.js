@@ -10,11 +10,25 @@ import HelpPopUp from '../help/HelpPopUp';
 import { helpPopUpData } from '../help/help';
 import StringDiff from './StringDiff';
 
-export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
+export default function Utterance({
+  url,
+  utterance,
+  setUtterance,
+  utteranceContext,
+  audioPlaying,
+  setAudioPlaying,
+  isCheckworthy,
+  agent,
+  classification,
+  isAttentionCheck, }) {
+
   const playerRef = useRef(null);
+  const attentionCheckPlayerRef = useRef(null);
   const [showContext, toggleContext] = useState(true);
   const [playerTime, setPlayerTime] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [playingSegment, setPlayingSegment] = useState(null);
+  const attentionCheckUrl = axios.defaults.baseURL + "media/attention_check.mp3";
 
   const scrollRef = useRef(null);
   const scrollToBottom = () => {
@@ -63,22 +77,23 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     setTimeout(scrollToBottom, 100);
   }, [utterance.uuid]);
 
-  const playAudioSegment = (start, end, isFirst = false) => {
-    const audioPlayingBefore = audioPlaying;
-    if (playerRef.current) {
-      playerRef.current.seekTo(start - 0.3, 'seconds');
+  const playAudioSegment = (start, end, isFirst = false, isAttentionCheck = false) => {
+    if (playingSegment) {
+      clearTimeout(playingSegment);
+    }
+
+    const player = isAttentionCheck ? attentionCheckPlayerRef.current : playerRef.current;
+
+    if (player) {
+      player.seekTo(start - 0.3, 'seconds');
       setAudioPlaying(true);
 
-      const duration = (end - start + 0.6) * 1000; // Convert to milliseconds and add 1 second
+      const duration = (end - start + 0.6) * 1000;
       const timeoutId = setTimeout(() => {
-        if (isFirst) {
-          setAudioPlaying(false);
-        } else {
-          setAudioPlaying(audioPlayingBefore);
-        }
+        setAudioPlaying(false);
       }, duration);
 
-      return timeoutId; // return the timeoutId
+      setPlayingSegment(timeoutId);
     }
   };
 
@@ -86,30 +101,25 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     if (utterance) {
       const start = parseFloat(utterance.start);
       const end = parseFloat(utterance.end);
-      const timeoutId = playAudioSegment(start, end, true);
-
-      // Clear timeout if the component is unmounted or utterance changes
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      playAudioSegment(start, end, true);
     }
-  }, [utterance.uuid, playerRef, setAudioPlaying]);
+  }, [utterance.uuid, playerRef]);
 
   useEffect(() => {
     utteranceContext.forEach(contextUtterance => {
       const start = parseFloat(contextUtterance.start);
       const end = parseFloat(contextUtterance.end);
       contextUtterance.playFromContext = () => {
-        return playAudioSegment(start, end);
+        playAudioSegment(start, end);
       };
     });
-  }, [utteranceContext, playerRef, setAudioPlaying]);
+  }, [utteranceContext, playerRef]);
 
   useEffect(() => {
     if (utterance) {
       setPlayerTime(parseFloat(utterance.start));
     }
-  }, [utterance]);
+  }, [utterance.uuid, isAttentionCheck]);
 
   useEffect(() => {
     if (playerRef.current) {
@@ -124,7 +134,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     };
   }, [audioPlaying]);
 
-
+console.log(playerTime)
   return (
     <Card className='mb-3'>
       <Card.Header className='pb-0'>
@@ -150,6 +160,17 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
         </div>
       </Card.Header>
       <Card.Header>
+      {isAttentionCheck ?
+        <ReactPlayer
+          ref={attentionCheckPlayerRef}
+          url={attentionCheckUrl}
+          controls={true}
+          playing={true}
+          width="100%"
+          height="2em"
+          playbackRate={playbackSpeed}
+        />
+        :
         <ReactPlayer
           ref={playerRef}
           url={axios.defaults.baseURL + url}
@@ -157,18 +178,17 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
           playing={audioPlaying}
           width="100%"
           height="2em"
-          playbackRate={playbackSpeed} // use the playbackSpeed state here
+          playbackRate={playbackSpeed}
+          onEnded={() => setAudioPlaying(false)}
         />
+      }
       </Card.Header>
 
       <Card.Body style={{ minHeight: "8rem" }}>
 
         <div className="d-flex flex-row mt-0 pt-0">
           <div className="p-0 pe-1">
-            <FaPlayCircle style={{ color: "green" }} onClick={() => {
-              playerRef.current.seekTo(parseFloat(utterance.start), 'seconds');
-              setAudioPlaying(true);
-            }} />
+            <FaPlayCircle style={{ color: "green" }} onClick={() => playAudioSegment(parseFloat(utterance.start), parseFloat(utterance.end))} />
           </div>
           <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.start)}</div>
           <div className="p-0 pe-1 text-muted">{secondsToHms(utterance.end)}</div>
@@ -217,7 +237,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                   return (
                     <tr key={contextUtterance.uuid + "test"}>
                       <td className="p-0 px-2">
-                        <FaPlayCircle style={{ color: "green" }} onClick={contextUtterance.playFromContext} />
+                        <FaPlayCircle style={{ color: "green" }} onClick={() => playAudioSegment(parseFloat(contextUtterance.start), parseFloat(contextUtterance.end))} />
                       </td>
                       <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.start)}</td>
                       <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(contextUtterance.end)}</td>
@@ -228,10 +248,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
                 })}
                 <tr className="table-primary">
                   <td className="p-0 px-2">
-                    <FaPlayCircle style={{ color: "green" }} onClick={() => {
-                      playerRef.current.seekTo(parseFloat(utterance.start), 'seconds');
-                      setAudioPlaying(true);
-                    }} />
+                    <FaPlayCircle style={{ color: "green" }} onClick={() => playAudioSegment(parseFloat(utterance.start), parseFloat(utterance.end))} />
                   </td>
                   <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.start)}</td>
                   <td className="pt-1 pe-1" style={{ fontSize: "0.8rem" }}>{secondsToHms(utterance.end)}</td>

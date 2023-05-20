@@ -496,6 +496,7 @@ only work after changes have been made to the text in EDIT mode.");
                 isCheckworthy={isCheckworthyUtt}
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
+                isAttentionCheck={index % 5 === 0 && index !== 0}
               />
             </Col>
             <Col sm={12} md={6} lg={6} xxl={8}>
