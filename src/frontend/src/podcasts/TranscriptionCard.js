@@ -120,6 +120,16 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                             Annotations
                                         </Button>
                                     </ButtonGroup>
+                                    <div className="mt-1">
+                                        <ul className="list-unstyled">
+                                            {seg.other_annotations
+                                                ? Object.entries(seg.other_annotations).map(([key, value]) =>
+                                                    <li style={{fontSize: "0.7rem"}} key={`annotator-${key}`}><span style={{ width: "2rem" }}>{key}: </span>{value}</li>
+                                                )
+                                                : ''}
+                                        </ul>
+
+                                    </div>
                                 </div>
                             </ListGroup.Item>
                         </React.Fragment>

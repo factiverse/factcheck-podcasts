@@ -5,6 +5,7 @@ import EpisodeCard from './EpisodeCard';
 import { secondsToHms } from '../util/time';
 import DataTable from 'react-data-table-component';
 import { Alert } from 'react-bootstrap';
+import StringDiff from '../annotation/utterance/StringDiff';
 
 const conditionalRowStyles = [
   {
@@ -22,16 +23,6 @@ const conditionalRowStyles = [
       backgroundColor: '#ffd6fd',
       '&:hover': {
         cursor: 'pointer',
-      },
-    },
-  },
-  {
-    when: row => row.calories >= 400,
-    style: {
-      backgroundColor: 'rgba(242, 38, 19, 0.9)',
-      color: 'white',
-      '&:hover': {
-        cursor: 'not-allowed',
       },
     },
   },
@@ -103,7 +94,7 @@ const ExpandedComponent2 = ({ data }) => {
     },
     {
       name: "Label",
-      selector: (row) => row.label,
+      selector: (row) => row.qualifier == "Transcription" ? <StringDiff stringA={row.original_text ?? ""} stringB={row.label ?? ""}></StringDiff> : row.label,
     },
   ];
 
@@ -198,12 +189,28 @@ export default function SegmentationViewer() {
   const [currentEpisode, setCurrentEpisode] = useState("");
   const [expandAllRows, setExpandAllRows] = useState(true); // new state variable for expanding/collapsing all rows
 
+
+  
+
   useEffect(() => {
     axios({
       method: "GET",
       url: "/api/segmentations/" + segmentationUuid + "/",
     }).then((response) => {
       const data = response.data;
+      // any classification that is qualifier="Transcription" and label is not null or length > 0
+      // then add a new field to the classification "original text" and set it to the utterance text
+      data.utterance_set.forEach((utterance) => {
+        utterance.classification_set.forEach((classification) => {
+          if (classification.qualifier === "Transcription" && classification.label) {
+            classification.original_text = utterance.text;
+          }
+        });
+      });
+
+
+
+
       setSegmentation(data);
     }).catch((error) => {
       // Handle error...
@@ -221,6 +228,9 @@ export default function SegmentationViewer() {
       <Alert className="d-flex justify-content-between align-items-center p-0 m-0">
         <div>
           <h6 className="mb-0"><strong>Podcast: </strong>{segmentation?.channel?.title}</h6>
+        </div>
+        <div>
+          <h6 className="mb-0"><strong>Segmentation: </strong>{segmentation?.name}</h6>
         </div>
         <div>
           <h6 className="mb-0"><strong>Episode: </strong>{segmentation?.item?.title}</h6>

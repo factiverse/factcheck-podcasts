@@ -27,6 +27,7 @@ export default function HelpTooltipButton({ button, label }) {
       placement="auto"
       delay={{ show: 1000, hide: 200 }}
       overlay={renderTooltip}
+      trigger={['hover', 'click']}
     >
       {button}
     </OverlayTrigger>

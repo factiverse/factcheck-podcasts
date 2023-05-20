@@ -29,7 +29,7 @@ const breakpointCols = {
   default: 3,
   2800: 3, // 2 columns for screens wider than 1100px.
   2200: 2, // 2 column for screens between 700px and 1100px.
-  1300: 1, // 1 column for screens smaller than 500px.
+  1400: 1, // 1 column for screens smaller than 500px.
 };
 
 export default function AnnotationProject() {
@@ -59,9 +59,11 @@ export default function AnnotationProject() {
   // initialize the agent session
   useEffect(() => {
     if (agent && activeQualifiers && segmentation.utterance_set.length > 0) {
+      const existingSession = segmentation?.agentsession_set ? segmentation.agentsession_set[0] : null;
+
       let labelsObject = null;
       if (activeQualifiers.includes(qual_diar)) {
-        if (!segmentation.agent_session?.diarization) {
+        if (!existingSession?.diarization) {
           let uniqueLabelsArray = segmentation.diarization.content.map(item => item.label)
             .filter((value, index, self) => self.indexOf(value) === index);
           labelsObject = uniqueLabelsArray.reduce((obj, label) => {
@@ -69,7 +71,7 @@ export default function AnnotationProject() {
             return obj;
           }, {});
         } else {
-          labelsObject = segmentation.agent_session.diarization;
+          labelsObject = existingSession.diarization;
         }
       }
 
@@ -79,8 +81,8 @@ export default function AnnotationProject() {
         prolific_session: agent.SESSION_ID,
         prolific_study: agent.STUDY_ID,
         diarization: labelsObject,
-        survey: segmentation.agent_session?.survey,
-        finished: segmentation.agent_session?.finished ?? false,
+        survey: existingSession?.survey,
+        finished: existingSession?.finished ?? false,
       }
       setSegmentation(segmentation => ({ ...segmentation, agent_session: data }));  // update the segmentation object with the agent session
       setAgentSession(data);

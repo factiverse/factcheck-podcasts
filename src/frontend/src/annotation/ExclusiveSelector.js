@@ -12,7 +12,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
 
     // if isExpedited is true, and no classification exists, then just post labels.expeditedValue to the API
     useEffect(() => {
-        if (isExpedited && !classification) {
+        if (isExpedited && !classification && labels.expeditedValue) {
             postToAPI(utterance.uuid, qualifier, labels.expeditedCategory, labels.expeditedValue, agent);
         }
     }, [isExpedited, classification]);

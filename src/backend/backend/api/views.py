@@ -112,6 +112,7 @@ class UtteranceApiView(APIView):
 # get segmentations of a transcript
 class SegmentationApiView(APIView):
     def get(self, request, *args, **kwargs):
+        print(request.path_info)
         agent = request.query_params.get('PROLIFIC_PID', None)
         prolific_session = request.query_params.get('SESSION_ID', None)
         prolific_study = request.query_params.get('STUDY_ID', None)
@@ -123,7 +124,12 @@ class SegmentationApiView(APIView):
             session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
             seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(classification_prefetch, query_prefetch, session_prefetch).first()
         else:
-            seg = Segmentation.objects.filter(uuid=uuid).first()
+            if (request.path_info.startswith('/api/segmentations/')):
+                session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(segmentation__uuid=uuid))
+                seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(session_prefetch).first()
+                print("SEGMENTATION REQUEST")
+            else:
+                seg = Segmentation.objects.filter(uuid=uuid).first()
 
         if seg is None:
             return Response({"detail": "Segmentation not found"}, status=status.HTTP_404_NOT_FOUND)

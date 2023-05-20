@@ -48,7 +48,7 @@ export default function PodcastBrowser({ }) {
 
   return (
     <Row className="h-100">
-      <Col className="bg-light h-100" sm={4} >
+      <Col className="bg-light h-100" sm={6} md={4} >
         <aside className="bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2">
           <nav className="small" id="toc">
             <ListGroup as="ul" className="list-unstyled">
@@ -86,7 +86,7 @@ export default function PodcastBrowser({ }) {
           </nav>
         </aside>
       </Col>
-      <Col className="flex-grow-1 h-100 sticky-top pe-4" sm={8}>
+      <Col className="flex-grow-1 h-100 sticky-top pe-4" sm={6} md={8}>
         <Row className="h-100 mt-3">
 
           {searchParams && currentEpisode !== "" && currentEpisode.transcription_set.length > 0 ? currentEpisode.transcription_set.map((trans) =>

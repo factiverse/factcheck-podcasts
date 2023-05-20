@@ -121,11 +121,11 @@ class UtteranceSerializerSimple(serializers.ModelSerializer):
 # read by segmentation viewer, wrote by data population notebook
 class SegmentationSerializer(serializers.ModelSerializer):
     utterance_set = UtteranceSerializer(many=True)
+    agentsession_set = AgentSessionSerializer(many=True)
     audio_file_link = serializers.SerializerMethodField()
     item = serializers.SerializerMethodField()
     channel = serializers.SerializerMethodField()
     diarization = serializers.SerializerMethodField()
-    agent_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Segmentation
@@ -139,7 +139,7 @@ class SegmentationSerializer(serializers.ModelSerializer):
             'item',
             'channel', 
             'diarization',
-            'agent_session',
+            'agentsession_set',
             ]
 
     def create(self, validated_data):
@@ -170,24 +170,14 @@ class SegmentationSerializer(serializers.ModelSerializer):
     
     def get_diarization(self, obj):
         return obj.transcription.diarization
-    
-    def get_agent_session(self, obj):
-        # Get the first agent session.
-        agent_session = obj.agentsession_set.first()
-        # If there is no agent session, return None.
-        if agent_session is None:
-            return None
-        # Otherwise, return the serialized data of the agent session.
-        else:
-            return AgentSessionSerializer(agent_session).data
+
 
 
 
 # return details of the segmentation without including the text data
-
-
 class SegmentationSummarySerializer(serializers.ModelSerializer):
     prolific_annotations = serializers.SerializerMethodField()
+    other_annotations = serializers.SerializerMethodField()
 
     class Meta:
         model = Segmentation
@@ -197,6 +187,7 @@ class SegmentationSummarySerializer(serializers.ModelSerializer):
             'name',
             'segmentor',
             'prolific_annotations',
+            'other_annotations',
         ]
                 
     # count the number of annotations from prolific users in this segmentation
@@ -211,6 +202,22 @@ class SegmentationSummarySerializer(serializers.ModelSerializer):
             if classification.agent[0].isdigit():
                 prolific_annotations += 1
         return prolific_annotations
+    
+    # count the number of annotations from non-prolific users in this segmentation
+    # non-Prolific users are considered any agent that does not start with a number
+    # the function will return a dictionary with the number of annotations for each agent
+    def get_other_annotations(self, obj):
+        # get all the classifications for this segmentation
+        classifications = Classification.objects.filter(utterance__segmentation=obj)
+        # count the number of classifications from non-prolific users
+        other_annotations = {}
+        for classification in classifications:
+            if not classification.agent[0].isdigit():
+                if classification.agent not in other_annotations:
+                    other_annotations[classification.agent] = 1
+                else:
+                    other_annotations[classification.agent] += 1
+        return other_annotations
 
 
 class TranscriptionSerializer(serializers.ModelSerializer):

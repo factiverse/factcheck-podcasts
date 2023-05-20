@@ -28,8 +28,8 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
 
   // if isExpedited is true, and no classification exists, then just post "Approve Original" to the API
   useEffect(() => {
-    console.log("isExpedited", isExpedited, "classification", classification)
     if (isExpedited && !classification) {
+      console.log("NO CLASSIFICATION")
       postToAPI(utterance.uuid, qualifier, "Approve Original", '', agent);
     }
   }, [isExpedited, classification]);

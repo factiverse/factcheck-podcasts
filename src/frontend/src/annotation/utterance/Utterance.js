@@ -10,9 +10,6 @@ import HelpPopUp from '../help/HelpPopUp';
 import { helpPopUpData } from '../help/help';
 import StringDiff from './StringDiff';
 
-// Time to overlap the utterance end time by
-const OVERLAP_TIME = 0.6;
-
 export default function Utterance({ url, utterance, setUtterance, utteranceContext, audioPlaying, setAudioPlaying, isCheckworthy, agent, classification }) {
   const playerRef = useRef(null);
   const [showContext, toggleContext] = useState(true);
@@ -66,14 +63,19 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     setTimeout(scrollToBottom, 100);
   }, [utterance.uuid]);
 
-  const playAudioSegment = (start, end) => {
+  const playAudioSegment = (start, end, isFirst = false) => {
+    const audioPlayingBefore = audioPlaying;
     if (playerRef.current) {
-      playerRef.current.seekTo(start, 'seconds');
+      playerRef.current.seekTo(start - 0.3, 'seconds');
       setAudioPlaying(true);
 
-      const duration = (end - start + 0.3) * 1000; // Convert to milliseconds and add 1 second
+      const duration = (end - start + 0.6) * 1000; // Convert to milliseconds and add 1 second
       const timeoutId = setTimeout(() => {
-        setAudioPlaying(false);
+        if (isFirst) {
+          setAudioPlaying(false);
+        } else {
+          setAudioPlaying(audioPlayingBefore);
+        }
       }, duration);
 
       return timeoutId; // return the timeoutId
@@ -84,7 +86,7 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
     if (utterance) {
       const start = parseFloat(utterance.start);
       const end = parseFloat(utterance.end);
-      const timeoutId = playAudioSegment(start, end);
+      const timeoutId = playAudioSegment(start, end, true);
 
       // Clear timeout if the component is unmounted or utterance changes
       return () => {
@@ -118,9 +120,9 @@ export default function Utterance({ url, utterance, setUtterance, utteranceConte
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown, true);
     return () => {
-        window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('keydown', handleKeyDown, true);
     };
-}, [audioPlaying]);
+  }, [audioPlaying]);
 
 
   return (
