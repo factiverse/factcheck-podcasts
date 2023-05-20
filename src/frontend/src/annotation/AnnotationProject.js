@@ -51,6 +51,25 @@ export default function AnnotationProject() {
   const [isExpedited, setIsExpedited] = useState(false); // option to select defaults for faster annotation
   const transcriptionInputRef = useRef(null);
 
+  // randomly select the indices of some utterances to be used as attention checks
+  // select a minimum of one and otherwise about 0.2% of the utterances to be attention checks
+  const [attentionCheckIndices, setAttentionCheckIndices] = useState(null);
+  // get a random number between 0 and 1
+  const randomNum = Math.random();
+
+  const setAttentionCheckIndicesFunc = (numUtterances) => {
+    const numAttentionChecks = 1 + Math.round(numUtterances * 0.0033) + Math.round(Math.random());
+    const attentionCheckIndices = [];
+    while (attentionCheckIndices.length < numAttentionChecks) {
+      const randomIndex = Math.floor(Math.random() * numUtterances);
+      if (!attentionCheckIndices.includes(randomIndex)) {
+        attentionCheckIndices.push(randomIndex);
+      }
+    }
+    console.log("attentionCheckIndices", attentionCheckIndices)
+    setAttentionCheckIndices(attentionCheckIndices);
+  }
+
   // constant that contains the array with unique strings of all the entries in the utterance.visibility
   // JSON field containing either the number 1 or an array for every utterance in segmentation.utterance_set. 
   //If any utterance has visibility=1, then short circuit and set active qualifiers to the allQualifiers array
@@ -272,6 +291,7 @@ only work after changes have been made to the text in EDIT mode.");
           actQuals = allQualifiers;
         }
         setActiveQualifiers(actQuals);
+        setAttentionCheckIndicesFunc(filteredData.utterance_set.length);
 
       }).catch((error) => {
         if (error.response) {
@@ -496,7 +516,7 @@ only work after changes have been made to the text in EDIT mode.");
                 isCheckworthy={isCheckworthyUtt}
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
-                isAttentionCheck={index % 5 === 0 && index !== 0}
+                isAttentionCheck={ activeQualifiers.includes("Transcription") && attentionCheckIndices.includes(index) }
               />
             </Col>
             <Col sm={12} md={6} lg={6} xxl={8}>
