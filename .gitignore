@@ -45,3 +45,5 @@ dist/**
 src/backend/db.sqlite3
 *.wav
 *.mp3
+
+src/nginx/logs/*
