@@ -16,20 +16,20 @@ function NavButton({ disabled, text, onClick, keyStroke }) {
     )
 }
 
-export default function NavigationButtons({ 
-    index, 
-    segmentation, 
-    setIndex, 
-    utterance, 
-    setUtterance, 
-    factCheckCount, 
-    documentCount, 
-    agentSession, 
-    setAgentSession, 
-    agentSessionUpdated, 
+export default function NavigationButtons({
+    index,
+    segmentation,
+    setIndex,
+    utterance,
+    setUtterance,
+    factCheckCount,
+    documentCount,
+    agentSession,
+    setAgentSession,
+    agentSessionUpdated,
     setAgentSessionUpdated,
     attentionCheckIndices,
- }) {
+}) {
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
     const [canSubmit, setCanSubmit] = useState(false);
@@ -38,6 +38,20 @@ export default function NavigationButtons({
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [showFinishedModal, setShowFinishedModal] = useState(false);
     const [studyContainsFactChecks, setStudyContainsFactChecks] = useState(false);
+    const [lastCompletedIndex, setLastCompletedIndex] = useState(0);
+
+    //loop through segmentation.utterance_set and find the last utterance which has been modified,
+    // modified is defined as utterance.classification_set.length > 0 or utterance.query_set.length > 0
+    useEffect(() => {
+        let lastCompletedIndex = 0;
+        segmentation.utterance_set.forEach((utterance, index) => {
+            if (utterance.classification_set.length > 0 || utterance.query_set.length > 0) {
+                lastCompletedIndex = index;
+            }
+        });
+        setLastCompletedIndex(lastCompletedIndex);
+    }, [segmentation.utterance_set]);
+
 
     // check if the study contains fact checks by looping through the utterances in segmentation.utterance_set
     // and setting true and finish if any utterance has visibility=1 or if visibility is an array which contains "FactCheck"
@@ -73,9 +87,19 @@ export default function NavigationButtons({
 
     useEffect(() => {
         if (segmentation?.utterance_set && segmentation?.agent_session) {
-            const validation = validateAnnotations(segmentation, minFactChecks, minDocs, false, null, utterancesWithDiarization >= 1)
-            setCanSubmit(validation.complete);
-            setErrorMessage(validation.errorTxt);
+            // only validate the entries through the lastCompletedIndex, to reduce error messages
+            // but always set canSubmit to false in this case
+
+            if (lastCompletedIndex < segmentation.utterance_set.length - 1) {
+                const filteredSegmentation = { ...segmentation, utterance_set: segmentation.utterance_set.slice(0, lastCompletedIndex + 1) };
+                const validation = validateAnnotations(filteredSegmentation, minFactChecks, minDocs, false, null, utterancesWithDiarization >= 1);
+                setCanSubmit(false);
+                setErrorMessage(validation.errorTxt);
+            } else {
+                const validation = validateAnnotations(segmentation, minFactChecks, minDocs, false, null, utterancesWithDiarization >= 1)
+                setCanSubmit(validation.complete);
+                setErrorMessage(validation.errorTxt);
+            }
         }
     }, [utterance, utterance?.classification_set, utterance?.query_set, factCheckCount, documentCount, segmentation]);
 
@@ -142,9 +166,11 @@ export default function NavigationButtons({
         setUtterance(segmentation.utterance_set[idx]);
     }
     function handleLastClick() {
-        const idx = segmentation.utterance_set.length - 1;
-        setIndex(idx);
-        setUtterance(segmentation.utterance_set[idx]);
+        //const idx = segmentation.utterance_set.length - 1;
+        //setIndex(idx);
+        //setUtterance(segmentation.utterance_set[idx]);
+        setIndex(lastCompletedIndex);
+        setUtterance(segmentation.utterance_set[lastCompletedIndex]);
     }
 
     const progressPercentage = (index + 1) * 100 / segmentation.utterance_set.length;

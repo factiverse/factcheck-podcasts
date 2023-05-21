@@ -41,7 +41,16 @@ export default function Utterance({
     const scrubValue = 0.5; // Change this value to scrub more or less time
 
     // Detect either regular Enter or numpad Enter
-    if ((event.code === "Enter" || event.code === "NumpadEnter") && tagName.type !== 'text') {
+    if ((event.code === "Enter" || event.code === "NumpadEnter") && tagName.type !== 'text' && !event.shiftKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      const start = parseFloat(utterance.start);
+      const end = parseFloat(utterance.end);
+      playAudioSegment(start, end);
+    }
+
+    // Detect either regular Enter or numpad Enter along with Shift
+    if ((event.code === "Enter" || event.code === "NumpadEnter") && tagName.type !== 'text' && event.shiftKey) {
       event.preventDefault();
       event.stopPropagation();
       setAudioPlaying(!audioPlaying);
@@ -85,10 +94,10 @@ export default function Utterance({
     const player = isAttentionCheck ? attentionCheckPlayerRef.current : playerRef.current;
 
     if (player) {
-      player.seekTo(start - 0.2, 'seconds');
+      player.seekTo(start - 0.3, 'seconds');
       setAudioPlaying(true);
 
-      const duration = (end - start + 0.4) * 1000;
+      const duration = (end - start + 0.6) * 1000;
       const timeoutId = setTimeout(() => {
         setAudioPlaying(false);
       }, duration);
@@ -140,7 +149,7 @@ export default function Utterance({
       <Card.Header className='pb-0'>
         <div className='d-flex justify-content-between align-items-center'>
           <Card.Title>{isCheckworthy ? helpPopUpData["ClaimSpan"].cardTitle : "Statement"}</Card.Title>
-
+          <div className='d-flex'>
           {isCheckworthy &&
             <div className='pb-2'>
               {classification?.label.length > 0 ? (
@@ -156,32 +165,40 @@ export default function Utterance({
                 header={helpPopUpData["ClaimSpan"].helpHeader}
                 text={helpPopUpData["ClaimSpan"].helpText}
                 qualifier={"ClaimSpan"} />
+
             </div>}
+            <div className='pb-2 ms-2'>
+            <HelpPopUp
+                header={helpPopUpData["Statement"].helpHeader}
+                text={helpPopUpData["Statement"].helpText}
+                qualifier={"Statement"} />
+            </div>
+            </div>
         </div>
       </Card.Header>
       <Card.Header>
-      {isAttentionCheck ?
-        <ReactPlayer
-          ref={attentionCheckPlayerRef}
-          url={attentionCheckUrl}
-          controls={true}
-          playing={true}
-          width="100%"
-          height="2em"
-          playbackRate={playbackSpeed}
-        />
-        :
-        <ReactPlayer
-          ref={playerRef}
-          url={axios.defaults.baseURL + url}
-          controls={true}
-          playing={audioPlaying}
-          width="100%"
-          height="2em"
-          playbackRate={playbackSpeed}
-          onEnded={() => setAudioPlaying(false)}
-        />
-      }
+        {isAttentionCheck ?
+          <ReactPlayer
+            ref={attentionCheckPlayerRef}
+            url={attentionCheckUrl}
+            controls={true}
+            playing={true}
+            width="100%"
+            height="2em"
+            playbackRate={playbackSpeed}
+          />
+          :
+          <ReactPlayer
+            ref={playerRef}
+            url={axios.defaults.baseURL + url}
+            controls={true}
+            playing={audioPlaying}
+            width="100%"
+            height="2em"
+            playbackRate={playbackSpeed}
+            onEnded={() => setAudioPlaying(false)}
+          />
+        }
       </Card.Header>
 
       <Card.Body style={{ minHeight: "8rem" }}>

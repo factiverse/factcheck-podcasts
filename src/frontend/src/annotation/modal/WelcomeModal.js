@@ -67,7 +67,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
               <strong>Podcast Name :</strong> {segmentation.channel.title}<br />
               <strong>Episode Name :</strong> {segmentation.item.title}<br />
               <strong>Full Audio Length :</strong> {secondsToHms(segmentation.item.audio_length)}<br />
-              Additional details about the podcast are included on this help window, click the <strong>Podcast Details</strong> tab above.
+              Additional details about the podcast are included on this help window, go to the <strong>Podcast Details</strong> tab above.
             </p>
 
 

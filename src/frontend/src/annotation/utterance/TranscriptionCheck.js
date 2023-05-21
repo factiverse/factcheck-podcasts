@@ -130,7 +130,6 @@ export default function TranscriptionCheck({ qualifier, agent, classification, u
                       ref={(el) => (buttonRefs.current[k] = el)}
                       onChange={
                         (e) => {
-                          console.log(e.currentTarget.value)
                           // react suggests changing this to 3 equals === / !==, but it doesn't work
                           if (e.currentTarget.value == 1) { // approve original
                             setTextValue(utterance.text);

@@ -112,6 +112,12 @@ export default function AnnotationProject() {
   useEffect(() => {
     const keyHandler = (event) => {
       const { tagName } = event.target;
+
+      // Return if Ctrl is being pressed
+      if (event.ctrlKey) {
+        return;
+      }
+
       //SHORT CUT KEYS
       if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
         if (activeQualifiers.includes(qual_trans)) {
@@ -516,7 +522,7 @@ only work after changes have been made to the text in EDIT mode.");
                 isCheckworthy={isCheckworthyUtt}
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
-                isAttentionCheck={ activeQualifiers.includes("Transcription") && attentionCheckIndices.includes(index) }
+                isAttentionCheck={activeQualifiers.includes("Transcription") && attentionCheckIndices.includes(index)}
               />
             </Col>
             <Col sm={12} md={6} lg={6} xxl={8}>

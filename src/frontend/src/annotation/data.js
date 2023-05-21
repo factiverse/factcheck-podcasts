@@ -168,7 +168,7 @@ export const advertisingLabels = {
       keyStroke: "1",
       label: "Not Advertising",
       category: "Not Advertising",
-      help: "Regular podcast audio content, no advertising.",
+      help: "Regular podcast audio content. No advertising.",
       isKeyboardShortcut: true
     },
     {
@@ -181,84 +181,103 @@ export const advertisingLabels = {
       keyStroke: "3",
       label: "Sponsor Mentions",
       category: "Advertising",
-      help: "Advertising that is spoken by the hosts of this podcast, but they are not trying to hide that they are promoting some commercial partner."
+      help: "Advertising that is spoken by the hosts of this podcast, but they open about promoting some commercial partner."
     },
     {
       keyStroke: "4",
-      label: "Obviously",
-      category: "Product Placement",
-      help: "A specific product or service is being discussed, and it seems likely the podcast hosts will benefit without being open about it to listeners."
+      label: "Self Promotion",
+      category: "Advertising",
+      help: "A speaker promoting products, services, or initiatives from themselves or an organization they are affiliated with."
     },
     {
       keyStroke: "5",
-      label: "Could Be",
-      category: "Product Placement",
-      help: "A specific product or service is being discussed, and I think it could potentially be unannounced product placement."
-    },
-    {
-      keyStroke: "6",
-      label: "Doubtful",
-      category: "Product Placement",
-      help: "I doubt this is product placement, but I don't think it's impossible. \
-      (select \"Not Advertising\" if you think product placement is impossible)"
+      label: "Product Placement",
+      category: "Advertising",
+      help: "I think it is possible the podcast creators will receive something in return for discussing a specific product or service \
+       in this statement, and they have not been open about that."
     },
   ]
 };
 
 export const motivationLabels = {
-  instruction1: "Why would a person make this statement? What might they hope to gain from it?",
-  instruction2: "Many statements could be placed in more than one category but pick the one that you think fits best.",
+  instruction1: "Why would you want to fact check this statement? What is there to gain?",
+  instruction2: "Many statements could be placed in more than one category, pick the one that fits best in your opinion.",
   helpHeader: "Motivation Labels",
-  helpText: "People usually speak for a reason, whether their goal is to inform, persuade, instruct, sympathize, comfort, or come across as pleasant.",
+  helpText: " MOTIVATION HELP TEXT ",
   key: "Motivation",
   labels: [
     {
       keyStroke: "1",
-      label: "Inform",
-      category: "Motivation",
-      help: "Providing new factual information to the listener.",
-    },
-    {
-      keyStroke: "2",
-      label: "Persuade",
-      category: "Motivation",
-      help: "Attempting to convince the listener that one point of view is superior to another."
-    },
-    {
-      keyStroke: "3",
-      label: "Entertain",
-      category: "Motivation",
-      help: "Being humorous or storytelling with the intent to amuse the listener."
-    },
-    {
-      keyStroke: "4",
-      label: "Instruct",
-      category: "Motivation",
-      help: "Giving directions on how to complete a task or encouraging listeners to carry out a task."
+      label: "Affirm",
+      category: "Confirmation",
+      help: "I believe this statement is true, and fact-checking would help confirm this to others.",
     },
     {
       keyStroke: "5",
-      label: "Seek Information",
-      category: "Motivation",
-      help: "Asking for repetition, more information, or discussing how and where it might be found."
+      label: "Precision",
+      category: "Confirmation",
+      help: "I think the statement is generally true, but might be exaggerated or inaccurate."
+    },
+    {
+      keyStroke: "2",
+      label: "Refute",
+      category: "Confirmation",
+      help: "I believe this statement is false, whether or not it is intended to deceive."
+    },
+    {
+      keyStroke: "4",
+      label: "Deception",
+      category: "Confirmation",
+      help: "I think this statement may be partially true but is presented in a way meant to mislead."
+    },
+    {
+      keyStroke: "3",
+      label: "Discover",
+      category: "Confirmation",
+      help: "I don't know if the statement is correct; fact-checking would help me form an opinion."
     },
     {
       keyStroke: "6",
-      label: "Express Emotion",
-      category: "Motivation",
-      help: "Expressing an emotion, such as sympathy, anger, satisfaction, or joy."
+      label: "Public",
+      category: "Integrity",
+      help: "Affects the credibility of politicians, government officials, and agencies."
     },
     {
       keyStroke: "7",
-      label: "Assert Identity",
-      category: "Motivation",
-      help: "Defining themselves or their group by expressing their values, beliefs, or opinions."
+      label: "Private",
+      category: "Integrity",
+      help: "Affects the credibility of a private person, company, or group."
     },
     {
       keyStroke: "8",
-      label: "Social Approval",
-      category: "Motivation",
-      help: "Exchanging pleasantries, seeking validation, avoiding awkward silence, or building relationships."
+      label: "Academic",
+      category: "Integrity",
+      help: "Affects the credibility of academia, scientists, or researchers."
+    },
+    {
+      keyStroke: "9",
+      label: "Media",
+      category: "Integrity",
+      help: "Affects the credibility of media outlets, journalists, or content creators."
+    },
+    {
+      keyStroke: "10",
+      label: "Financial",
+      category: "Impact",
+      help: "This statement could have financial implications for individuals, companies, or governments. \
+      or the speaker has a financial interest in the topic, for example advertising."
+    },
+    {
+      keyStroke: "11",
+      label: "Public Safety",
+      category: "Impact",
+      help: "I believe this statement could have implications for public security, health, or safety."
+    },
+    {
+      keyStroke: "12",
+      label: "Discrimination",
+      category: "Impact",
+      help: "I think this statement promotes discrimination or hate of people."
     },
   ]
 };

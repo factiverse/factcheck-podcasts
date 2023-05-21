@@ -59,7 +59,7 @@ export default function Diarization({ qualifier, agentSession, setAgentSession, 
                 <Card.Title>{helpPopUpData[qualifier].cardInstructionHeader}</Card.Title>
                 {helpPopUpData[qualifier].cardInstructionBody &&
                     <Card.Text>
-                        {helpPopUpData[qualifier].cardInstructionBody}
+                        <span dangerouslySetInnerHTML={{ __html: helpPopUpData[qualifier].cardInstructionBody }}></span>
                     </Card.Text>
                 }
                 <Form>
