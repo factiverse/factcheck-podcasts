@@ -155,10 +155,21 @@ export const advertisingLabels = {
   instruction2: "Advertising can be spliced into the audio, read aloud by the podcast hosts, or potential hidden product placement. Any unexpected <strong>foreign language</strong> is likely to be <em>External Advertising</em>.</strong>",
   helpHeader: "Advertising Labels",
   helpText: "Advertising is a common way for podcast creators to cover costs and support themselves. Podcasters have a wide range of options \
-  for including advertising, for example:\n <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
-  or end of the podcast, including foreign language that does not fit in the context of the podcast.\n <strong>Sponsor Mentions</strong> are podcast presenters pausing to read ads from commercial partners during the podcast, but being open about the \
-  fact it is advertising. \n <strong>Product Placement</strong> is where the podcast presenters mention a product or service during the podcast, but without clearly \
-  stating that they are benefiting in some way from mentioning the product. \n <strong>Note :</strong> the podcast audio you are given in the media player was downloaded \
+  for including advertising, for example:\n \
+  \
+  <strong>External Advertising</strong> is the insertion (splicing in) of externally produced ads, often at the beginning \
+  or end of the podcast, including foreign language that does not fit in the context of the podcast.\n \
+  \
+  <strong>Sponsor Mentions</strong> are podcast hosts pausing to read ads from commercial partners during the podcast, but being open about the \
+  fact it is advertising. \n \
+  \
+  <strong>Self Promotion</strong> is a podcast host or guest mentioning a product or service they are known to sell personally, or which could be sold \
+  by an organization they are affiliated with. \n \
+  \
+   <strong>Product Placement</strong> is podcast host mentioning a product or service during the podcast, but without clearly \
+  stating that they are benefiting in some way from mentioning the product. \n \
+  \
+  <strong>Note :</strong> the podcast audio you are given in the media player was downloaded \
   outside of the US, so any <strong>unexpected foreign language</strong> is likely to be <strong>External Advertising</strong>.",
   key: "Advertising",
   expeditedValue: "Not Advertising",
