@@ -3,11 +3,12 @@ import { Modal, Button, Form, Tabs, Tab, Image } from 'react-bootstrap';
 import { helpModalData } from '../help/help';
 import { allQualifiers } from '../data';
 import DOMPurify from 'dompurify';
+import { secondsToHms } from '../../util/time';
 
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
   const [qualifiers, setQualifiers] = useState([]);
   const [selectedValue, setSelectedValue] = useState(null);
-  const [helpData, setHelpData] = useState(helpModalData.original);
+  const [helpData, setHelpData] = useState(helpModalData.new);
 
   useEffect(() => {
     for (let i = 0; i < segmentation.utterance_set.length; i++) {
@@ -53,7 +54,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
       backdrop="static"
       keyboard={false}
       size="xl"
-      fullscreen={"lg-down"}
+      fullscreen={"xl-down"}
     >
       <Modal.Header closeButton={selectedValue ?? null}>
         <Modal.Title>{helpData.title}</Modal.Title>
@@ -61,17 +62,19 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
       <Modal.Body>
         <Tabs defaultActiveKey="introduction" id="uncontrolled-tab-example">
           <Tab eventKey="introduction" title="Introduction">
-            <p dangerouslySetInnerHTML={{ __html: helpData.introduction }} className='pt-2'></p>
-            <p>Your work will focus on one episode of a podcast, the assigned podcast for this study is:<br />
+            <p dangerouslySetInnerHTML={{ __html: helpData.introduction }} className='pt-2 mb-1'></p>
+            <p><em>ASSIGNED PODCAST:</em><br />
               <strong>Podcast Name :</strong> {segmentation.channel.title}<br />
               <strong>Episode Name :</strong> {segmentation.item.title}<br />
+              <strong>Full Audio Length :</strong> {secondsToHms(segmentation.item.audio_length)}<br />
               Additional details about the podcast are included on this help window, click the <strong>Podcast Details</strong> tab above.
             </p>
 
 
             <h5>{helpData.workflowTitle}</h5>
             <p dangerouslySetInnerHTML={{ __html: helpData.workflowIntroduction }}></p>
-
+            { false &&
+            <>
             <h5>The following task cards will appear on at least one statement:</h5>
             <ul>
               {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionCheckworthy }}></li> : null}
@@ -84,6 +87,8 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
             </ul>
             <p><strong>Remember you are required to click the <strong className='me-1' style={{fontSize: '0.8rem', backgroundColor:'blue', color:'white', display:'inline-flex', justifyContent:'center', alignItems:'center', borderRadius:'5px',}}>&nbsp;&nbsp;?&nbsp;&nbsp;</strong>
               button on the top right of the task cards before completing that task for the first time.</strong></p>
+              </>
+              }
             {/* POLITICS */}
 
             {segmentation.channel.study_category === "politics" && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?

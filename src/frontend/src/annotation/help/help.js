@@ -4,6 +4,64 @@
 import { circleStyle } from "./CircleFirstLetter";
 
 export const helpModalData = {
+    // new version which is meant to be less wordy and more concise, also more tailored to transcription, identifying speakers and advertising
+    new : {
+        title: "Welcome to this Podcast Annotation Task",
+        introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
+    and ensure your work is accepted. You may refer back to this window at any time by clicking the <span style='background-color:green; \
+    color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:3px;'>&nbspHELP&nbsp</span> \
+    button in the top left corner of the window.",
+        workflowTitle: "How does this work?",
+        workflowIntroduction: "<p>The podcast has been automatically transcribed and split into sentences (statements). \
+        You must go through all statements verifying that the machine transcription is faithful to the audio, and identify \
+        any statements you think could be advertising. Use the arrows on your keyboard to switch between statements.</p> \
+        \
+        <p>We have attempted to identify the different speakers in the podcast using AI tools, but this only \
+        produces a label like “SPEAKER_08” or “SPEAKER_01”. Over the course of the entire podcast, we need you to try to find \
+        the actual public name of the speaker that matches the machine generated label. For example: <br>\
+        <span style='background-color:lightgrey;'>SPEAKER_08 = “Joe Biden”</span><br>\
+        <span style='background-color:lightgrey;'>SPEAKER_01 = “Donald Trump”</span><br>\
+        People introducing themselves and others during the podcast will be your main source of information for this task, \
+        along with your background knowledge and the podcast/episode information and details that are shown on the help page.</p> \
+        \
+        <p> Each card for the required tasks will have a <strong style='font-size: 0.8rem; background-color:blue; color:white; \
+        display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button \
+        which will provide more detailed instructions for that card. <strong>You must click the <strong style='font-size: 0.8rem; \
+        background-color:blue; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'\
+        >&nbsp&nbsp?&nbsp&nbsp</strong> button and read the instructions completely before completing any task type for the first time.</strong> \
+        </p> \
+        \
+        <p>When you are ready to begin, click the first <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; \
+        justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span> button on the \
+        <em>Statement</em> card. Underneath this section, you can also see a list of the previous statements to give you more context.\
+        The audio player is loaded with the podcast audio, press any <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; \
+        justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span> button to jump to that statement.</p> \
+        The audio player can be manually started or stopped by pressing the Enter key on your keyboard.<br> <span style='font-size:0.75rem;'>\
+        Several audio player keyboard shortcuts are available for advanced users: <br>\
+        ↪Shift+PlusKey increases audio speed, <br>\
+        ↪Shift+MinusKey decreases audio speed, <br>\
+        ↪Shift+RightArrowKey scrubs(skips) audio forward <br>\
+        ↪Shift+LeftArrowKey scrubs audio backwards. <br>\
+        </span></p> \
+        <p><span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; \
+        justify-content:center; align-items:center'>B</span>uttons \
+        where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. \
+        If you are navigating the task with your keyboard, you may tab between fields and select the highlighted buttons with your space bar. \
+        </p> \
+        <p>For each card you see, a <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
+        fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be completed over \
+        multiple statements, and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is \
+        complete and has passed a basic validation. After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> \
+        on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement (shown next \
+        to the navigation buttons).\
+        <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards across all statements, the \
+        <em>Final Submission</em> button will be unlocked and turn green. This card will allow you to submit your work and be redirected \
+        back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+        align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button to the left of the <em>Final Submission</em> button will give \
+        you an <strong>overview of missing tasks and statements which have errors</strong>.",
+    },
+
+
     original: {
         title: "Welcome to this Podcast Annotation Task",
         introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
