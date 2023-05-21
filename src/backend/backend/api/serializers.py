@@ -147,7 +147,11 @@ class SegmentationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         utterances_data = validated_data.pop('utterance_set')
+        agentsessions_data = validated_data.pop('agentsession_set', [])
         segmentation = Segmentation.objects.create(**validated_data)
+
+        for agentsession_data in agentsessions_data:
+            AgentSession.objects.create(segmentation=segmentation, **agentsession_data)
         for utterance_data in utterances_data:
             # utterance_data without classification_set and query_set
             filt_utt_data = {k: v for k, v in utterance_data.items() if k not in ['classification_set', 'query_set']}

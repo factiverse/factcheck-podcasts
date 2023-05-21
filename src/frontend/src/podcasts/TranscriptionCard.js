@@ -95,7 +95,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
             <Card.Header>Segmentations</Card.Header>
             <Card.Body>
                 <ListGroup as="ol">
-                    {transcription.segmentation_set ? transcription.segmentation_set.map((seg) =>
+                    {transcription.segmentation_set ? transcription.segmentation_set.sort((a, b) => a.name.localeCompare(b.name)).map((seg) =>
                         <React.Fragment key={`fragment-${seg.uuid}`}>
                             <ListGroup.Item
                                 as="li"

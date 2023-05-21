@@ -143,7 +143,9 @@ class SegmentationApiView(APIView):
             'transcription': transcript.id, 
             'segmentor': request.data['segmentor'], 
             'utterance_set': request.data['utterance_set'], 
-            'name': request.data['name']})
+            'name': request.data['name'],
+            'agentsession_set': request.data.get('agentsession_set')
+            })
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
