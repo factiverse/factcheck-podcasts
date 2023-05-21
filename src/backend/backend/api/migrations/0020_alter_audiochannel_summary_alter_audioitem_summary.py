@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='audiochannel',
             name='summary',
-            field=models.TextField(verbose_name='summary'),
+            field=models.TextField(null=True, verbose_name='summary'),
         ),
         migrations.AlterField(
             model_name='audioitem',
