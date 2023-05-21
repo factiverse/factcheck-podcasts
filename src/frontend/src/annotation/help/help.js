@@ -10,7 +10,7 @@ export const helpModalData = {
     button in the top left corner of the window.",
         workflowTitle: "What do I need to do?",
         workflowIntroduction: "<p>The podcast has been automatically transcribed and split into sentences (statements). \
-        You must go through all statements verifying that the machine transcription is faithful to the audio, and identify \
+        You must go through all statements verifying that the machine transcription is faithful to the audio and identify \
         any statements you think could be different types of advertising.</p> \
         \
         <p>We have attempted to identify the different speakers in the podcast using AI tools, but this only \
@@ -36,7 +36,7 @@ export const helpModalData = {
         justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span> button to play that statement. \
         Replay the current statement by pressing the <em>Enter</em> key on your keyboard.</p>\
         \
-        <p>To go to the next statement press the ➡️ key on your keyboard, and the ⬅️ key will take you to the previous statement. \
+        <p>To go to the next statement, press the ➡️ key on your keyboard, and the ⬅️ key will take you to the previous statement. \
         You can also click the corresponding buttons in the top center of the screen, or swipe on touch devices. \
         ⬆️ takes you to the first statement, and ⬇️ to the last statement you have already worked on.\
         </p> \
@@ -45,7 +45,7 @@ export const helpModalData = {
         justify-content:center; align-items:center'>B</span>uttons \
         where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. \
         If you are navigating the task with your keyboard, you may tab between fields and select the highlighted buttons with your space bar. \
-        Hovering your mouse over a specific buttton will show more information about that task including examples.\
+        Hovering your mouse over a specific button will show more information about that task including examples.\
         </p> \
         <p>For each card you see, a <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
         fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be filled in over \
@@ -205,9 +205,9 @@ export const helpPopUpData = {
         or more dominating. \n If the transcription is acceptable, select <strong>Approve Original</strong>.\n If the transcription is incorrect, \
         select <strong>Edit</strong> to make changes followed by <strong>Confirm Edit</strong> to approve them. \n \
         If you are unable to understand the speech, including foreign languages, select <strong>Unsure</strong>. \n \
-        If you have made a mistake, click <strong>Reset</strong> to revert your changes \n <strong>Foreign language</strong> you do not understand \
+        If you have made a mistake, click <strong>Reset</strong> to revert your changes. \n <strong>Foreign language</strong> you do not understand \
         should be marked as unsure and is usually <em>External Advertising</em> spliced in (this podcast audio was downloaded outside of the US). \n \
-        <strong>Audio Alignment</strong> is adjusted so that the statements should have a small (0.3sec) overlap, do not add words already in an \
+        <strong>Audio Alignment</strong> is adjusted so that the statements should have a small (0.3sec) overlap, do not add words already in a \
         neighboring statement."
     },
     Diarization: {
@@ -218,13 +218,13 @@ export const helpPopUpData = {
         helpHeader: "Identifying the Speakers",
         helpText: "Unlike other cards, the speaker identification card will remain unchanged as you advance from statement to statement. \
         It is your job to identify the full name of all speakers before completing this study.\n You will use what you hear in the \
-        podcast to identify the speakers' names, along with the addition information about the assigned podcast that is given on the \
+        podcast to identify the speakers' names, along with the additional information about the assigned podcast that is given on the \
         <strong>Podcast Details</strong> tab of the <strong style='background-color:green; color:white'>&nbspHELP&nbsp</strong> page.\n \
         You may also use the podcast website, or other public sources, to identify the speakers.\n <strong>If you are not able to determine the identity of the speaker</strong>, \
         for example, in advertisements, you may enter <em>UNKNOWN</em> or some description like '<em>Advertising announcer</em>'.\n The speakers for each statement have been automatically detected, and therefore may \
         not be completely accurate.\n You may enter the name of a single speaker twice if you believe <strong>a speaker has been incorrectly identified as two \
         different people</strong>.\n If you believe <strong>two different people have been identified as a single speaker</strong>, enter the name of the person \
-        most often identified as this speaker number in the podcast"
+        most often identified as this speaker number in the podcast."
     },
     FinalSubmission: {
         helpHeader: "Final submission after completion of all tasks.",
