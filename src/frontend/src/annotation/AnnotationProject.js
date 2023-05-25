@@ -432,7 +432,7 @@ only work after changes have been made to the text in EDIT mode.");
           />
         </div>
       ),
-      (utterance.visibility === 1 || utterance.visibility.includes(qual_mot)) && (
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_mot)) && isCheckworthyUtt && (
         <div key={qual_mot}>
           <ExclusiveSelector
             qualifier={qual_mot}
