@@ -17,6 +17,118 @@ export const checkworthyLabels = {
     // CHECKWORTHY
     {
       keyStroke: "1",
+      label: "Factual Descriptions",
+      category: "Checkworthy",
+      helpNew: "Claims about the existence or characteristics of noteable people, places, \
+      things, events or actions, and which are possible to verify with public sources.",
+      examples: [
+        "She won the London Marathon last year.",
+        "Rival groups were involved in a gunfight on the outskirts of the city.",
+        "The money laundering scheme violated both national and international law", 
+        "Italians drink beer with their pizza, not wine.",
+        "The budget deficit is the overall amount the government currently owes to its creditors.", 
+        "Photosynthesis is the process in which plants and some other organisms use sunlight to synthesize foods."
+      ]
+    },
+    {
+      keyStroke: "2",
+      label: "Cause and Effect",
+      category: "Checkworthy",
+      help: "Claims asserting one thing is caused by or linked with another, which can be checked against reputable sources.",
+      examples: [
+        "The company collapsed after a rouge employee was discovered to be embezzling funds.",
+        "Smoking causes cancer.",
+        "Obama only got into Harvard because his parents are rich.",
+        "The new law has led to a rise in crime.",
+      ]
+    },
+    {
+      keyStroke: "3",
+      label: "Numerical Claims",
+      category: "Checkworthy",
+      help: "Claims which involve specific statistics or would require counting or analysis of numerical data to verify.",
+      examples: [
+        "The average Mexican consumes more sugar per day than the average American.",
+        "The latest poll shows that 80% of people are unhappy with the current government.",
+        "The drug was found to improve the symptoms of 57% of patients.",
+        "There are 14 hospitals in the southern region, two more than a decade ago.",
+      ]
+    },
+    {
+      keyStroke: "4",
+      label: "Quotation",
+      category: "Checkworthy",
+      help: "Repeating the words of another noteable person or entity which can be verified in public sources.",
+      examples: [
+        "The mayor was clear when he said, 'All flooded households will receive emergency assistance after a damage assessment.'",
+        "President Roosevelt famously said, 'Ich bin ein Berliner.'",
+        "The company's CEO announced they are committed to reducing their carbon footprint 50% by 2030.",
+
+      ]
+    },
+    // NOT CHECKWORTHY
+    {
+      keyStroke: "8",
+      label: "Emotions and Opinions",
+      category: "Not Checkworthy",
+      help: "An emotion that is being felt or expressed, or an opinion that doesn't contain a checkable \
+       factual assertion.",
+      examples: [
+        "I love how the tulips look early on a spring morning.", 
+        "He's really upset about the way things are going at school.",
+        "These politicians are the only ones who have half a clue.",
+        "I'm so excited to see you, it's been too long!",
+        "Everyone around here loves that restaurant.",
+      ]
+    },
+    {
+      keyStroke: "10",
+      label: "Predictions",
+      category: "Not Checkworthy",
+      help: "Claims and predictions about future events or plans that can't be confirmed at present.",
+      examples: [
+        "Elon Musk will visit Mars.", 
+        "The sun will rise tomorrow.",
+        "New car sales will increase every month going forward.",
+        "The company will be profitable by the end of the year.",
+        "We'll all be dead in 100 years.",
+      ]
+    },
+    {
+      keyStroke: "12",
+      label: "Personal Experience",
+      category: "Not Checkworthy",
+      help: "Claims a person makes about their own experience, but which cannot be verified in public sources.",
+      examples: [
+        "I passed four empty busses on my way to work yesterday.",
+        "My grandmother used lard in her pie crusts.",
+        "I've never seen a bluebird in this part of the country.",
+        "My daughter caught 3 huge trout in that stream last summer."
+      ]
+    },
+    {
+      keyStroke: "13",
+      label: "Not a Claim",
+      category: "Not Checkworthy",
+      help: "Not making any sort of claim, including questions not including some factual assertion.",
+      examples: [
+        "Hello, how are you?", 
+        "How old are you?",
+        "Thanks for chatting with us today.", 
+        "I'm sorry, I didn't know.",
+        "Let's get into detail.",
+      ]
+    },
+
+
+
+  ],
+
+  
+  labels_old: [
+    // CHECKWORTHY
+    {
+      keyStroke: "1",
       label: "Action or Occurrence",
       category: "Checkworthy",
       help: "Something that was done by a person, nature, force, entity, etc. and is part of the public record.",
@@ -217,78 +329,62 @@ export const motivationLabels = {
   helpText: " MOTIVATION HELP TEXT ",
   key: "Motivation",
   labels: [
+    // surprising (unbelievable), don't know (discover, lack of knowledge), 
+    // controversial (unsettled topic), Precision=Partially correct, 
+    // Deception/misleading=purposely misleading,
+    // get rid of integrity
+    // motivation hidden until checkworthy selected
+
     {
       keyStroke: "1",
-      label: "Affirm",
-      category: "Confirmation",
-      help: "I believe this statement is true, and fact-checking would help confirm this to others.",
-    },
-    {
-      keyStroke: "5",
-      label: "Precision",
-      category: "Confirmation",
-      help: "I think the statement is generally true, but might be exaggerated or inaccurate."
+      label: "Deception",
+      category: "Impact",
+      help: "I believe the person making this claim is trying to deceive others."
     },
     {
       keyStroke: "2",
-      label: "Refute",
-      category: "Confirmation",
-      help: "I believe this statement is false, whether or not it is intended to deceive."
-    },
-    {
-      keyStroke: "4",
-      label: "Deception",
-      category: "Confirmation",
-      help: "I think this statement may be partially true but is presented in a way meant to mislead."
+      label: "Shocking",
+      category: "Impact",
+      help: "I find this statement surprising, shocking, or otherwise hard to believe."
     },
     {
       keyStroke: "3",
-      label: "Discover",
-      category: "Confirmation",
-      help: "I don't know if the statement is correct; fact-checking would help me form an opinion."
-    },
-    {
-      keyStroke: "6",
-      label: "Public",
-      category: "Integrity",
-      help: "Affects the credibility of politicians, government officials, and agencies."
-    },
-    {
-      keyStroke: "7",
-      label: "Private",
-      category: "Integrity",
-      help: "Affects the credibility of a private person, company, or group."
-    },
-    {
-      keyStroke: "8",
-      label: "Academic",
-      category: "Integrity",
-      help: "Affects the credibility of academia, scientists, or researchers."
-    },
-    {
-      keyStroke: "9",
-      label: "Media",
-      category: "Integrity",
-      help: "Affects the credibility of media outlets, journalists, or content creators."
-    },
-    {
-      keyStroke: "10",
-      label: "Financial",
-      category: "Impact",
-      help: "This statement could have financial implications for individuals, companies, or governments. \
-      or the speaker has a financial interest in the topic, for example advertising."
-    },
-    {
-      keyStroke: "11",
-      label: "Public Safety",
+      label: "Health & Safety",
       category: "Impact",
       help: "I believe this statement could have implications for public security, health, or safety."
     },
     {
-      keyStroke: "12",
+      keyStroke: "4",
       label: "Discrimination",
       category: "Impact",
       help: "I think this statement promotes discrimination or hate of people."
+    },
+    {
+      keyStroke: "5",
+      label: "Financial",
+      category: "Impact",
+      help: "This statement could have financial implications for individuals or organizations, \
+      or the speaker has a financial interest in promoting the topic."
+    },
+
+    
+    {
+      keyStroke: "6",
+      label: "Affirm",
+      category: "Correct",
+      help: "I believe this statement is true, and fact-checking would help confirm this to others.",
+    },
+    {
+      keyStroke: "7",
+      label: "Affirm",
+      category: "Partially Correct",
+      help: "I believe this statement is partially true, but fact-checking it would give a more complete picture.",
+    },
+    {
+      keyStroke: "8",
+      label: "Refute",
+      category: "Wrong",
+      help: "I believe this statement is false, and a fact check would provide evidence for this."
     },
   ]
 };
