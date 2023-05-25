@@ -423,7 +423,7 @@ only work after changes have been made to the text in EDIT mode.");
           />
         </div>
       ),
-      (utterance.visibility === 1 || utterance.visibility.includes(qual_cw)) && isCheckworthyUtt && (
+      (utterance.visibility === 1 || utterance.visibility.includes("Factcheck")) && isCheckworthyUtt && (
         <div key={qual_fc}>
           <FactCheck
             agent={agent}

@@ -4,23 +4,28 @@ export const searchPlatforms = [{ name: "Google", key: "google" }, { name: "Bing
 
 export const checkworthyLabels = {
   key: "Checkworthy", // string that can be used in HTML id attributes.
-  instruction1: "Would it even be possible to fact check this statement using publicly available websites?",
-  instruction2: "The checkworthy labels are used to describe statements that could feasibly be checked. \
-  Non-checkworthy labels are labels that are used to describe claims that cannot be checked.",
-  helpHeader: "Checkworthy Labels",
-  helpText: "You can't really fact check what a random person had for lunch, but you could certainly fact \
-  check what the King or President had for lunch with a foreign dignitary. Limited resources for fact checking \
-  make this an important distinction, information about the average person's breakfast is neither of interest to \
-  the public nor available to them, so trying to carry out a fact check would be senseless. To mark a statement \
-  as checkworthy it must be something the public would be interested in and that could be checked with commonly available resources.",
-  labels: [
+  instruction1: "Identify statements that would warrant a fact check.",
+  instruction2: "Would a fact check on this statement be of interest to the general public? \
+  Would it be possible to verify this statement using publicly available sources?",
+  helpHeader: "Checkworthiness",
+  helpText:   "Statements must be categorized into those that are checkworthy, \
+  meaning they should be fact-checked, and those that are not. For instance, public claims involving \
+  notable entities can often be verified, whereas personal experiences or future predictions are typically not \
+  checkworthy. Fact-checking requires considerable resources, so this distinction helps to ensure efforts \
+  are concentrated on statements that can feasibly be checked and are of public interest. \
+  \n\n<strong>Checkworthy</strong> categories include <em>Factual Descriptions</em>, <em>Cause and Effect</em>, <em>Numerical Claims</em>, and <em>Quotations</em>, \
+  which cover claims about notable people, events, statistics, and direct quotations from public figures.\n\n \
+ <strong>Not Checkworthy</strong> categories include <em>Emotions and Opinions</em>, <em>Predictions</em>, <em>Personal Experience</em>, \
+  and <em>Not a Claim</em>, capturing statements that are subjective, speculative, personal, or not making any factual assertion. \
+  \n\n<strong>Hover your mouse over the buttons</strong> to see a more detailed description and examples of each category.",
+   labels: [
     // CHECKWORTHY
     {
       keyStroke: "1",
       label: "Factual Descriptions",
       category: "Checkworthy",
-      helpNew: "Claims about the existence or characteristics of noteable people, places, \
-      things, events or actions, and which are possible to verify with public sources.",
+      help: "Claims about the existence or characteristics of notable people, places, \
+      things, events, or actions, and which are possible to verify with public sources.",
       examples: [
         "She won the London Marathon last year.",
         "Rival groups were involved in a gunfight on the outskirts of the city.",
@@ -58,7 +63,7 @@ export const checkworthyLabels = {
       keyStroke: "4",
       label: "Quotation",
       category: "Checkworthy",
-      help: "Repeating the words of another noteable person or entity which can be verified in public sources.",
+      help: "Repeating the words of another notable person or entity which can be verified in public sources.",
       examples: [
         "The mayor was clear when he said, 'All flooded households will receive emergency assistance after a damage assessment.'",
         "President Roosevelt famously said, 'Ich bin ein Berliner.'",
@@ -119,7 +124,6 @@ export const checkworthyLabels = {
         "Let's get into detail.",
       ]
     },
-
 
 
   ],
@@ -308,7 +312,7 @@ export const advertisingLabels = {
     },
     {
       keyStroke: "4",
-      label: "Self Promotion",
+      label: "Self-Promotion",
       category: "Advertising",
       help: "A speaker promoting products, services, or initiatives from themselves or an organization they are affiliated with."
     },
@@ -325,16 +329,19 @@ export const advertisingLabels = {
 export const motivationLabels = {
   instruction1: "Why would you want to fact check this statement? What is there to gain?",
   instruction2: "Many statements could be placed in more than one category, pick the one that fits best in your opinion.",
-  helpHeader: "Motivation Labels",
-  helpText: " MOTIVATION HELP TEXT ",
+  helpHeader: "Understanding Motivation Labels",
+  helpText: "Fact-checking is a resource-intensive process. Understanding the motivation behind fact-checking a statement can help prioritize efforts effectively. Different motivations can drive this, including:\n\n\
+  <strong>Deception:</strong> The speaker is suspected of intentionally misleading others.\n \
+  <strong>Gain Knowledge:</strong> I would gain new knowledge about this topic by fact checking it.\n \
+  <strong>Shocking:</strong> The claim is surprising or hard to believe.\n \
+  <strong>Health & Safety:</strong> The statement has potential implications for public health, safety, or security.\n \
+  <strong>Discrimination:</strong> The statement might promote discrimination or hate towards certain groups.\n \
+  <strong>Financial:</strong> The statement could have significant financial implications or the speaker might have a financial interest.\n\n \
+  <strong>Confirm True:</strong> The statement is believed to be correct, and fact-checking would validate it.\n \
+  <strong>Precision:</strong> The statement might be partially true but requires more detail for a complete picture.\n \
+  <strong>Confirm False:</strong> The statement is believed to be incorrect, and fact-checking would disprove it.",
   key: "Motivation",
   labels: [
-    // surprising (unbelievable), don't know (discover, lack of knowledge), 
-    // controversial (unsettled topic), Precision=Partially correct, 
-    // Deception/misleading=purposely misleading,
-    // get rid of integrity
-    // motivation hidden until checkworthy selected
-
     {
       keyStroke: "1",
       label: "Deception",
@@ -343,50 +350,54 @@ export const motivationLabels = {
     },
     {
       keyStroke: "2",
+      label: "Gain Knowledge",
+      category: "Impact",
+      help: "I would gain new knowledge about this topic by fact checking this statement."
+    },
+    {
+      keyStroke: "3",
       label: "Shocking",
       category: "Impact",
       help: "I find this statement surprising, shocking, or otherwise hard to believe."
     },
     {
-      keyStroke: "3",
+      keyStroke: "4",
       label: "Health & Safety",
       category: "Impact",
       help: "I believe this statement could have implications for public security, health, or safety."
     },
     {
-      keyStroke: "4",
+      keyStroke: "5",
       label: "Discrimination",
       category: "Impact",
       help: "I think this statement promotes discrimination or hate of people."
     },
     {
-      keyStroke: "5",
+      keyStroke: "6",
       label: "Financial",
       category: "Impact",
-      help: "This statement could have financial implications for individuals or organizations, \
-      or the speaker has a financial interest in promoting the topic."
-    },
-
-    
-    {
-      keyStroke: "6",
-      label: "Affirm",
-      category: "Correct",
-      help: "I believe this statement is true, and fact-checking would help confirm this to others.",
+      help: "This statement could have significant financial implications, or the speaker might have a financial interest."
     },
     {
       keyStroke: "7",
-      label: "Affirm",
-      category: "Partially Correct",
-      help: "I believe this statement is partially true, but fact-checking it would give a more complete picture.",
+      label: "Confirm True",
+      category: "Verification",
+      help: "I believe this statement is correct, and fact-checking would help confirm this to others.",
     },
     {
       keyStroke: "8",
-      label: "Refute",
-      category: "Wrong",
-      help: "I believe this statement is false, and a fact check would provide evidence for this."
+      label: "Precision",
+      category: "Verification",
+      help: "I believe this statement could be partially true, but fact-checking it would give a more complete picture.",
+    },
+    {
+      keyStroke: "9",
+      label: "Confirm False",
+      category: "Verification",
+      help: "I believe this statement is incorrect, and a fact check would provide evidence for this."
     },
   ]
 };
+
 
 

@@ -78,7 +78,6 @@ class TranscriptionApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         guid = request.data['guid']
-        print(guid)
         item = AudioItem.objects.filter(guid=guid).first()
         serializer = TranscriptionPostSerializer(data={
             'item': item.id, 
@@ -112,7 +111,6 @@ class UtteranceApiView(APIView):
 # get segmentations of a transcript
 class SegmentationApiView(APIView):
     def get(self, request, *args, **kwargs):
-        print(request.path_info)
         agent = request.query_params.get('PROLIFIC_PID', None)
         prolific_session = request.query_params.get('SESSION_ID', None)
         prolific_study = request.query_params.get('STUDY_ID', None)
@@ -127,7 +125,6 @@ class SegmentationApiView(APIView):
             if (request.path_info.startswith('/api/segmentations/')):
                 session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(segmentation__uuid=uuid))
                 seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(session_prefetch).first()
-                print("SEGMENTATION REQUEST")
             else:
                 seg = Segmentation.objects.filter(uuid=uuid).first()
 
