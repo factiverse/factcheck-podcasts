@@ -72,8 +72,35 @@ export const checkworthyLabels = {
       ]
     },
     // NOT CHECKWORTHY
+    
     {
-      keyStroke: "8",
+      keyStroke: "5",
+      label: "Not a Claim",
+      category: "Not Checkworthy",
+      help: "Not making any sort of claim, including questions not including some factual assertion.",
+      examples: [
+        "Hello, how are you?", 
+        "How old are you?",
+        "Thanks for chatting with us today.", 
+        "I'm sorry, I didn't know.",
+        "Let's get into detail.",
+        "Stop doing that.",
+      ]
+    },
+    {
+      keyStroke: "6",
+      label: "Broadcast Details",
+      category: "Not Checkworthy",
+      help: "Introducing the speakers, describing the program, or giving details related to the episode contents.",
+      examples: [
+        "Welcome to the show, I'm your host, John Smith.",
+        "Today we're going to be talking about the history of the internet.",
+        "This is episode 3 of our series on the history of the internet.",
+        "Our guest, Dr. Jane Doe, is joining me in the studio to share her expertise.",
+      ]
+    },
+    {
+      keyStroke: "7",
       label: "Emotions and Opinions",
       category: "Not Checkworthy",
       help: "An emotion that is being felt or expressed, or an opinion that doesn't contain a checkable \
@@ -87,20 +114,7 @@ export const checkworthyLabels = {
       ]
     },
     {
-      keyStroke: "10",
-      label: "Predictions",
-      category: "Not Checkworthy",
-      help: "Claims and predictions about future events or plans that can't be confirmed at present.",
-      examples: [
-        "Elon Musk will visit Mars.", 
-        "The sun will rise tomorrow.",
-        "New car sales will increase every month going forward.",
-        "The company will be profitable by the end of the year.",
-        "We'll all be dead in 100 years.",
-      ]
-    },
-    {
-      keyStroke: "12",
+      keyStroke: "8",
       label: "Personal Experience",
       category: "Not Checkworthy",
       help: "Claims a person makes about their own experience, but which cannot be verified in public sources.",
@@ -112,16 +126,16 @@ export const checkworthyLabels = {
       ]
     },
     {
-      keyStroke: "13",
-      label: "Not a Claim",
+      keyStroke: "9",
+      label: "Predictions",
       category: "Not Checkworthy",
-      help: "Not making any sort of claim, including questions not including some factual assertion.",
+      help: "Claims and predictions about future events or plans that can't be confirmed at present.",
       examples: [
-        "Hello, how are you?", 
-        "How old are you?",
-        "Thanks for chatting with us today.", 
-        "I'm sorry, I didn't know.",
-        "Let's get into detail.",
+        "Elon Musk will visit Mars.", 
+        "The sun will rise tomorrow.",
+        "New car sales will increase every month going forward.",
+        "The company will be profitable by the end of the year.",
+        "We'll all be dead in 100 years.",
       ]
     },
 
@@ -328,15 +342,13 @@ export const advertisingLabels = {
 
 export const motivationLabels = {
   instruction1: "Why would you want to fact check this statement? What is there to gain?",
-  instruction2: "Many statements could be placed in more than one category, pick the one that fits best in your opinion.",
+  instruction2: "Prioritize an <em>Impact</em> category if you feel one fits, otherwise choose a <em>Verification</em> category if the truthfulness is obvious to you without any fact check.",
   helpHeader: "Understanding Motivation Labels",
   helpText: "Fact-checking is a resource-intensive process. Understanding the motivation behind fact-checking a statement can help prioritize efforts effectively. Different motivations can drive this, including:\n\n\
   <strong>Deception:</strong> The speaker is suspected of intentionally misleading others.\n \
-  <strong>Gain Knowledge:</strong> I would gain new knowledge about this topic by fact checking it.\n \
-  <strong>Shocking:</strong> The claim is surprising or hard to believe.\n \
-  <strong>Health & Safety:</strong> The statement has potential implications for public health, safety, or security.\n \
+  <strong>Learn More:</strong> I would gain new knowledge about this topic by fact checking it.\n \
+  <strong>Surprising:</strong> The claim is surprising or hard to believe.\n \
   <strong>Discrimination:</strong> The statement might promote discrimination or hate towards certain groups.\n \
-  <strong>Financial:</strong> The statement could have significant financial implications or the speaker might have a financial interest.\n\n \
   <strong>Confirm True:</strong> The statement is believed to be correct, and fact-checking would validate it.\n \
   <strong>Precision:</strong> The statement might be partially true but requires more detail for a complete picture.\n \
   <strong>Confirm False:</strong> The statement is believed to be incorrect, and fact-checking would disprove it.",
@@ -344,54 +356,42 @@ export const motivationLabels = {
   labels: [
     {
       keyStroke: "1",
+      label: "Learn More",
+      category: "Impact",
+      help: "I would gain new knowledge about this topic by fact checking this statement."
+    },
+    {
+      keyStroke: "2",
       label: "Deception",
       category: "Impact",
       help: "I believe the person making this claim is trying to deceive others."
     },
     {
-      keyStroke: "2",
-      label: "Gain Knowledge",
-      category: "Impact",
-      help: "I would gain new knowledge about this topic by fact checking this statement."
-    },
-    {
       keyStroke: "3",
-      label: "Shocking",
+      label: "Surprising",
       category: "Impact",
       help: "I find this statement surprising, shocking, or otherwise hard to believe."
     },
     {
       keyStroke: "4",
-      label: "Health & Safety",
-      category: "Impact",
-      help: "I believe this statement could have implications for public security, health, or safety."
-    },
-    {
-      keyStroke: "5",
       label: "Discrimination",
       category: "Impact",
       help: "I think this statement promotes discrimination or hate of people."
     },
     {
-      keyStroke: "6",
-      label: "Financial",
-      category: "Impact",
-      help: "This statement could have significant financial implications, or the speaker might have a financial interest."
-    },
-    {
-      keyStroke: "7",
+      keyStroke: "5",
       label: "Confirm True",
       category: "Verification",
       help: "I believe this statement is correct, and fact-checking would help confirm this to others.",
     },
     {
-      keyStroke: "8",
+      keyStroke: "6",
       label: "Precision",
       category: "Verification",
-      help: "I believe this statement could be partially true, but fact-checking it would give a more complete picture.",
+      help: "I believe this statement is somewhat true, but fact-checking it would give a more complete picture.",
     },
     {
-      keyStroke: "9",
+      keyStroke: "7",
       label: "Confirm False",
       category: "Verification",
       help: "I believe this statement is incorrect, and a fact check would provide evidence for this."
