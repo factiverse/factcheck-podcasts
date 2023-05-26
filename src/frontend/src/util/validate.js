@@ -45,7 +45,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
             }
             for (const qual of qualifiers) {
 
-                if (qual !== "Factcheck" && qual !== "ClaimSpan" && qual !== "Diarization" && isClassificationMissing(qual, utterance.classification_set)) {
+                if (qual !== "Factcheck" && qual !== "ClaimSpan" && qual !== "Diarization" && qual !== "Motivation" && isClassificationMissing(qual, utterance.classification_set)) {
                     errorTxt += `MISSING: ${qual}, on STATEMENT: ${i}\n`;
                     complete = false;
                 } else if (qual === "Diarization" && segmentation.agent_session?.diarization) {
@@ -59,11 +59,14 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                     }
 
 
-                } else if ((qual === "Factcheck" || qual === "ClaimSpan") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
+                } else if ((qual === "Factcheck" || qual === "ClaimSpan" || qual === "Motivation") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
                     if (qual === "ClaimSpan" && isClassificationMissing("ClaimSpan", utterance.classification_set)) {
                         errorTxt += `MISSING: CLAIMSPAN, on STATEMENT: ${i}\n`;
                         complete = false;
                     } else if (qual === "Factcheck" && utterance.query_set.length < 1) {
+                        errorTxt += `MISSING: Factcheck, on STATEMENT: ${i}\n`;
+                        complete = false;
+                    } else if (qual === "Motivation" && isClassificationMissing("Motivation", utterance.classification_set)) {
                         errorTxt += `MISSING: Factcheck, on STATEMENT: ${i}\n`;
                         complete = false;
                     } else {
