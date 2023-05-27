@@ -67,6 +67,7 @@ export default function ExclusiveSelector({ qualifier, classification, agent, la
                                     className='my-1 pb-1'>
                                     {labels.labels.filter(label => label[splitField] === cat).map((label) =>
                                         <HelpTooltipButton
+                                            utterance={utterance}
                                             label={label}
                                             button={
                                                 <ToggleButton

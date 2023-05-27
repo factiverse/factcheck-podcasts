@@ -1,8 +1,16 @@
+import { useState, useEffect } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-export default function HelpTooltipButton({ button, label }) {
+export default function HelpTooltipButton({ button, label, utterance }) {
   let exCounter = 0;
+  
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    setShow(false); // This will set the overlay to close when utterance changes
+  }, [utterance]);
+
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
         <div>
@@ -27,6 +35,8 @@ export default function HelpTooltipButton({ button, label }) {
       placement="auto"
       delay={{ show: 1000, hide: 200 }}
       overlay={renderTooltip}
+      show={show}
+      onToggle={(nextShow) => setShow(nextShow)}
       trigger={['hover']}
     >
       {button}
