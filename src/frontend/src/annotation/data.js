@@ -342,11 +342,12 @@ export const advertisingLabels = {
 
 export const motivationLabels = {
   instruction1: "Why would you want to fact check this statement? What is there to gain?",
-  instruction2: "Prioritize an <em>Impact</em> category if you feel one fits, otherwise choose a <em>Verification</em> category if the truthfulness is obvious to you without any fact check.",
+  instruction2: "Prioritize an <em>Impact</em> category if you feel one fits, otherwise choose a <em>Verification</em> category if the truthfulness of the statement is obvious to you without any fact check.",
   helpHeader: "Understanding Motivation Labels",
   helpText: "Fact-checking is a resource-intensive process. Understanding the motivation behind fact-checking a statement can help prioritize efforts effectively. Different motivations can drive this, including:\n\n\
-  <strong>Deception:</strong> The speaker is suspected of intentionally misleading others.\n \
   <strong>Learn More:</strong> I would gain new knowledge about this topic by fact checking it.\n \
+  <strong>Controversial:</strong> This topic is controversial or experts may disagree about it.\n \
+  <strong>Deception:</strong> The speaker is suspected of intentionally misleading others.\n \
   <strong>Surprising:</strong> The claim is surprising or hard to believe.\n \
   <strong>Discrimination:</strong> The statement might promote discrimination or hate towards certain groups.\n \
   <strong>Confirm True:</strong> The statement is believed to be correct, and fact-checking would validate it.\n \
@@ -362,36 +363,42 @@ export const motivationLabels = {
     },
     {
       keyStroke: "2",
+      label: "Controversial",
+      category: "Impact",
+      help: "I think this is a controversial statement and a fact check would benefit the debate."
+    },
+    {
+      keyStroke: "3",
       label: "Deception",
       category: "Impact",
       help: "I believe the person making this claim is trying to deceive others."
     },
     {
-      keyStroke: "3",
+      keyStroke: "4",
       label: "Surprising",
       category: "Impact",
       help: "I find this statement surprising, shocking, or otherwise hard to believe."
     },
     {
-      keyStroke: "4",
+      keyStroke: "5",
       label: "Discrimination",
       category: "Impact",
       help: "I think this statement promotes discrimination or hate of people."
     },
     {
-      keyStroke: "5",
+      keyStroke: "6",
       label: "Confirm True",
       category: "Verification",
       help: "I believe this statement is correct, and fact-checking would help confirm this to others.",
     },
     {
-      keyStroke: "6",
+      keyStroke: "7",
       label: "Precision",
       category: "Verification",
       help: "I believe this statement is somewhat true, but fact-checking it would give a more complete picture.",
     },
     {
-      keyStroke: "7",
+      keyStroke: "8",
       label: "Confirm False",
       category: "Verification",
       help: "I believe this statement is incorrect, and a fact check would provide evidence for this."
