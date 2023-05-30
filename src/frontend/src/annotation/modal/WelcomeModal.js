@@ -8,7 +8,7 @@ import { secondsToHms } from '../../util/time';
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
   const [qualifiers, setQualifiers] = useState([]);
   const [selectedValue, setSelectedValue] = useState(null);
-  const [helpData, setHelpData] = useState(helpModalData.new);
+  const [helpData, setHelpData] = useState(helpModalData.FV_CW);
 
   useEffect(() => {
     for (let i = 0; i < segmentation.utterance_set.length; i++) {

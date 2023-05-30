@@ -2,6 +2,81 @@
 // Help for exclusive selector (radio buttons) is in their data definition in data.js
 export const helpModalData = {
     // new version which is meant to be less wordy and more concise, also more tailored to transcription, identifying speakers and advertising
+    FV_CW: {
+        title: "Welcome to this Podcast Annotation Task",
+        introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
+    and ensure your work is accepted. You may refer back to this window at any time by clicking the <span style='background-color:green; \
+    color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:3px;'>&nbspHELP&nbsp</span> \
+    button in the top left corner of the window.",
+        workflowTitle: "What do I need to do?",
+        workflowIntroduction: "<p>The podcast has been automatically transcribed and split into sentences (statements). \
+        <strong>You will go through each statement in the podcast and make a decision about whether it warrants a fact check \
+        <em>('Checkworthiness')</em>.</strong></p> \
+        \
+        <p>After you classify a statement in a <em>Checkworthy</em> category, an additional <strong>Motivation</strong> card will be shown where you are asked \
+        for your opinion about why carrying out a fact check might be beneficial. You may also optionally highlight the section of the text which contains \
+        the claim you are considering on the <em>Statement</em> card.</p> \
+        \
+        <p><strong>Factiverse:</strong> Your responses are recorded as you advance from statement to statement. The information about validation below is \
+        primary for crowdsourcing workers, it is not necessary to activate and click the <em>Final Submission</em> button to save your answers. </p>\
+        \
+        <h5>How does this work?</h5> \
+        <p> Each card for the required tasks will have a <strong style='font-size: 0.8rem; background-color:blue; color:white; \
+        display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button \
+        which will provide more detailed instructions for that card. <strong>You must click the <strong style='font-size: 0.8rem; \
+        background-color:blue; color:white; display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'\
+        >&nbsp&nbsp?&nbsp&nbsp</strong> button and read the instructions completely before completing any task type for the first time.</strong> \
+        </p> \
+        \
+        <p>When you are ready to begin, click the first <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; \
+        justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span> button on the \
+        <em>Statement</em> card. Underneath this section, you can also see a list of the previous statements to give you more context.\
+        The audio player is loaded with the podcast audio, press any <span style='background-color:green; text-shadow: 0 0 0 white; color:white; display:inline-flex; \
+        justify-content:center; align-items:center; border-radius:50%; width:20px; height:20px;'>▷</span> button to play that statement. \
+        Replay the current statement by pressing the <em>Enter</em> key on your keyboard.</p>\
+        \
+        <p>To go to the next statement, press the ➡️ key on your keyboard, and the ⬅️ key will take you to the previous statement. \
+        You can also click the corresponding buttons in the top center of the screen, or swipe on touch devices. \
+        ⬆️ takes you to the first statement, and ⬇️ to the last statement you have already worked on.\
+        </p> \
+        \
+        <p><span class='me-0 mt-0 pt-0' style='border:1px solid; border-radius:50%; width:20px; height:20px; display:inline-flex; \
+        justify-content:center; align-items:center'>B</span>uttons \
+        where the first letter is surrounded by a circle may be activated by pressing that letter on your keyboard as a shortcut. \
+        If you are navigating the task with your keyboard, you may tab between fields and select the highlighted buttons with your space bar. \
+        Hovering your mouse over a specific button will show more information about that task including examples.\
+        </p> \
+        <p>For each card you see, a <strong style='color:red; font-size:1.2rem'>X</strong> will be displayed while the card is incomplete or \
+        fails validation, an <strong style='color:orange; font-size:1.2rem'>X</strong> shows the card is incomplete but can be filled in over \
+        the course of the whole podcast, and a <strong style='color:green; font-size:1.2rem'>✓</strong> is shown when the card is \
+        complete and has passed a basic validation. After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> \
+        on all cards you will receive a <strong style='color:green; font-size:1.2rem'>✓</strong> for the statement (shown next \
+        to the navigation buttons).\
+        <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> on all statements, the \
+        <strong>Final Submission</strong> button will be unlocked and turn green. This button will allow you to submit your work and be redirected \
+        back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+        align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button to the left of the <em>Final Submission</em> button will give \
+        you an <strong>overview of missing tasks and statements which have errors</strong>. Your work is automatically saved as you progress from \
+        statement to statement. </p>",
+
+        politicalTitle: "Is this political?",
+        politicalBody: "The podcast content you will be labelling and listening to will often be of a political nature, \
+but the creators of this study are politically neutral. For researchers to build accurate and non-biased AI systems, \
+it is essential to have the input of people with a wide range of views. Whether you agree with the views expressed in \
+this podcast or not, your work here is equally valuable. The key factor is that you remain critical and objective in your labelling. \
+You are free to formulate your own search queries, on your chosen platform, and prioritize evidence documents from sources that you \
+find most trustworthy, but all judgements as to whether the evidence refutes or supports the claim must be based on the content of the \
+evidence document as it presents the facts.",
+
+        healthTitle: "You are assigned a podcast in the category Health & Wellness.",
+        healthBody: "You are not required to have any special background knowledge in this area, but we especially appreciate contributions from \
+those who do and will prioritize those with quality work in new studies that will be published regularly. \
+.",
+        closingTitle: "Thank you for your time!",
+
+    },
+
+
     new: {
         title: "Welcome to this Podcast Annotation Task",
         introduction: "Please take a moment to read through these instructions and guidelines which will help you complete the tasks \
