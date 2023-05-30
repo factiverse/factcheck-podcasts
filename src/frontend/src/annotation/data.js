@@ -33,7 +33,8 @@ export const checkworthyLabels = {
         "Italians drink beer with their pizza, not wine.",
         "The budget deficit is the overall amount the government currently owes to its creditors.", 
         "Photosynthesis is the process in which plants and some other organisms use sunlight to synthesize foods."
-      ]
+      ],
+      isKeyboardShortcut: true
     },
     {
       keyStroke: "2",
@@ -68,8 +69,8 @@ export const checkworthyLabels = {
         "The mayor was clear when he said, 'All flooded households will receive emergency assistance after a damage assessment.'",
         "President Roosevelt famously said, 'Ich bin ein Berliner.'",
         "The company's CEO announced they are committed to reducing their carbon footprint 50% by 2030.",
-
-      ]
+      ],
+      isKeyboardShortcut: true
     },
     // NOT CHECKWORTHY
     
@@ -85,7 +86,8 @@ export const checkworthyLabels = {
         "I'm sorry, I didn't know.",
         "Let's get into detail.",
         "Stop doing that.",
-      ]
+      ],
+      isKeyboardShortcut: true
     },
     {
       keyStroke: "6",
@@ -97,7 +99,8 @@ export const checkworthyLabels = {
         "Today we're going to be talking about the history of the internet.",
         "This is episode 3 of our series on the history of the internet.",
         "Our guest, Dr. Jane Doe, is joining me in the studio to share her expertise.",
-      ]
+      ],
+      isKeyboardShortcut: true
     },
     {
       keyStroke: "7",
@@ -111,7 +114,8 @@ export const checkworthyLabels = {
         "These politicians are the only ones who have half a clue.",
         "I'm so excited to see you, it's been too long!",
         "Everyone around here loves that restaurant.",
-      ]
+      ],
+      isKeyboardShortcut: true
     },
     {
       keyStroke: "8",

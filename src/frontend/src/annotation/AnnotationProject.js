@@ -148,10 +148,34 @@ only work after changes have been made to the text in EDIT mode.");
           else if (allQualifiers.includes(qual_trans) && (event.key === 'u' || event.key === 'U')) {
             postClassification(utterance.uuid, qual_trans, 'Unsure', '', agent);
           }
+        // CHECKWORTHY SHORTCUT KEYS ACTIVATED IF NO TRANSCRIPTION TASK
+        } else if (activeQualifiers.includes(qual_cw)) {
+          // MARK AS FACTUAL DESCRIPTIONS
+          if (allQualifiers.includes(qual_cw) && (event.key === 'f' || event.key === 'F')) {
+            postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Factual Descriptions', agent);
+          }
+          // MARK AS QUOTATION
+          if (allQualifiers.includes(qual_cw) && (event.key === 'q' || event.key === 'Q')) {
+            postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Quotation', agent);
+          }
+          // MARK AS NOT A CLAIM
+          if (allQualifiers.includes(qual_cw) && (event.key === 'n' || event.key === 'N')) {
+            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Not a Claim', agent);
+          }
+          // MARK AS BROADCAST DETAILS
+          if (allQualifiers.includes(qual_cw) && (event.key === 'b' || event.key === 'B')) {
+            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Broadcast Details', agent);
+          }
+          // MARK AS BROADCAST DETAILS
+          if (allQualifiers.includes(qual_cw) && (event.key === 'e' || event.key === 'E')) {
+            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Emotions and Opinions', agent);
+          }
         }
 
-        // MARK AS NOT ADVERTISING
-        if (allQualifiers.includes(qual_ad) && (event.key === 'n' || event.key === 'N')) {
+
+
+        // MARK AS NOT ADVERTISING (if advertising id task is active at the same time as checkworthiness, then CW takes precedence)
+        if (allQualifiers.includes(qual_ad) && !allQualifiers.includes(qual_cw) && (event.key === 'n' || event.key === 'N')) {
           postClassification(utterance.uuid, qual_ad, 'Not Advertising', 'Not Advertising', agent);
         }
 
