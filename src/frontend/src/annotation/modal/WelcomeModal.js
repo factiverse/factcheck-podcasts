@@ -8,7 +8,22 @@ import { secondsToHms } from '../../util/time';
 export default function WelcomeModal({ show, handleClose, segmentation, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated }) {
   const [qualifiers, setQualifiers] = useState([]);
   const [selectedValue, setSelectedValue] = useState(null);
-  const [helpData, setHelpData] = useState(helpModalData.FV_CW);
+  const [helpData, setHelpData] = useState(null);
+
+  // if segmentation.name contains the string "Factiverse", then set the help data to helpModalData.FV_CW
+  // otherwise, if segmentation.name contains  "ProlificP" then set the help data to helpModalData.old
+  // otherwise, if segmentation.name contains  "Pv3" then set the help data to helpModalData.new
+  useEffect(() => {
+    if (segmentation.name.includes("Factiverse")) {
+      setHelpData(helpModalData.FV_CW);
+    } else if (segmentation.name.includes("ProlificP")) {
+      setHelpData(helpModalData.original);
+    } else if (segmentation.name.includes("Pv3")) {
+      setHelpData(helpModalData.new);
+    }
+  }, [segmentation]);
+
+
 
   useEffect(() => {
     for (let i = 0; i < segmentation.utterance_set.length; i++) {
@@ -57,12 +72,12 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
       fullscreen={"xl-down"}
     >
       <Modal.Header closeButton={selectedValue ?? null}>
-        <Modal.Title>{helpData.title}</Modal.Title>
+        <Modal.Title>{helpData?.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Tabs defaultActiveKey="introduction" id="uncontrolled-tab-example">
           <Tab eventKey="introduction" title="Introduction">
-            <p dangerouslySetInnerHTML={{ __html: helpData.introduction }} className='pt-2 mb-1'></p>
+            <p dangerouslySetInnerHTML={{ __html: helpData?.introduction }} className='pt-2 mb-1'></p>
             <p><em>ASSIGNED PODCAST:</em><br />
               <strong>Podcast Name :</strong> {segmentation.channel.title}<br />
               <strong>Episode Name :</strong> {segmentation.item.title}<br />
@@ -71,19 +86,19 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
             </p>
 
 
-            <h5>{helpData.workflowTitle}</h5>
-            <p dangerouslySetInnerHTML={{ __html: helpData.workflowIntroduction }}></p>
+            <h5>{helpData?.workflowTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpData?.workflowIntroduction }}></p>
             { false &&
             <>
             <h5>The following task cards will appear on at least one statement:</h5>
             <ul>
-              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionCheckworthy }}></li> : null}
-              {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionFactcheck }}></li> : null}
-              {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionClaimSpan }}></li> : null}
-              {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionMotivation }}></li> : null}
-              {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionTranscribe }}></li> : null}
-              {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionAdvertising }}></li> : null}
-              {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpData.workflowDescriptionDiarization }}></li> : null}
+              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionCheckworthy }}></li> : null}
+              {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionFactcheck }}></li> : null}
+              {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionClaimSpan }}></li> : null}
+              {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionMotivation }}></li> : null}
+              {qualifiers.includes("Transcription") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionTranscribe }}></li> : null}
+              {qualifiers.includes("Advertising") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionAdvertising }}></li> : null}
+              {qualifiers.includes("Diarization") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionDiarization }}></li> : null}
             </ul>
             <p><strong>Remember you are required to click the <strong className='me-1' style={{fontSize: '0.8rem', backgroundColor:'blue', color:'white', display:'inline-flex', justifyContent:'center', alignItems:'center', borderRadius:'5px',}}>&nbsp;&nbsp;?&nbsp;&nbsp;</strong>
               button on the top right of the task cards before completing that task for the first time.</strong></p>
@@ -91,10 +106,10 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
               }
             {/* POLITICS */}
 
-            {segmentation.channel.study_category === "politics" && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?
+            {segmentation.channel.study_category === "politics" && !segmentation.name.includes("Factiverse") && agentSession && (qualifiers.includes("Checkworthiness") || qualifiers.includes("Factcheck")) ?
               <>
-                <h5>{helpData.politicalTitle}</h5>
-                <p dangerouslySetInnerHTML={{ __html: helpData.politicalBody }}></p>
+                <h5>{helpData?.politicalTitle}</h5>
+                <p dangerouslySetInnerHTML={{ __html: helpData?.politicalBody }}></p>
                 <Form>
                   <div key={`inline-radio`} className="mb-3 d-flex justify-content-center">
                     <Form.Check
@@ -154,13 +169,13 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
 
             {segmentation.channel.study_category === "health" ?
               <>
-                <h5>{helpData.healthTitle}</h5>
-                <p dangerouslySetInnerHTML={{ __html: helpData.healthBody }}></p>
+                <h5>{helpData?.healthTitle}</h5>
+                <p dangerouslySetInnerHTML={{ __html: helpData?.healthBody }}></p>
               </>
               : null}
 
-            <h5>{helpData.closingTitle}</h5>
-            <p dangerouslySetInnerHTML={{ __html: helpData.closingBody }}></p>
+            <h5>{helpData?.closingTitle}</h5>
+            <p dangerouslySetInnerHTML={{ __html: helpData?.closingBody }}></p>
           </Tab>
           <Tab eventKey="podcastInfo" title="Podcast Details">
 
