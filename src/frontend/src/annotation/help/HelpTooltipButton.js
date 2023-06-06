@@ -37,7 +37,7 @@ export default function HelpTooltipButton({ button, label, utterance }) {
       overlay={renderTooltip}
       show={show}
       onToggle={(nextShow) => setShow(nextShow)}
-      trigger={['hover']}
+      trigger={['hover', 'focus']}
     >
       {button}
     </OverlayTrigger>

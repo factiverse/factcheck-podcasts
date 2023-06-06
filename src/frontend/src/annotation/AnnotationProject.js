@@ -120,7 +120,7 @@ export default function AnnotationProject() {
 
       //SHORT CUT KEYS
       if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
-        if (activeQualifiers.includes(qual_trans)) {
+        if (activeQualifiers ?? activeQualifiers.includes(qual_trans)) {
           // get the transcription classification for the current utterance
           const trClass = utterance.classification_set.filter(cl => cl.qualifier == qual_trans)[0];
 

@@ -111,6 +111,8 @@ class Utterance(models.Model):
     text_coref = models.TextField("coreferenced text", null=True)
     microfacts = models.JSONField("summarized text info", null=True)
     claimspan = models.JSONField("text span containing claim", null=True)
+    asr_prob_avg = models.DecimalField("ASR Probability Average", max_digits=5, decimal_places=4, null=True, blank=True)
+    asr_prob_min = models.DecimalField("ASR Probability Minimum", max_digits=5, decimal_places=4, null=True, blank=True)
 
 class AgentSession(models.Model):
     """

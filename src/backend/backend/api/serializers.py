@@ -101,7 +101,9 @@ class UtteranceSerializer(serializers.ModelSerializer):
             'claimspan',
             'uuid',
             'classification_set',
-            'query_set'
+            'query_set',
+            'asr_prob_avg',
+            'asr_prob_min',
         ]
 
 # read in annotation interface and segmentation view, wrote by utterance updater
