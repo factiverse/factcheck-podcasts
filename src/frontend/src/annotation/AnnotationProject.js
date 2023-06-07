@@ -120,22 +120,23 @@ export default function AnnotationProject() {
 
       //SHORT CUT KEYS
       if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
-        if (activeQualifiers ?? activeQualifiers.includes(qual_trans)) {
+        if (activeQualifiers && activeQualifiers.includes(qual_trans)) {
+          
           // get the transcription classification for the current utterance
           const trClass = utterance.classification_set.filter(cl => cl.qualifier == qual_trans)[0];
 
           // APPROVE EXISTING TRANSCRIPTION
-          if (allQualifiers.includes(qual_trans) && (event.key === 'a' || event.key === 'A')) {
+          if (event.key === 'a' || event.key === 'A') {
             postClassification(utterance.uuid, qual_trans, 'Approve Original', '', agent);
           }
           // EDIT EXISTING TRANSCRIPTION
-          else if (allQualifiers.includes(qual_trans) && (event.key === 'e' || event.key === 'E')) {
+          else if (event.key === 'e' || event.key === 'E') {
             postClassification(utterance.uuid, qual_trans, 'Edit', trClass?.label ?? '', agent);
             transcriptionInputRef.current.focus();
           }
           // CONFIRM EDIT TRANSCRIPTION
           // check to see if the transcription is actually different from the original
-          else if (allQualifiers.includes(qual_trans) && (event.key === 'c' || event.key === 'C')) {
+          else if (event.key === 'c' || event.key === 'C') {
             if (trClass.label && trClass.label !== utterance.text) {
               postClassification(utterance.uuid, qual_trans, 'Confirm Edit', trClass.label, agent);
             } else {
@@ -145,37 +146,35 @@ only work after changes have been made to the text in EDIT mode.");
             }
           }
           // UNSURE TRANSCRIPTION
-          else if (allQualifiers.includes(qual_trans) && (event.key === 'u' || event.key === 'U')) {
+          else if (event.key === 'u' || event.key === 'U') {
             postClassification(utterance.uuid, qual_trans, 'Unsure', '', agent);
           }
-        // CHECKWORTHY SHORTCUT KEYS ACTIVATED IF NO TRANSCRIPTION TASK
-        } else if (activeQualifiers.includes(qual_cw)) {
+          // CHECKWORTHY SHORTCUT KEYS ACTIVATED IF NO TRANSCRIPTION TASK
+        } else if (activeQualifiers ?? activeQualifiers.includes(qual_cw)) {
           // MARK AS FACTUAL DESCRIPTIONS
-          if (allQualifiers.includes(qual_cw) && (event.key === 'f' || event.key === 'F')) {
+          if (event.key === 'f' || event.key === 'F') {
             postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Factual Descriptions', agent);
           }
           // MARK AS QUOTATION
-          if (allQualifiers.includes(qual_cw) && (event.key === 'q' || event.key === 'Q')) {
+          if (event.key === 'q' || event.key === 'Q') {
             postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Quotation', agent);
           }
           // MARK AS NOT A CLAIM
-          if (allQualifiers.includes(qual_cw) && (event.key === 'n' || event.key === 'N')) {
+          if (event.key === 'n' || event.key === 'N') {
             postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Not a Claim', agent);
           }
           // MARK AS BROADCAST DETAILS
-          if (allQualifiers.includes(qual_cw) && (event.key === 'b' || event.key === 'B')) {
+          if (event.key === 'b' || event.key === 'B') {
             postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Broadcast Details', agent);
           }
           // MARK AS BROADCAST DETAILS
-          if (allQualifiers.includes(qual_cw) && (event.key === 'e' || event.key === 'E')) {
+          if (event.key === 'e' || event.key === 'E') {
             postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Emotions and Opinions', agent);
           }
         }
 
-
-
         // MARK AS NOT ADVERTISING (if advertising id task is active at the same time as checkworthiness, then CW takes precedence)
-        if (allQualifiers.includes(qual_ad) && !allQualifiers.includes(qual_cw) && (event.key === 'n' || event.key === 'N')) {
+        if (activeQualifiers.includes(qual_ad) && !activeQualifiers.includes(qual_cw) && (event.key === 'n' || event.key === 'N')) {
           postClassification(utterance.uuid, qual_ad, 'Not Advertising', 'Not Advertising', agent);
         }
 
