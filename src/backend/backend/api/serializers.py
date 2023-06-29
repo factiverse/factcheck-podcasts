@@ -275,6 +275,7 @@ class TranscriptionSummarySerializer(serializers.ModelSerializer):
         model = Transcription
         fields = [
             'item', 
+            'name',
             'speech2txt', 
             'runtime', 
             'created',
