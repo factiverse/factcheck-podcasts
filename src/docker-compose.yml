@@ -4,7 +4,7 @@ services:
   backend:
     build:
       context: ./backend
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 600
     volumes:
       - ./backend/db.sqlite3:/backend/db.sqlite3
       - ./media:/media
