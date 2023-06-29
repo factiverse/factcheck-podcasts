@@ -36,6 +36,8 @@ def sentence_splitter(transcript, spacy_model):
     # Set the custom attributes for start and end times on Span objects
     Span.set_extension('start_time', default=None, force=True)
     Span.set_extension('end_time', default=None, force=True)
+    Span.set_extension('avg_prob', default=None, force=True)
+    Span.set_extension('min_prob', default=None, force=True)
 
     # load the words with start and end times
     words = copy.deepcopy(transcript['words'])
@@ -55,12 +57,11 @@ def sentence_splitter(transcript, spacy_model):
         # Initialize start and end times
         start_time = words[0]["start"]
         sent_concat = ""
+        word_probs = []  # List to store probabilities
         while sent.text.strip() != sent_concat.strip():
             word = words.pop(0)
             sent_concat += word["word"]
-            # if sent.text.strip() doesn't end with period, question mark or exclamation mark
-            # check if sent_concat matches sent.text.strip() + following sent.text.strip()
-            # special rare case when spaCy is not able to split the sentence correctly
+            word_probs.append(word["probability"])  # Save probability
             if sent.text.strip()[-1] not in [".", "?", "!"] and idx < len(sentence_list) - 1:
                 if sent.text.strip() + sentence_list[idx+1].text.strip() == sent_concat.strip():
                     idx += 1
@@ -71,8 +72,11 @@ def sentence_splitter(transcript, spacy_model):
         # Assign start and end times to the sentence
         sent._.start_time = start_time
         sent._.end_time = end_time
+        # Assign the average and min probability of the words to the sentence
+        sent._.avg_prob = round(sum(word_probs) / len(word_probs), 4) if word_probs else None
+        sent._.min_prob = round(min(word_probs), 4) if word_probs else None
         # Append the sentence to the list of utterances
-        utterances.append({"text": sent.text, "start": sent._.start_time, "end": sent._.end_time})
+        utterances.append({"text": sent.text, "start": sent._.start_time, "end": sent._.end_time, "asr_prob_avg": sent._.avg_prob, "asr_prob_min": sent._.min_prob})
 
     utterance_set = add_diarization(dz, utterances)
     return utterance_set

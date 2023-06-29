@@ -35,11 +35,11 @@ def parse_channel(rss, num_episodes=-1):
         "rss": rss,
         "title": feed.feed.title,
         "image": feed.feed.image.href,
-        "language": feed.feed.language,
+        "language": feed.feed.get("language", ""),
         "summary": feed.feed.get("summary"),
         "description": feed.feed.description,
-        "owner": feed.feed.publisher_detail.get("email", feed.feed.publisher_detail.get("name")),
-        "categories": ", ".join([cat.term for cat in feed.feed.tags]),
+        "owner": feed.feed.publisher_detail.get("email", feed.feed.publisher_detail.get("name")) if feed.feed.get("publisher_detail") else "",
+        "categories": ", ".join([cat.term for cat in feed.feed.tags]) if feed.feed.get("tags") else "",
         "description": feed.feed.description,
     }
 

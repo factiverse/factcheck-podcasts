@@ -39,7 +39,7 @@ def convert_time(seconds):
     return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
 
-def get_transcription(filename, language, model_size):
+def get_transcription(filename, language, model_size, initial_prompt=""):
 
     #print("starting episode:", episode)
     #guid = episode.get("guid")
@@ -48,7 +48,7 @@ def get_transcription(filename, language, model_size):
 
     model = whisper.load_model(model_size)
     decode_options = dict(best_of=5, beam_size=5, language=language)#episode.get("language"))
-    transcribe_options = dict(word_timestamps=True, fp16=False, **decode_options)
+    transcribe_options = dict(word_timestamps=True, fp16=False, initial_prompt=initial_prompt if len(initial_prompt) > 0 else None, **decode_options)
 
     # run Whisper
     start_time = time.time()
