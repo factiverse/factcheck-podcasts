@@ -4,12 +4,12 @@ services:
   backend:
     build:
       context: ./backend
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 600
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8888 --timeout 600
     volumes:
       - ./backend/db.sqlite3:/backend/db.sqlite3
       - ./media:/media
     ports:
-      - "8000:8000"
+      - "8888:8888"
   frontend:
     build:
       context: ./frontend
