@@ -13,7 +13,7 @@ export const helpModalData = {
         <strong>You will go through each statement in the podcast and make a decision about whether it warrants a fact check \
         <em>('Checkworthiness')</em>.</strong></p> \
         \
-        <p>After you classify a statement in a <em>Checkworthy</em> category, an additional <strong>Motivation</strong> card will be shown where you are asked \
+        <p>After you classify a statement in a <em>Checkable</em> category, an additional <strong>Motivation</strong> card will be shown where you are asked \
         for your opinion about why carrying out a fact check might be beneficial. You may also optionally highlight the section of the text which contains \
         the claim you are considering on the <em>Statement</em> card.</p> \
         \
@@ -203,7 +203,7 @@ those who do and will prioritize those with quality work in new studies that wil
     display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong>    \
     button to the left of the <em>Final Submission</em> button will give you an <strong>overview of missing tasks and which statements have errors</strong>.</p>",
 
-        workflowDescriptionCheckworthy: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
+        workflowDescriptionCheckable: "<strong>Checkworthiness:</strong> Determining whether it would even be possible to fact check the statement on the internet with public sources, \
     and if fact checking this statement would be beneficial or interesting for the public.",
         workflowDescriptionTranscribe: "<strong>Transcription Verification:</strong> Verifying that the automatically generated transcription is correct, and fixing any errors if not.",
         workflowDescriptionFactcheck: "<strong>Fact Check:</strong> Carrying out a basic fact check on the statement by making searches with your preferred search engine, \
@@ -258,7 +258,7 @@ export const helpPopUpData = {
     If you find a result that supports the statement, you can add it to the document set. If you find a result that \
     does not support the statement, you can add it to the document set and mark it as false. You can also add a comment to the document."
     },
-    ClaimSpan: { // this is for the help button that appears on the STATEMENT/UTTERANCE card when isCheckworthy and ClaimSpan must be added by user
+    ClaimSpan: { // this is for the help button that appears on the STATEMENT/UTTERANCE card when isCheckable and ClaimSpan must be added by user
         cardTitle: "Statement - Highlight Claim Span",
         //cardInstructionHeader: "",
         //cardInstructionBody: "",

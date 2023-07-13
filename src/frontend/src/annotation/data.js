@@ -2,20 +2,20 @@ export const allQualifiers = ['Checkworthiness', 'Advertising', 'Motivation', 'T
 
 export const searchPlatforms = [{ name: "Google", key: "google" }, { name: "Bing", key: "bing" }, { name: "Yahoo", key: "yahoo" }, { name: "DuckDuckGo", key: "duckduckgo" }, { name: "Other (specify with query)", key: "other" }];
 
-export const checkworthyLabels = {
-  key: "Checkworthy", // string that can be used in HTML id attributes.
+export const checkableLabels = {
+  key: "Checkable", // string that can be used in HTML id attributes.
   instruction1: "Identify statements that would warrant a fact check.",
   instruction2: "Would a fact check on this statement be of interest to the general public? \
   Would it be possible to verify this statement using publicly available sources?",
-  helpHeader: "Checkworthiness",
-  helpText:   "Statements must be categorized into those that are checkworthy, \
+  helpHeader: "Checkable",
+  helpText:   "Statements must be categorized into those that are checkable, \
   meaning they should be fact-checked, and those that are not. For instance, public claims involving \
   notable entities can often be verified, whereas personal experiences or future predictions are typically not \
-  checkworthy. Fact-checking requires considerable resources, so this distinction helps to ensure efforts \
+  checkable. Fact-checking requires considerable resources, so this distinction helps to ensure efforts \
   are concentrated on statements that can feasibly be checked and are of public interest. \
-  \n\n<strong>Checkworthy</strong> categories include <em>Factual Descriptions</em>, <em>Cause and Effect</em>, <em>Numerical Claims</em>, and <em>Quotations</em>, \
+  \n\n<strong>Checkable</strong> categories include <em>Factual Descriptions</em>, <em>Cause and Effect</em>, <em>Numerical Claims</em>, and <em>Quotations</em>, \
   which cover claims about notable people, events, statistics, and direct quotations from public figures.\n\n \
- <strong>Not Checkworthy</strong> categories include <em>Emotions and Opinions</em>, <em>Predictions</em>, <em>Personal Experience</em>, \
+ <strong>Not Checkable</strong> categories include <em>Emotions and Opinions</em>, <em>Predictions</em>, <em>Personal Experience</em>, \
   and <em>Not a Claim</em>, capturing statements that are subjective, speculative, personal, or not making any factual assertion. \
   \n\n<strong>Hover your mouse over the buttons</strong> to see a more detailed description and examples of each category.",
    labels: [
@@ -23,7 +23,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "1",
       label: "Factual Descriptions",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Claims about the existence or characteristics of notable people, places, \
       things, events, or actions, and which are possible to verify with public sources.",
       examples: [
@@ -39,7 +39,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "2",
       label: "Cause and Effect",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Claims asserting one thing is caused by or linked with another, which can be checked against reputable sources.",
       examples: [
         "The company collapsed after a rouge employee was discovered to be embezzling funds.",
@@ -51,7 +51,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "3",
       label: "Numerical Claims",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Claims which involve specific statistics or would require counting or analysis of numerical data to verify.",
       examples: [
         "The average Mexican consumes more sugar per day than the average American.",
@@ -63,7 +63,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "4",
       label: "Quotation",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Repeating the words of another notable person or entity which can be verified in public sources.",
       examples: [
         "The mayor was clear when he said, 'All flooded households will receive emergency assistance after a damage assessment.'",
@@ -77,7 +77,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "5",
       label: "Not a Claim",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Not making any sort of claim, including questions not including some factual assertion.",
       examples: [
         "Hello, how are you?", 
@@ -92,7 +92,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "6",
       label: "Broadcast Details",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Introducing the speakers, describing the program, or giving details related to the episode contents.",
       examples: [
         "Welcome to the show, I'm your host, John Smith.",
@@ -105,7 +105,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "7",
       label: "Emotions and Opinions",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "An emotion that is being felt or expressed, or an opinion that doesn't contain a checkable \
        factual assertion.",
       examples: [
@@ -120,7 +120,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "8",
       label: "Personal Experience",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Claims a person makes about their own experience, but which cannot be verified in public sources.",
       examples: [
         "I passed four empty busses on my way to work yesterday.",
@@ -132,7 +132,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "9",
       label: "Predictions",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Claims and predictions about future events or plans that can't be confirmed at present.",
       examples: [
         "Elon Musk will visit Mars.", 
@@ -152,7 +152,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "1",
       label: "Action or Occurrence",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Something that was done by a person, nature, force, entity, etc. and is part of the public record.",
       examples: [
         "The mayor declared a state of emergency after floodwaters inundated 3 neighborhoods.",
@@ -162,7 +162,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "2",
       label: "Description or Existence",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Describing objective facts about a person, place, or thing that exists and which could be confirmed on the public internet.",
       examples: [
         "Michael Jackson was over 6 feet tall.",
@@ -172,7 +172,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "3",
       label: "Cause and Effect",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Statements that one thing is caused by or associated with another thing, and where reputable public sources would exist.",
       examples: [
         "The collapse of the company was caused by a rouge employee embezzling funds.",
@@ -182,7 +182,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "4",
       label: "Laws, Rules, or Customs",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "A law, rule, procedure, or custom that public sources would indicate is followed, broken, or investigated.",
       examples: [
         "The money laundering scheme violated both national and international law",
@@ -192,7 +192,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "5",
       label: "Research or Statistics",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "A specific statistic or academic finding that would be published by reputable sources.",
       examples: [
         "The latest poll shows that 80% of people are unhappy with the current government.",
@@ -202,7 +202,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "6",
       label: "Quotation",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "Repeating the words of another person or entity which can be verified in public sources.",
       examples: [
         "The spokesman was clear when he said, 'All flooded households will receive emergency assistance after a damage assessment.'",
@@ -212,7 +212,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "7",
       label: "Definition",
-      category: "Checkworthy",
+      category: "Checkable",
       help: "A definition of a word or phrase which can be confirmed online with relevant and reputable sources.",
       examples: [
         "The government budget deficit is the total amount of money the government has borrowed over the years and currently owes to its creditors.", 
@@ -223,7 +223,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "8",
       label: "Emotions",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "An emotion that is being felt or expressed.",
       examples: [
         "I love how the tulips look early on a spring morning.", 
@@ -233,7 +233,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "9",
       label: "Opinions and Values",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "An opinion, value, or advice that is being expressed without any checkable factual assertion.",
       examples: [
         "These politicians are the only ones who have half a clue.", 
@@ -243,7 +243,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "10",
       label: "Plans and Predictions",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "A plan for the future or prediction of what will happen.",
       examples: [
         "Elon Musk will visit Mars.", "The sun will rise tomorrow."
@@ -252,7 +252,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "11",
       label: "Public Opinion",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Public opinion about a topic not fully specified or formally investigated.",
       examples: [
         "They all think the government is corrupt.",
@@ -262,7 +262,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "12",
       label: "Personal Experience",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Claims a person makes about their own experience, but which cannot be verified in public sources.",
       examples: [
         "I passed four empty busses on my way to work yesterday.",
@@ -272,7 +272,7 @@ export const checkworthyLabels = {
     {
       keyStroke: "13",
       label: "Not a Claim",
-      category: "Not Checkworthy",
+      category: "Not Checkable",
       help: "Not making any sort of claim.",
       examples: [
         "Hello, how are you?", 

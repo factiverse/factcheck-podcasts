@@ -92,7 +92,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
             <>
             <h5>The following task cards will appear on at least one statement:</h5>
             <ul>
-              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionCheckworthy }}></li> : null}
+              {qualifiers.includes("Checkworthiness") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionCheckable }}></li> : null}
               {qualifiers.includes("Factcheck") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionFactcheck }}></li> : null}
               {qualifiers.includes("ClaimSpan") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionClaimSpan }}></li> : null}
               {qualifiers.includes("Motivation") ? <li dangerouslySetInnerHTML={{ __html: helpData?.workflowDescriptionMotivation }}></li> : null}

@@ -17,7 +17,7 @@ export default function Utterance({
   utteranceContext,
   audioPlaying,
   setAudioPlaying,
-  isCheckworthy,
+  isCheckable,
   agent,
   classification,
   isAttentionCheck, }) {
@@ -148,9 +148,9 @@ export default function Utterance({
     <Card className='mb-3'>
       <Card.Header className='pb-0'>
         <div className='d-flex justify-content-between align-items-center'>
-          <Card.Title>{isCheckworthy ? helpPopUpData["ClaimSpan"].cardTitle : "Statement"}</Card.Title>
+          <Card.Title>{isCheckable ? helpPopUpData["ClaimSpan"].cardTitle : "Statement"}</Card.Title>
           <div className='d-flex'>
-          {isCheckworthy &&
+          {isCheckable &&
             <div className='pb-2'>
               {classification?.label.length > 0 ? (
                 <span style={{ color: 'green', marginRight: '5px' }}>
@@ -216,7 +216,7 @@ export default function Utterance({
             utterance={utterance}
             setUtterance={setUtterance}
             agent={agent}
-            isCheckworthy={isCheckworthy}
+            isCheckable={isCheckable}
             classification={classification}
             setPlayerTime={setPlayerTime}
           >
@@ -224,7 +224,7 @@ export default function Utterance({
       </Card.Body>
 
 
-      {isCheckworthy && <Card.Body>
+      {isCheckable && <Card.Body>
         <Card.Title>{helpPopUpData["ClaimSpan"].cardInstructionHeader}</Card.Title>
         <Card.Text>{helpPopUpData["ClaimSpan"].cardInstructionBody}</Card.Text>
       </Card.Body>}

@@ -83,16 +83,16 @@ export default function FactCheck({ utterance, setUtterance, agent }) {
     }, [utterance, utterance.query_set, factChecks]);
 
 
-    // check if the utterance has a checkworthy classification, and if not, set the factChecks to empty
+    // check if the utterance has a checkable classification, and if not, set the factChecks to empty
     useEffect(() => {
-        const checkworthyClassification = utterance.classification_set.find(
+        const checkableClassification = utterance.classification_set.find(
             (classification) => (
                 classification.qualifier === 'Checkworthiness' &&
-                classification.category === 'Checkworthy'
+                classification.category === 'Checkable'
             )
         );
 
-        if (!checkworthyClassification) {
+        if (!checkableClassification) {
             setFactChecks([]);
             setUtterance({ ...utterance, query_set: [] });
             postToAPI(utterance, [], agent);

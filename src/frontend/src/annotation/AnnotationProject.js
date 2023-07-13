@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Utterance from './utterance/Utterance';
 import axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
-import { checkworthyLabels, advertisingLabels, motivationLabels } from './data.js';
+import { checkableLabels, advertisingLabels, motivationLabels } from './data.js';
 import NavigationButtons from './NavigationButtons';
 import ExclusiveSelector from './ExclusiveSelector';
 import FactCheck from './factcheck/FactCheck';
@@ -43,7 +43,7 @@ export default function AnnotationProject() {
   const [agentSession, setAgentSession] = useState(null);
   const [agentSessionUpdated, setAgentSessionUpdated] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [isCheckworthyUtt, setIsCheckworthyUtt] = useState(false); // used to hide/show fact check window after statement is classified as checkworthy
+  const [isCheckableUtt, setIsCheckableUtt] = useState(false); // used to hide/show fact check window after statement is classified as checkable
   const { segmentationUuid } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [factCheckCount, setFactCheckCount] = useState(0);
@@ -153,23 +153,23 @@ only work after changes have been made to the text in EDIT mode.");
         } else if (activeQualifiers ?? activeQualifiers.includes(qual_cw)) {
           // MARK AS FACTUAL DESCRIPTIONS
           if (event.key === 'f' || event.key === 'F') {
-            postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Factual Descriptions', agent);
+            postClassification(utterance.uuid, qual_cw, 'Checkable', 'Factual Descriptions', agent);
           }
           // MARK AS QUOTATION
           if (event.key === 'q' || event.key === 'Q') {
-            postClassification(utterance.uuid, qual_cw, 'Checkworthy', 'Quotation', agent);
+            postClassification(utterance.uuid, qual_cw, 'Checkable', 'Quotation', agent);
           }
           // MARK AS NOT A CLAIM
           if (event.key === 'n' || event.key === 'N') {
-            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Not a Claim', agent);
+            postClassification(utterance.uuid, qual_cw, 'Not Checkable', 'Not a Claim', agent);
           }
           // MARK AS BROADCAST DETAILS
           if (event.key === 'b' || event.key === 'B') {
-            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Broadcast Details', agent);
+            postClassification(utterance.uuid, qual_cw, 'Not Checkable', 'Broadcast Details', agent);
           }
           // MARK AS BROADCAST DETAILS
           if (event.key === 'e' || event.key === 'E') {
-            postClassification(utterance.uuid, qual_cw, 'Not Checkworthy', 'Emotions and Opinions', agent);
+            postClassification(utterance.uuid, qual_cw, 'Not Checkable', 'Emotions and Opinions', agent);
           }
         }
 
@@ -332,19 +332,19 @@ only work after changes have been made to the text in EDIT mode.");
 
   }, [agent]);
 
-  // check if the classification set has a checkworthy classification and set isCheckworthyUtt (FOR SHOW/HIDE FACT CHECK)
+  // check if the classification set has a checkable classification and set isCheckableUtt (FOR SHOW/HIDE FACT CHECK)
   useEffect(() => {
-    const checkForCheckworthyClassification = () => {
+    const checkForCheckableClassification = () => {
       if (classifications) {
-        const checkworthyClassification = classifications.filter((c) => c.qualifier === "Checkworthiness" && c.category === "Checkworthy")[0];
-        if (checkworthyClassification) {
+        const checkableClassification = classifications.filter((c) => c.qualifier === "Checkworthiness" && c.category === "Checkable")[0];
+        if (checkableClassification) {
           return true;
         }
       }
       return false;
     };
-    const checkworthyExists = checkForCheckworthyClassification();
-    setIsCheckworthyUtt(checkworthyExists);
+    const checkableExists = checkForCheckableClassification();
+    setIsCheckableUtt(checkableExists);
   }, [utterance, classifications]);
 
 
@@ -434,7 +434,7 @@ only work after changes have been made to the text in EDIT mode.");
           <ExclusiveSelector
             qualifier={qual_cw}
             agent={agent}
-            labels={checkworthyLabels}
+            labels={checkableLabels}
             splitField="category"
             utterance={utterance}
             setUtterance={setUtterance}
@@ -446,7 +446,7 @@ only work after changes have been made to the text in EDIT mode.");
           />
         </div>
       ),
-      (utterance.visibility === 1 || utterance.visibility.includes("Factcheck")) && isCheckworthyUtt && (
+      (utterance.visibility === 1 || utterance.visibility.includes("Factcheck")) && isCheckableUtt && (
         <div key={qual_fc}>
           <FactCheck
             agent={agent}
@@ -455,7 +455,7 @@ only work after changes have been made to the text in EDIT mode.");
           />
         </div>
       ),
-      (utterance.visibility === 1 || utterance.visibility.includes(qual_mot)) && isCheckworthyUtt && (
+      (utterance.visibility === 1 || utterance.visibility.includes(qual_mot)) && isCheckableUtt && (
         <div key={qual_mot}>
           <ExclusiveSelector
             qualifier={qual_mot}
@@ -542,7 +542,7 @@ only work after changes have been made to the text in EDIT mode.");
                 url={segmentation.audio_file_link}
                 setAudioPlaying={setAudioPlaying}
                 audioPlaying={audioPlaying}
-                isCheckworthy={isCheckworthyUtt}
+                isCheckable={isCheckableUtt}
                 agent={agent}
                 classification={classifications.filter((c) => c.qualifier === "ClaimSpan")[0]}
                 isAttentionCheck={activeQualifiers.includes("Transcription") && attentionCheckIndices.includes(index)}

@@ -59,7 +59,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                     }
 
 
-                } else if ((qual === "Factcheck" || qual === "ClaimSpan" || qual === "Motivation") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkworthy"))) {
+                } else if ((qual === "Factcheck" || qual === "ClaimSpan" || qual === "Motivation") && !isClassificationMissing("Checkworthiness", utterance.classification_set.filter((item) => item.category === "Checkable"))) {
                     if (qual === "ClaimSpan" && isClassificationMissing("ClaimSpan", utterance.classification_set)) {
                         errorTxt += `MISSING: CLAIMSPAN, on STATEMENT: ${i}\n`;
                         complete = false;

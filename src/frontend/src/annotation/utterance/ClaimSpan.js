@@ -40,7 +40,7 @@ const convertStringToValue = (string) => {
 };
 
 
-export default function ClaimSpan({ utterance, setUtterance, classification, isCheckworthy, agent, setPlayerTime }) {
+export default function ClaimSpan({ utterance, setUtterance, classification, isCheckable, agent, setPlayerTime }) {
     const qualifier = "ClaimSpan";
     const [value, setValue] = React.useState([]);
     const [tag, setTag] = React.useState("ClaimSpan");
@@ -82,12 +82,12 @@ export default function ClaimSpan({ utterance, setUtterance, classification, isC
         setValue(classification?.label.length > 0 ? convertStringToValue(classification.label) : []);
     }, [classification]);
 
-    // if isCheckworthy is false, then delete the claimspan classification and post to the api
+    // if isCheckable is false, then delete the claimspan classification and post to the api
     useEffect(() => {
-        if (!isCheckworthy && utterance.classification_set.filter((item) => item.category === "Not Checkworthy").length > 0) {
+        if (!isCheckable && utterance.classification_set.filter((item) => item.category === "Not Checkable").length > 0) {
             postToAPI(utterance.uuid, qualifier, "", "", agent);
         }
-    }, [isCheckworthy, classification, agent]);
+    }, [isCheckable, classification, agent]);
 
 
     return (
@@ -99,7 +99,7 @@ export default function ClaimSpan({ utterance, setUtterance, classification, isC
                     textAlign: "left",
                 }}
                 content={utterance["text"]}
-                onChange={isCheckworthy ? handleChange : () => { }}
+                onChange={isCheckable ? handleChange : () => { }}
                 value={value}
                 getSpan={(span) => ({
                     ...span,

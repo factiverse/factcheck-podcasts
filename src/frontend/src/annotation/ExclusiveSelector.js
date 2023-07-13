@@ -8,7 +8,7 @@ import CircleFirstLetter from './help/CircleFirstLetter';
 
 export default function ExclusiveSelector({ qualifier, classification, agent, labels, splitField, utterance, postToAPI, isExpedited }) {
     const [radioValue, setRadioValue] = useState('');
-    const [category, setCategory] = useState(''); //e.g. checkworthy vs. non-checkworthy
+    const [category, setCategory] = useState(''); //e.g. checkable vs. non-checkable
 
     // if isExpedited is true, and no classification exists, then just post labels.expeditedValue to the API
     useEffect(() => {
