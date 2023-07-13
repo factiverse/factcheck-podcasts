@@ -50,7 +50,8 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                 <div className="d-flex justify-content-center">
                     {!hideTranscriptionButton && <ButtonGroup>
                         <Button
-                            onClick={() => setOpen(!open)}
+            
+            onClick={() => setOpen(!open)}
                             aria-controls="transcription-table-collapse"
                             aria-expanded={open}
                             variant="outline-secondary"
@@ -96,7 +97,9 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
             <Card.Body>
                 <ListGroup as="ol">
                     {transcription.segmentation_set ? transcription.segmentation_set.sort((a, b) => a.name.localeCompare(b.name)).map((seg) =>
-                        <React.Fragment key={`fragment-${seg.uuid}`}>
+                    // only show the factiverse segmentations
+                    <React.Fragment key={`fragment-${seg.uuid}`}>
+                            {seg.name === "Factiverse CW/MO/CS" && (
                             <ListGroup.Item
                                 as="li"
                                 className="d-flex justify-content-between align-items-start">
@@ -132,6 +135,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                     </div>
                                 </div>
                             </ListGroup.Item>
+                        )}
                         </React.Fragment>
                     ) : <ListGroup.Item as="li" className="d-flex justify-content-between align-items-start">
                         <div className="ms-2 me-auto">
