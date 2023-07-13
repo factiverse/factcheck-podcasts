@@ -14,9 +14,10 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import PodcastBrowser from './podcasts/PodcastBrowser';
 
 //dev
-axios.defaults.baseURL = 'http://localhost:8888/';
+axios.defaults.baseURL = 'http://podcasts.factiverse.no:8000/';
+//axios.defaults.baseURL = 'http://localhost:8000/';
 //axios.defaults.baseURL = 'http://192.168.2.239/';
-//axios.defaults.baseURL = 'http://192.168.1.145:8888/';
+//axios.defaults.baseURL = 'http://34.147.4.161:8000/';
 //docker publish
 //axios.defaults.baseURL = '/';
 
