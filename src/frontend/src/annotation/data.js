@@ -346,36 +346,33 @@ export const advertisingLabels = {
 
 export const motivationLabels = {
   instruction1: "Why would you want to fact check this statement? What is there to gain?",
-  instruction2: "Prioritize an <em>Impact</em> category if you feel one fits, otherwise choose a <em>Verification</em> category if the truthfulness of the statement is obvious to you without any fact check.",
+  instruction2: "Choose an option that best fits why you would like to fact check this claim",
   helpHeader: "Understanding Motivation Labels",
   helpText: "Fact-checking is a resource-intensive process. Understanding the motivation behind fact-checking a statement can help prioritize efforts effectively. Different motivations can drive this, including:\n\n\
-  <strong>Learn More:</strong> I would gain new knowledge about this topic by fact checking it.\n \
-  <strong>Controversial:</strong> This topic is controversial or experts may disagree about it.\n \
-  <strong>Deception:</strong> The speaker is suspected of intentionally misleading others.\n \
+  <strong>Potential to Cause Harm:</strong> The potential to cause harm is concerning and demands further investigation to assess its true impact on individuals and society\n \
+  <strong>Said By a Prominent Person:</strong> This claim is said by a prominent person and should be verified if true\n \
+  <strong>Public Interest:</strong> It would be for the public interest to verify the truth about this claim\n \
   <strong>Surprising:</strong> The claim is surprising or hard to believe.\n \
-  <strong>Discrimination:</strong> The statement might promote discrimination or hate towards certain groups.\n \
-  <strong>Confirm True:</strong> The statement is believed to be correct, and fact-checking would validate it.\n \
-  <strong>Precision:</strong> The statement might be partially true but requires more detail for a complete picture.\n \
-  <strong>Confirm False:</strong> The statement is believed to be incorrect, and fact-checking would disprove it.",
+  <strong>Learn More:</strong> I would gain new knowledge about this topic by fact checking it.",
   key: "Motivation",
   labels: [
     {
       keyStroke: "1",
-      label: "Learn More",
+      label: "Potential to Cause Harm",
       category: "Impact",
-      help: "I would gain new knowledge about this topic by fact checking this statement."
+      help: "I think this statement could cause harm if false."
     },
     {
       keyStroke: "2",
-      label: "Controversial",
+      label: "Said By a Prominent Person",
       category: "Impact",
-      help: "I think this is a controversial statement and a fact check would benefit the debate."
+      help: "I want to check if this prominent person actually said this."
     },
     {
       keyStroke: "3",
-      label: "Deception",
+      label: "Public Interest",
       category: "Impact",
-      help: "I believe the person making this claim is trying to deceive others."
+      help: "I believe the fact checking of this claim is for the public interest."
     },
     {
       keyStroke: "4",
@@ -385,27 +382,9 @@ export const motivationLabels = {
     },
     {
       keyStroke: "5",
-      label: "Discrimination",
+      label: "Learn More",
       category: "Impact",
-      help: "I think this statement promotes discrimination or hate of people."
-    },
-    {
-      keyStroke: "6",
-      label: "Confirm True",
-      category: "Verification",
-      help: "I believe this statement is correct, and fact-checking would help confirm this to others.",
-    },
-    {
-      keyStroke: "7",
-      label: "Precision",
-      category: "Verification",
-      help: "I believe this statement is somewhat true, but fact-checking it would give a more complete picture.",
-    },
-    {
-      keyStroke: "8",
-      label: "Confirm False",
-      category: "Verification",
-      help: "I believe this statement is incorrect, and a fact check would provide evidence for this."
+      help: "I would gain new knowledge about this topic by fact checking this statement."
     },
   ]
 };
