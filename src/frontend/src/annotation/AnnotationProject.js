@@ -510,7 +510,8 @@ only work after changes have been made to the text in EDIT mode.");
   return (
     <div {...handlers}>
 
-      {!agent && <UserModal setAgent={setAgent} />}
+    {/* {!agent && <UserModal setAgent={setAgent} />} */}
+    {!agent && setAgent({PROLIFIC_PID: "demo"})}
 
       <Container fluid className="text-center">
 
