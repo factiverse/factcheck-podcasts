@@ -8,7 +8,6 @@ export default function FinalizeModal({ show, handleClose, agentSession, setAgen
 
   const [feedback, setFeedback] = useState(''); // create a state for the feedback
 
-  const completionCode = "C18BT6R7";
   const externalLink = "https://toloka.yandex.com/tasks";
 
   const handleFeedbackChange = (e) => {
