@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { secondsToHms } from '../../util/time';
 import ReactPlayer from 'react-player/file';
 import axios from 'axios';
@@ -196,6 +196,7 @@ export default function Utterance({
             width="100%"
             height="2em"
             playbackRate={playbackSpeed}
+            onStart={() => setAudioPlaying(false)}
             onEnded={() => setAudioPlaying(false)}
           />
         }

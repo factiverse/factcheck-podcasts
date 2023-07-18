@@ -528,6 +528,8 @@ only work after changes have been made to the text in EDIT mode.");
           agentSessionUpdated={agentSessionUpdated}
           setAgentSessionUpdated={setAgentSessionUpdated}
           attentionCheckIndices={attentionCheckIndices}
+          audioPlaying={audioPlaying}
+          setAudioPlaying={setAudioPlaying}
         />
 
         {utterance && agent && classifications && (
