@@ -12,13 +12,13 @@ export const helpModalData = {
         workflowIntroduction: "<p>The podcast has been automatically transcribed and split into sentences (statements). \
         <strong>You will go through each statement in the podcast and make a decision about whether it warrants a fact check \
         <em>('Checkworthiness')</em>.</strong></p> \
+        Fact-checking is the process of verifying the accuracy and reliability of claims, statements, or information by thoroughly \
+        researching and cross-referencing multiple sources. It involves examining evidence, assessing credibility, and providing \
+        an objective evaluation to separate factual information from misinformation or falsehoods. \
         \
         <p>After you classify a statement in a <em>Checkable</em> category, an additional <strong>Motivation</strong> card will be shown where you are asked \
         for your opinion about why carrying out a fact check might be beneficial. You may also optionally highlight the section of the text which contains \
         the claim you are considering on the <em>Statement</em> card.</p> \
-        \
-        <p><strong>Factiverse:</strong> Your responses are recorded as you advance from statement to statement. The information about validation below is \
-        primary for crowdsourcing workers, it is not necessary to activate and click the <em>Final Submission</em> button to save your answers. </p>\
         \
         <h5>How does this work?</h5> \
         <p> Each card for the required tasks will have a <strong style='font-size: 0.8rem; background-color:blue; color:white; \
@@ -54,7 +54,7 @@ export const helpModalData = {
         to the navigation buttons).\
         <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> on all statements, the \
         <strong>Final Submission</strong> button will be unlocked and turn green. This button will allow you to submit your work and be redirected \
-        back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+        back to Toloka. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
         align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button to the left of the <em>Final Submission</em> button will give \
         you an <strong>overview of missing tasks and statements which have errors</strong>. Your work is automatically saved as you progress from \
         statement to statement. </p>",
@@ -130,7 +130,7 @@ those who do and will prioritize those with quality work in new studies that wil
         to the navigation buttons).\
         <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> on all statements, the \
         <strong>Final Submission</strong> button will be unlocked and turn green. This button will allow you to submit your work and be redirected \
-        back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
+        back to Toloka. The <strong style='font-size: 0.8rem; background-color:blue; color:white; display:inline-flex; justify-content:center; \
         align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong> button to the left of the <em>Final Submission</em> button will give \
         you an <strong>overview of missing tasks and statements which have errors</strong>. Your work is automatically saved as you progress from \
         statement to statement. </p>",
@@ -199,7 +199,7 @@ those who do and will prioritize those with quality work in new studies that wil
     <p>After you have received a <strong style='color:green; font-size:1.2rem'>✓</strong> for all cards contained on all statements, and completed \
     the mandatory minimum number of certain tasks that require this, the <strong>Final Submission</strong> button in the upper right hand \
     corner of your screen will be activated and turn green. When you are complete you must click this button and confirm you are finished \
-    before being automatically redirected back to Prolific. The <strong style='font-size: 0.8rem; background-color:blue; color:white; \
+    before being automatically redirected back to Toloka. The <strong style='font-size: 0.8rem; background-color:blue; color:white; \
     display:inline-flex; justify-content:center; align-items:center; border-radius:5px;'>&nbsp&nbsp?&nbsp&nbsp</strong>    \
     button to the left of the <em>Final Submission</em> button will give you an <strong>overview of missing tasks and which statements have errors</strong>.</p>",
 
@@ -228,13 +228,13 @@ those who do and will prioritize those with quality work in new studies that wil
     .",
         closingTitle: "Thank you for your time!",
         closingBody: "We hope you enjoy the task and find the compensation fair. If you have any questions or feedback, please do not hesitate to \
-    contact us here on Prolific or leave a comment in the field shown before finalizing your submission. We will be publishing a range of studies \
+    contact us here on Toloka or leave a comment in the field shown before finalizing your submission. We will be publishing a range of studies \
     with different podcasts and tasks soon, including bonus opportunities for those with the most accurate work, so please check back regularly and \
     watch for invites to new studies."
     }
 }
 export const finalModalData = {
-    title: "Finalize your submission and return to Prolific",
+    title: "Finalize your submission and return to Toloka",
     body: [
         "Your responses have passed basic validation and you can now submit your work.",
         "Please take a moment to review your work if you have not already done so, \
@@ -305,7 +305,7 @@ export const helpPopUpData = {
         helpHeader: "Final submission after completion of all tasks.",
         helpText: "Complete each individual task card for the podcast statement to receive a green checkmark and \
         advance to the next statement. After all statements have a green check mark, and the minimum number of \
-        fact checks queries and evidence are submitted, this button will be activated to finalize and return to Prolific."
+        fact checks queries and evidence are submitted, this button will be activated to finalize and return to Toloka."
     },
     Statement: {
         helpHeader: "Statement Card",

@@ -29,6 +29,8 @@ export default function NavigationButtons({
     agentSessionUpdated,
     setAgentSessionUpdated,
     attentionCheckIndices,
+    audioPlaying,
+    setAudioPlaying,
 }) {
     const minFactChecks = segmentation.utterance_set.length;
     const minDocs = segmentation.utterance_set.length * 2;
@@ -81,7 +83,12 @@ export default function NavigationButtons({
 
     // functions to handle opening and closing of the welcome and finalize modals
     const handleWelcomeModalClose = () => setShowWelcomeModal(false);
-    const handleWelcomeModalShow = () => setShowWelcomeModal(true);
+    const handleWelcomeModalShow = () => {
+        setShowWelcomeModal(true);
+        if (audioPlaying) {
+            setAudioPlaying(false);
+        }
+    }
     const handleFinalizeModalClose = () => setShowFinalizeModal(false);
     const handleFinalizeModalShow = () => setShowFinalizeModal(true);
 
