@@ -90,7 +90,7 @@ export default function NavigationButtons({
             // only validate the entries through the lastCompletedIndex, to reduce error messages
             // but always set canSubmit to false in this case
 
-            if (lastCompletedIndex < segmentation.utterance_set.length - 1) {
+            if (lastCompletedIndex < 25) {
                 const filteredSegmentation = { ...segmentation, utterance_set: segmentation.utterance_set.slice(0, lastCompletedIndex + 1) };
                 const validation = validateAnnotations(filteredSegmentation, minFactChecks, minDocs, false, null, utterancesWithDiarization >= 1);
                 setCanSubmit(false);
