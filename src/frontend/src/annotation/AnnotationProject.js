@@ -509,7 +509,7 @@ only work after changes have been made to the text in EDIT mode.");
   if (searchParams.get("ASSIGNMENT_ID")) {
     result = searchParams.get("ASSIGNMENT_ID");
   }
-  console.log(toloka_id)
+  console.log(result)
 
   return (
     <div {...handlers}>
