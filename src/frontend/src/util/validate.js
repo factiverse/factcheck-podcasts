@@ -35,7 +35,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
     let errorTxt = "";
     if (segmentation.utterance_set) {
         let i = 0;
-        let j = 0;
+        let totDone = 0;
         let qualifiers = null;
         let completed = 0;
         for (const utterance of segmentation.utterance_set) {
@@ -49,7 +49,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
 
                 if (qual !== "Factcheck" && qual !== "ClaimSpan" && qual !== "Diarization" && qual !== "Motivation" && isClassificationMissing(qual, utterance.classification_set)) {
                     errorTxt += `MISSING: ${qual}, on STATEMENT: ${i}\n`;
-                    j +=1;
+                    totDone +=1;
                     complete = false;
                 } else if (qual === "Diarization" && segmentation.agent_session?.diarization) {
                     for (const [key, value] of Object.entries(segmentation.agent_session?.diarization)) {
@@ -109,8 +109,7 @@ export function validateAnnotations(segmentation, minFactChecks, minDocs, single
                         }
                     }
                 } else {
-                    completed = i-j;
-                    console.log(completed)
+                    completed = i-totDone;
                     if (completed >= 25) {
                         complete = true;
                     }
