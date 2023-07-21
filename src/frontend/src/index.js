@@ -24,7 +24,7 @@ axios.defaults.baseURL = 'http://localhost:8000/';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>document not found</div>,
+    element: <div>Go <a href="http://podcasts.factiverse.no/podcasts">here</a> for the podcasts </div>,
   }, {
     path: "/podcasts/",
     element: <PodcastBrowser />

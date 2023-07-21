@@ -121,7 +121,7 @@ export default function AnnotationProject() {
       //SHORT CUT KEYS
       if (event.target.type !== 'text' && tagName !== 'TEXTAREA') {
         if (activeQualifiers && activeQualifiers.includes(qual_trans)) {
-          
+
           // get the transcription classification for the current utterance
           const trClass = utterance.classification_set.filter(cl => cl.qualifier == qual_trans)[0];
 
@@ -505,13 +505,19 @@ only work after changes have been made to the text in EDIT mode.");
     ];
   };
 
-
+  const inputString = window.location.href;
+  const indexOfQuestionMark = inputString.indexOf("?");
+  let result = "demo"
+  if (indexOfQuestionMark !== -1) {
+    result = inputString.substring(indexOfQuestionMark + 14);
+  }
 
   return (
     <div {...handlers}>
 
-    {!agent && <UserModal setAgent={setAgent} />}
-    {/*{!agent && setAgent({PROLIFIC_PID: "demo"})}*/}
+      {/*!agent && <UserModal setAgent={setAgent} />*/}
+
+      {!agent && setAgent({ PROLIFIC_PID: result })}
 
       <Container fluid className="text-center">
 
