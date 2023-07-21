@@ -45,54 +45,6 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
     }
     return (
         <Card className='mw-20'>
-            <Card.Header>Transcription {transcription.name}</Card.Header>
-            <Card.Body>
-                <div className="d-flex justify-content-center">
-                    {!hideTranscriptionButton && <ButtonGroup>
-                        <Button
-            
-            onClick={() => setOpen(!open)}
-                            aria-controls="transcription-table-collapse"
-                            aria-expanded={open}
-                            variant="outline-secondary"
-                        >
-                            {open ? 'Hide Details' : 'Show Details'}
-                        </Button>
-                        <Button
-                            as={Link}
-                            variant="secondary"
-                            target="_blank"
-                            to={{ pathname: '/transcriptions/' + transcription.uuid, search: queryParams.toString() }}
-                        >
-                            View Transcript
-                        </Button>
-                    </ButtonGroup>}
-                </div>
-
-                <Collapse in={open}>
-                    <div id="transcription-table-collapse">
-                        <Table striped bordered hover size="sm" responsive className="mt-3">
-                            <thead></thead>
-                            <tbody>
-                                <tr>
-                                    <th>created</th>
-                                    <td>{transcription.created}</td>
-                                </tr>
-                                <tr>
-                                    <th>running time</th>
-                                    <td>{transcription.runtime}</td>
-                                </tr>
-                                <tr>
-                                    <th>language</th>
-                                    <td>{transcription.language}</td>
-                                </tr>
-                                {getSpeech2TxtRowsRecursive(transcription.speech2txt)}
-                            </tbody>
-                        </Table>
-                    </div>
-                </Collapse>
-
-            </Card.Body>
             <Card.Header>Segmentations</Card.Header>
             <Card.Body>
                 <ListGroup as="ol">
@@ -104,16 +56,8 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                 as="li"
                                 className="d-flex justify-content-between align-items-start">
                                 <div className="ms-2 me-auto">
-                                    <div className="fw-bold">{seg.name}</div>
+                                    <div className="fw-bold">Podcast</div>
                                     <ButtonGroup>
-                                        <Button
-                                            as={Link}
-                                            variant="secondary"
-                                            target="_blank"
-                                            to={{ pathname: '/segmentations/' + seg.uuid, search: queryParams.toString() }}
-                                        >
-                                            Segmentation {seg.toloka_annotations > 0 ? <Badge pill className='p-0 px-1 m-0' bg='warning' text='dark'>Toloka: {seg.toloka_annotations}</Badge> : ''}
-                                        </Button>
                                         <Button
                                             as={Link}
                                             variant="secondary"
