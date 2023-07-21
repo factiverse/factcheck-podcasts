@@ -13,8 +13,8 @@ class AgentSessionSerializer(serializers.ModelSerializer):
         fields = [
             'uuid',
             'agent',
-            'prolific_study',
-            'prolific_session',
+            'toloka_study',
+            'toloka_session',
             'created',
             'last_updated',
             'survey',
@@ -50,8 +50,8 @@ class QuerySerializer(serializers.ModelSerializer):
             'uuid',
             'document_set',
             'valid',
-            'prolific_session',
-            'prolific_study',
+            'toloka_session',
+            'toloka_study',
         ]
 
     def create(self, validated_data):
@@ -74,8 +74,8 @@ class ClassificationSerializer(serializers.ModelSerializer):
             'label',
             'category',
             'agent',
-            'prolific_session',
-            'prolific_study',
+            'toloka_session',
+            'toloka_study',
             'uuid',
         ]
 
@@ -185,7 +185,7 @@ class SegmentationSerializer(serializers.ModelSerializer):
 
 # return details of the segmentation without including the text data
 class SegmentationSummarySerializer(serializers.ModelSerializer):
-    prolific_annotations = serializers.SerializerMethodField()
+    toloka_annotations = serializers.SerializerMethodField()
     other_annotations = serializers.SerializerMethodField()
 
     class Meta:
@@ -195,30 +195,30 @@ class SegmentationSummarySerializer(serializers.ModelSerializer):
             'uuid',
             'name',
             'segmentor',
-            'prolific_annotations',
+            'toloka_annotations',
             'other_annotations',
         ]
                 
-    # count the number of annotations from prolific users in this segmentation
+    # count the number of annotations from toloka users in this segmentation
     # the annotations are the number of classifications for each utterance in the utterance set
-    # prolific users will be defined as those where the agent starts with a number
-    def get_prolific_annotations(self, obj):
+    # toloka users will be defined as those where the agent starts with a number
+    def get_toloka_annotations(self, obj):
         # get all the classifications for this segmentation
         classifications = Classification.objects.filter(utterance__segmentation=obj)
-        # count the number of classifications from prolific users
-        prolific_annotations = 0
+        # count the number of classifications from toloka users
+        toloka_annotations = 0
         for classification in classifications:
             if classification.agent[0].isdigit():
-                prolific_annotations += 1
-        return prolific_annotations
+                toloka_annotations += 1
+        return toloka_annotations
     
-    # count the number of annotations from non-prolific users in this segmentation
-    # non-Prolific users are considered any agent that does not start with a number
+    # count the number of annotations from non-toloka users in this segmentation
+    # non-toloka users are considered any agent that does not start with a number
     # the function will return a dictionary with the number of annotations for each agent
     def get_other_annotations(self, obj):
         # get all the classifications for this segmentation
         classifications = Classification.objects.filter(utterance__segmentation=obj)
-        # count the number of classifications from non-prolific users
+        # count the number of classifications from non-toloka users
         other_annotations = {}
         for classification in classifications:
             if not classification.agent[0].isdigit():

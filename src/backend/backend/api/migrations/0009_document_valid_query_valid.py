@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("api", "0008_classification_prolific_session_and_more"),
+        ("api", "0008_classification_toloka_session_and_more"),
     ]
 
     operations = [

@@ -121,13 +121,13 @@ class AgentSession(models.Model):
     uuid = UUIDField("uuid", unique=True)
     segmentation = models.ForeignKey(Segmentation, on_delete=models.CASCADE)
     agent = models.CharField("agent", max_length=100)
-    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
-    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
+    toloka_study = models.CharField("Toloka study id", max_length=100, null=True)
+    toloka_session = models.CharField("Toloka session id", max_length=100, null=True)
     created = models.DateTimeField("created time")
     last_updated = models.DateTimeField("last updated time")
     survey = models.JSONField("user initial survey answers", null=True)
     diarization = models.JSONField("user diarization labels", null=True)
-    finished = models.BooleanField("annotation submitted to prolific", default=False)
+    finished = models.BooleanField("annotation submitted to toloka", default=False)
 
 class Classification(models.Model):
     """
@@ -139,8 +139,8 @@ class Classification(models.Model):
     category = models.CharField("category", max_length=255) # e.g. "Checkable", "Not Checkable"
     label = models.TextField("label", null=True) # e.g. "Predictions", "Cause and Effect" for "Checkworthiness" qualifier
     agent = models.CharField("agent", max_length=100)
-    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
-    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
+    toloka_study = models.CharField("Toloka study id", max_length=100, null=True)
+    toloka_session = models.CharField("Toloka session id", max_length=100, null=True)
 
 class Query(models.Model):
     """
@@ -152,8 +152,8 @@ class Query(models.Model):
     platform = models.CharField("platform", max_length=100, null=True)
     agent = models.CharField("agent", max_length=100)
     valid = models.BooleanField("valid", default=False)
-    prolific_study = models.CharField("Prolific study id", max_length=100, null=True)
-    prolific_session = models.CharField("Prolific session id", max_length=100, null=True)
+    toloka_study = models.CharField("Toloka study id", max_length=100, null=True)
+    toloka_session = models.CharField("Toloka session id", max_length=100, null=True)
 
 class Document(models.Model):
     """

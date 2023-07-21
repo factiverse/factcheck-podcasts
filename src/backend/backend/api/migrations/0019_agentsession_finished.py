@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="agentsession",
             name="finished",
             field=models.BooleanField(
-                default=False, verbose_name="annotation submitted to prolific"
+                default=False, verbose_name="annotation submitted to toloka"
             ),
         ),
     ]

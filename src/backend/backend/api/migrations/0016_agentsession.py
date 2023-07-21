@@ -38,19 +38,19 @@ class Migration(migrations.Migration):
                     models.CharField(max_length=100, verbose_name="agent"),
                 ),
                 (
-                    "prolific_study",
+                    "toloka_study",
                     models.CharField(
                         max_length=100,
                         null=True,
-                        verbose_name="Prolific study id",
+                        verbose_name="Toloka study id",
                     ),
                 ),
                 (
-                    "prolific_session",
+                    "toloka_session",
                     models.CharField(
                         max_length=100,
                         null=True,
-                        verbose_name="Prolific session id",
+                        verbose_name="Toloka session id",
                     ),
                 ),
                 ("created", models.DateTimeField(verbose_name="created time")),

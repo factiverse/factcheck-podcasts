@@ -111,15 +111,15 @@ class UtteranceApiView(APIView):
 # get segmentations of a transcript
 class SegmentationApiView(APIView):
     def get(self, request, *args, **kwargs):
-        agent = request.query_params.get('PROLIFIC_PID', None)
-        prolific_session = request.query_params.get('SESSION_ID', None)
-        prolific_study = request.query_params.get('STUDY_ID', None)
+        agent = request.query_params.get('ASSIGNMENT_ID', None)
+        toloka_session = request.query_params.get('SESSION_ID', None)
+        toloka_study = request.query_params.get('STUDY_ID', None)
         uuid = kwargs['uuid']
 
         if agent:
-            classification_prefetch = Prefetch('utterance_set__classification_set', queryset=Classification.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
-            query_prefetch = Prefetch('utterance_set__query_set', queryset=Query.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
-            session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(agent=agent, prolific_session=prolific_session, prolific_study=prolific_study))
+            classification_prefetch = Prefetch('utterance_set__classification_set', queryset=Classification.objects.filter(agent=agent, toloka_session=toloka_session, toloka_study=toloka_study))
+            query_prefetch = Prefetch('utterance_set__query_set', queryset=Query.objects.filter(agent=agent, toloka_session=toloka_session, toloka_study=toloka_study))
+            session_prefetch = Prefetch('agentsession_set', queryset=AgentSession.objects.filter(agent=agent, toloka_session=toloka_session, toloka_study=toloka_study))
             seg = Segmentation.objects.filter(uuid=uuid).prefetch_related(classification_prefetch, query_prefetch, session_prefetch).first()
         else:
             if (request.path_info.startswith('/api/segmentations/')):
@@ -133,7 +133,7 @@ class SegmentationApiView(APIView):
 
         serializer = SegmentationSerializer(seg)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         transcript = Transcription.objects.filter(uuid=request.data['uuid']).first()
         serializer = SegmentationSerializer(data={
@@ -149,6 +149,7 @@ class SegmentationApiView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # post classifications from the annotation interface
 class ClassificationApiView(APIView):
 
@@ -159,19 +160,19 @@ class ClassificationApiView(APIView):
         agent = request.data["agent"]  # get the agent from the query string
         if agent:
             # delete old entry for user
-            Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID")).delete()
+            Classification.objects.filter(utterance=utterance, qualifier=request.data['qualifier'], agent=agent["ASSIGNMENT_ID"], toloka_study=agent.get("STUDY_ID"), toloka_session=agent.get("SESSION_ID")).delete()
             # return after having deleted the old entry if no new classification
             if len(request.data['category']) == 0 and len(request.data['label']) == 0:
                 return Response(status=status.HTTP_200_OK)
-            
+
             serializer = ClassificationSerializer(data={
                 'utterance': utterance.id,
                 'qualifier': request.data['qualifier'],
                 'category': request.data['category'],
                 'label': request.data['label'] if len(request.data['label']) > 0 else None,
-                'agent': agent["PROLIFIC_PID"], 
-                'prolific_study': agent.get("STUDY_ID"), 
-                'prolific_session': agent.get("SESSION_ID")
+                'agent': agent["ASSIGNMENT_ID"], 
+                'toloka_study': agent.get("STUDY_ID"), 
+                'toloka_session': agent.get("SESSION_ID")
             })
             if serializer.is_valid():
                 serializer.save()
@@ -180,29 +181,29 @@ class ClassificationApiView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+
     def get(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
         agent = request.query_params  # get the agent from the query string
         if agent:
-            classifications = Classification.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID"))
+            classifications = Classification.objects.filter(utterance=utterance, agent=agent["ASSIGNMENT_ID"], toloka_study=agent.get("STUDY_ID"), toloka_session=agent.get("SESSION_ID"))
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ClassificationSerializer(classifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
+
 # post queries and documents from the annotation interface
 # get a list of queries (and documents) for a given utterance for annotation interface
 class QueryApiView(APIView):
-    
+
     def post(self, request, *args, **kwargs):
         utterance = Utterance.objects.filter(uuid=kwargs['uuid']).first()
         agent = request.data["agent"]
         if agent:
             # delete old entry for user
-            Query.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID")).delete()
+            Query.objects.filter(utterance=utterance, agent=agent["ASSIGNMENT_ID"], toloka_study=agent.get("STUDY_ID"), toloka_session=agent.get("SESSION_ID")).delete()
             # return after having deleted the old entry if no new query
             if len(request.data) == 0:
                 return Response(status=status.HTTP_200_OK)
@@ -219,13 +220,13 @@ class QueryApiView(APIView):
 
                 serializer = QuerySerializer(data={
                     'utterance': utterance.id,
-                    'agent': agent['PROLIFIC_PID'],
+                    'agent': agent['ASSIGNMENT_ID'],
                     'query': query_data['query'],
                     'platform': query_data.get('platform', None),
                     'document_set': document_set_data,  # Pass the raw document_set data to the QuerySerializer
                     'valid': query_data.get('valid', False),
-                    'prolific_study': agent.get("STUDY_ID"), 
-                    'prolific_session': agent.get("SESSION_ID")
+                    'toloka_study': agent.get("STUDY_ID"), 
+                    'toloka_session': agent.get("SESSION_ID")
                 })
 
                 if serializer.is_valid():
@@ -243,7 +244,7 @@ class QueryApiView(APIView):
 
         agent = request.query_params  # get the agent from the query string
         if agent:
-            queries = Query.objects.filter(utterance=utterance, agent=agent["PROLIFIC_PID"], prolific_study=agent.get("STUDY_ID"), prolific_session=agent.get("SESSION_ID"))
+            queries = Query.objects.filter(utterance=utterance, agent=agent["ASSIGNMENT_ID"], toloka_study=agent.get("STUDY_ID"), toloka_session=agent.get("SESSION_ID"))
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -255,7 +256,7 @@ class AgentSessionView(APIView):
         
         seg = Segmentation.objects.filter(uuid=kwargs['uuid']).first()
         # check for existing session
-        session = AgentSession.objects.filter(segmentation_id=seg.id, agent=request.data["agent"], prolific_study=request.data.get("prolific_study"), prolific_session=request.data.get("prolific_session")).first()
+        session = AgentSession.objects.filter(segmentation_id=seg.id, agent=request.data["agent"], toloka_study=request.data.get("toloka_study"), toloka_session=request.data.get("toloka_session")).first()
         if session:
             session.last_updated = timezone.now()
             session.survey = request.data.get("survey", None)
@@ -267,8 +268,8 @@ class AgentSessionView(APIView):
         else:
             serializer = AgentSessionSerializer(data={
                 'agent': request.data["agent"],
-                'prolific_study': request.data.get("prolific_study"),
-                'prolific_session': request.data.get("prolific_session"),
+                'toloka_study': request.data.get("toloka_study"),
+                'toloka_session': request.data.get("toloka_session"),
                 'created': timezone.now(),
                 'last_updated': timezone.now(),
                 'survey': request.data.get("survey", None),

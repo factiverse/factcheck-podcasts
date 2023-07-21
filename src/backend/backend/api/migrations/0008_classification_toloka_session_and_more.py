@@ -12,30 +12,30 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="classification",
-            name="prolific_session",
+            name="toloka_session",
             field=models.CharField(
-                max_length=100, null=True, verbose_name="Prolific session id"
+                max_length=100, null=True, verbose_name="Toloka session id"
             ),
         ),
         migrations.AddField(
             model_name="classification",
-            name="prolific_study",
+            name="toloka_study",
             field=models.CharField(
-                max_length=100, null=True, verbose_name="Prolific study id"
+                max_length=100, null=True, verbose_name="Toloka study id"
             ),
         ),
         migrations.AddField(
             model_name="query",
-            name="prolific_session",
+            name="toloka_session",
             field=models.CharField(
-                max_length=100, null=True, verbose_name="Prolific session id"
+                max_length=100, null=True, verbose_name="Toloka session id"
             ),
         ),
         migrations.AddField(
             model_name="query",
-            name="prolific_study",
+            name="toloka_study",
             field=models.CharField(
-                max_length=100, null=True, verbose_name="Prolific study id"
+                max_length=100, null=True, verbose_name="Toloka study id"
             ),
         ),
         migrations.AlterField(
