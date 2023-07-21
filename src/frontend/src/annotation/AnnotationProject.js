@@ -510,7 +510,6 @@ only work after changes have been made to the text in EDIT mode.");
   let result
   if (indexOfQuestionMark !== -1) {
     result = inputString.substring(indexOfQuestionMark + 14);
-    console.log(result);
   } else {
     result = "demo"
   }
