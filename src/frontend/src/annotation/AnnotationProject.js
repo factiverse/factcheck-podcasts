@@ -505,11 +505,9 @@ only work after changes have been made to the text in EDIT mode.");
     ];
   };
 
-  const inputString = window.location.href;
-  const indexOfQuestionMark = inputString.indexOf("?");
-  let toloka_id = "demo"
-  if (indexOfQuestionMark !== -1) {
-    toloka_id = inputString.substring(indexOfQuestionMark + 14);
+  let result = "demo";
+  if (searchParams.get("ASSIGNMENT_ID")) {
+    result = searchParams.get("ASSIGNMENT_ID");
   }
   console.log(toloka_id)
 
@@ -518,7 +516,7 @@ only work after changes have been made to the text in EDIT mode.");
 
       {/*!agent && <UserModal setAgent={setAgent} />*/}
 
-      {!agent && setAgent({ PROLIFIC_PID: toloka_id })}
+      {!agent && setAgent({ ASSIGNMENT_ID: result })}
 
       <Container fluid className="text-center">
 
