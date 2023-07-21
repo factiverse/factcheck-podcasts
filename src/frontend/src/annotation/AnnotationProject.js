@@ -507,17 +507,18 @@ only work after changes have been made to the text in EDIT mode.");
 
   const inputString = window.location.href;
   const indexOfQuestionMark = inputString.indexOf("?");
-  let result = "demo"
+  let toloka_id = "demo"
   if (indexOfQuestionMark !== -1) {
-    result = inputString.substring(indexOfQuestionMark + 14);
+    toloka_id = inputString.substring(indexOfQuestionMark + 14);
   }
+  console.log(toloka_id)
 
   return (
     <div {...handlers}>
 
       {/*!agent && <UserModal setAgent={setAgent} />*/}
 
-      {!agent && setAgent({ PROLIFIC_PID: result })}
+      {!agent && setAgent({ PROLIFIC_PID: toloka_id })}
 
       <Container fluid className="text-center">
 
