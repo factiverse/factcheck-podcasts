@@ -41,7 +41,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
       }
     }
 
-  }, [segmentation]);
+  }, [segmentation, qualifiers]);
 
   // set the intial value of the political survey question to the value in the agentSession
   useEffect(() => {
@@ -182,7 +182,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
             <h4 className='pt-2'>Podcast Details</h4>
             <p><strong>Podcast Name :</strong> {segmentation.channel.title}</p>
             <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize("<strong>Podcast Description :</strong> " + segmentation.channel.description) }} />
-            {segmentation.channel.summary != segmentation.channel.description ?
+            {segmentation.channel.summary !== segmentation.channel.description ?
               <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize("<strong>Podcast Summary :</strong> " + segmentation.channel.summary) }} /> : null
             }
 
@@ -190,7 +190,7 @@ export default function WelcomeModal({ show, handleClose, segmentation, agentSes
 
             <p><strong>Episode Name :</strong> {segmentation.item.title}</p>
             {segmentation.item.description && <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize("<strong>Episode Description :</strong> " + segmentation.item.description) }} />}
-            {segmentation.item.summary != segmentation.item.description ?
+            {segmentation.item.summary !== segmentation.item.description ?
               <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize("<strong>Episode Summary :</strong> " + segmentation.item.summary) }} /> : null
             }
             <p><strong>Episode Link :</strong> <a href={segmentation.item.link} target='_blank' rel='noopener noreferrer'>{segmentation.item.link}</a></p>

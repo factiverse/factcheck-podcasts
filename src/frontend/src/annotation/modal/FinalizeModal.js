@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { finalModalData } from '../help/help';
 
-// SHOWN TO USERS AFTER THEIR SUBMISSION PASSES VALIDATION IN JS, SUMBIT AND RETURN TO PROLIFIC
+// SHOWN TO USERS AFTER THEIR SUBMISSION PASSES VALIDATION IN JS, SUMBIT AND RETURN TO TOLOKA
 
 export default function FinalizeModal({ show, handleClose, agentSession, setAgentSession, agentSessionUpdated, setAgentSessionUpdated, attentionCheckIndices }) {
 

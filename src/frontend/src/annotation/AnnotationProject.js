@@ -95,9 +95,9 @@ export default function AnnotationProject() {
 
       const data = {
         uuid: segmentationUuid,
-        agent: agent.PROLIFIC_PID,
-        prolific_session: agent.SESSION_ID,
-        prolific_study: agent.STUDY_ID,
+        agent: agent.ASSIGNMENT_ID,
+        toloka_session: agent.SESSION_ID,
+        toloka_study: agent.STUDY_ID,
         diarization: labelsObject,
         survey: existingSession?.survey,
         finished: existingSession?.finished ?? false,
@@ -305,7 +305,7 @@ only work after changes have been made to the text in EDIT mode.");
     if (agent) {
       axios({
         method: "GET",
-        url: `/api/segmentations/${segmentationUuid}?PROLIFIC_PID=${agent.PROLIFIC_PID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
+        url: `/api/segmentations/${segmentationUuid}?ASSIGNMENT_ID=${agent.ASSIGNMENT_ID}${agent.STUDY_ID ? `&STUDY_ID=${agent.STUDY_ID}` : ''}${agent.SESSION_ID ? `&SESSION_ID=${agent.SESSION_ID}` : ''}`,
       }).then((response) => {
         const data = response.data;
         setSegmentationUnfiltered(data);
@@ -366,8 +366,8 @@ only work after changes have been made to the text in EDIT mode.");
       setSearchParams(agent)
     } else {
       let agent = {};
-      if (searchParams.get("PROLIFIC_PID")) {
-        agent["PROLIFIC_PID"] = searchParams.get("PROLIFIC_PID");
+      if (searchParams.get("ASSIGNMENT_ID")) {
+        agent["ASSIGNMENT_ID"] = searchParams.get("ASSIGNMENT_ID");
       }
       if (searchParams.get("STUDY_ID")) {
         agent["STUDY_ID"] = searchParams.get("STUDY_ID");

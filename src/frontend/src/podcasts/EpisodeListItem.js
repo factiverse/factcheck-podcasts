@@ -8,13 +8,13 @@ export default function EpisodeListItem({ item, channel, setChan, setItem, curre
     setChan(channel);
     setItem(item);
   }
-  // get the sum of all prolific annotations for this item, 
-  // for every transcription loop through the segments and add up the prolific_annotations
-  let prolific_annotations = 0;
+  // get the sum of all toloka annotations for this item, 
+  // for every transcription loop through the segments and add up the toloka_annotations
+  let toloka_annotations = 0;
   if (item.transcription_set) {
     for (const transcription of item.transcription_set) {
       for (const segment of transcription.segmentation_set) {
-        prolific_annotations += segment.prolific_annotations;
+        toloka_annotations += segment.toloka_annotations;
       }
     }
   }
@@ -56,7 +56,7 @@ export default function EpisodeListItem({ item, channel, setChan, setItem, curre
             bg={"danger"}>
             {other_annotations > 0 ? other_annotations : ''}
           </Badge>
-          {prolific_annotations > 0 ?
+          {toloka_annotations > 0 ?
             <Badge
               pill
               className='p-0 px-1 me-1'
@@ -64,7 +64,7 @@ export default function EpisodeListItem({ item, channel, setChan, setItem, curre
               text='dark'
               style={{ opacity: "50%" }}
             >
-              {prolific_annotations}
+              {toloka_annotations}
             </Badge> : ''}
           <Badge
             pill

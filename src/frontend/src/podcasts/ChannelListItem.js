@@ -8,14 +8,14 @@ export default function ChannelListItem({ channel, setChan, setItem, currentEpis
     let lang = channel.language.substring(0, 2);
     lang = lang == 'nb' ? 'no' : lang;
 
-    // get the sum of all prolific annotations for this channel, loop through channel.audioitem_set 
-    // for each transcription in audioitem.transcription_set loop through the segments and add up the prolific_annotations
-    let prolific_annotations = 0;
+    // get the sum of all toloka annotations for this channel, loop through channel.audioitem_set 
+    // for each transcription in audioitem.transcription_set loop through the segments and add up the toloka_annotations
+    let toloka_annotations = 0;
     for (const item of channel.audioitem_set) {
         if (item.transcription_set) {
             for (const transcription of item.transcription_set) {
                 for (const segment of transcription.segmentation_set) {
-                    prolific_annotations += segment.prolific_annotations;
+                    toloka_annotations += segment.toloka_annotations;
                 }
             }
         }
@@ -86,7 +86,7 @@ export default function ChannelListItem({ channel, setChan, setItem, currentEpis
                         style={{opacity: "50%"}}
                         text='dark'
                         bg={"warning"}>
-                        {prolific_annotations > 0 ? 'Prolific:' + prolific_annotations : ''}
+                        {toloka_annotations > 0 ? 'Toloka:' + toloka_annotations : ''}
                     </Badge>
                     <Badge
                         pill

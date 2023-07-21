@@ -112,7 +112,7 @@ export default function TranscriptionCard({ transcription, hideTranscriptionButt
                                             target="_blank"
                                             to={{ pathname: '/segmentations/' + seg.uuid, search: queryParams.toString() }}
                                         >
-                                            Segmentation {seg.prolific_annotations > 0 ? <Badge pill className='p-0 px-1 m-0' bg='warning' text='dark'>Prolific: {seg.prolific_annotations}</Badge> : ''}
+                                            Segmentation {seg.toloka_annotations > 0 ? <Badge pill className='p-0 px-1 m-0' bg='warning' text='dark'>Toloka: {seg.toloka_annotations}</Badge> : ''}
                                         </Button>
                                         <Button
                                             as={Link}

@@ -15,7 +15,7 @@ export default function UserModal({ setAgent }) {
   
   const handleSaveChanges = () => {
     if (inputValue) {
-      setAgent({PROLIFIC_PID: inputValue});
+      setAgent({ASSIGNMENT_ID: inputValue});
       setLoggedIn(true);
       setShow(false);
     }
