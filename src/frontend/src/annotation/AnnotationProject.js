@@ -507,11 +507,9 @@ only work after changes have been made to the text in EDIT mode.");
 
   const inputString = window.location.href;
   const indexOfQuestionMark = inputString.indexOf("?");
-  let result
+  let result = "demo"
   if (indexOfQuestionMark !== -1) {
     result = inputString.substring(indexOfQuestionMark + 14);
-  } else {
-    result = "demo"
   }
 
   return (
