@@ -15,7 +15,7 @@ export default function FinishedModal({ show }) {
         <Modal.Title>Thank you for your contribution!</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>Put this code in toloka: AS24DNS</p>
+        <p>Put this code in toloka: 63241816453</p>
       </Modal.Body>
     </Modal>
   );
