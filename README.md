@@ -1,7 +1,13 @@
-# This is a template repository for python projects
+# Facthcecking podcasts 
 
-To get started: 
-1. Create an environment with python 3.8
-2. Adapted the tests and marker. In `pytest.ini` you find a dummy marker as 
-    example along with a dummy test case using it in `test/test_dummy.py`
-Follow the instructions here to setup the repository https://github.com/factiverse/factiverse-wiki/wiki/Python-style-guide
+## To run the server 
+
+* Clone this repository
+    -  `git clone https://github.com/factiverse/factcheck-podcasts`
+* Run docker
+    - `cd src`
+    - `docker-compose up -d`
+
+ ## Frontend
+
+ ## Backend
