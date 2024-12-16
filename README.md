@@ -16,4 +16,19 @@ docker-compose up -d
 
  ## Frontend
 
- ## Backend
+To run the frontend, follow these steps:
+
+1. Navigate to the `src/frontend` directory:
+    ```bash
+    cd src/frontend
+    ```
+2. Install the dependencies:
+    ```bash
+    npm install
+    ```
+3. Start the development server:
+    ```bash
+    npm start
+    ```
+
+## Backend
