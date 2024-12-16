@@ -1,4 +1,6 @@
 
 [tool.black]
 line-length = 80
+# Target Python version for formatting
+# You can add more versions if needed
 target-version = ['py38']
