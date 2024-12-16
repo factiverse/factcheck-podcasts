@@ -1,12 +1,18 @@
-# Facthcecking podcasts 
+# Factchecking Podcasts 
 
 ## To run the server 
 
 * Clone this repository
-    -  `git clone https://github.com/factiverse/factcheck-podcasts`
+    -  ```bash
+git clone https://github.com/factiverse/factcheck-podcasts
+```
 * Run docker
-    - `cd src`
-    - `docker-compose up -d`
+    - ```bash
+cd src
+```
+    - ```bash
+docker-compose up -d
+```
 
  ## Frontend
 
