@@ -1,4 +1,8 @@
-# dependencies for pre-commit hooks
-pre-commit>=2.17.0 
+# Dependencies for pre-commit hooks
+pre-commit>=2.17.0
+
+# Testing framework
 pytest>=6.2.5
-mypy>=0.931 
+
+# Static type checker
+mypy>=0.931
