@@ -4,15 +4,15 @@
 
 * Clone this repository
     -  ```bash
-git clone https://github.com/factiverse/factcheck-podcasts
-```
+            git clone https://github.com/factiverse/factcheck-podcasts
+       ```
 * Run docker
     - ```bash
-cd src
-```
+        cd src
+      ```
     - ```bash
-docker-compose up -d
-```
+        docker-compose up -d
+      ```
 
  ## Frontend
 
