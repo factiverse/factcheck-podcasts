@@ -31,4 +31,6 @@ To run the frontend, follow these steps:
     npm start
     ```
 
+## Annotated data
+    
 ## Backend
