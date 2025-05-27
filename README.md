@@ -46,8 +46,8 @@ If you are using this tool or dataset, please cite this paper.
   author       = {Setty, Vinay and Becker, Adam James},
   booktitle    = {Companion Proceedings of the ACM on Web Conference 2025},
   year         = {2025},
-  pages = {789–792},
-  series = {WWW Companion ’25}
+  pages        = {789–792},
+  series       = {WWW Companion ’25}
   doi          = {10.1145/3701716.3715312}
 }
 ```
