@@ -44,8 +44,10 @@ If you are using this tool or dataset, please cite this paper.
 @inproceedings{Setty:2025:WWW,
   title        = {Annotation Tool and Dataset for Fact-Checking Podcasts},
   author       = {Setty, Vinay and Becker, Adam James},
-  booktitle    = {Companion Proceedings of the ACM Web Conference 2025 (WWW Companion ’25)},
+  booktitle    = {Companion Proceedings of the ACM on Web Conference 2025},
   year         = {2025},
+  pages = {789–792},
+  series = {WWW Companion ’25}
   doi          = {10.1145/3701716.3715312}
 }
 ```
