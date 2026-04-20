@@ -35,6 +35,8 @@ To run the frontend, follow these steps:
 
 Dataset use in this paper can be found under `data` folder
 
+For the raw podcast data please fill this [form](https://forms.gle/B4Jw8wd7xXt1emPZ7)
+
     
 ## Reference
 
